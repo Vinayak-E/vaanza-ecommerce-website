@@ -1,0 +1,166 @@
+<%- include('../layout/header.ejs') -%>
+
+</head>
+<body>
+    <div class="page-wrapper">
+        <header class="header">
+           
+            <div class="header-middle sticky-header">
+                <div class="container">
+                    <div class="header-left">
+                      
+
+                        <a href="index.html" class="logo">
+                            <img src="assets/images/logo.png" alt="Molla Logo" width="105" height="25">
+                        </a>
+
+                        <nav class="main-nav">
+                            <ul class="menu">
+                                <li class="megamenu-container ">
+                                    <a href="#">Home</a>
+                                </li>
+                                <li>
+                                    <a href="#">MEN</a>
+                                </li>
+                                <li>
+                                    <a href="#">WOMEN</a>
+                                </li>
+                                <li>
+                                    <a href="#">CONTACT</a>
+                                </li>
+                                <li>
+                                    <a href="#">ABOUT US</a>
+                                </li>
+                            
+                                </li>
+                            </ul><!-- End .menu -->
+                        </nav><!-- End .main-nav -->
+                    </div><!-- End .header-left -->
+
+                   
+        </header><!-- End .header -->
+
+        <main class="main">
+            <nav aria-label="breadcrumb" class="breadcrumb-nav border-0 mb-0">
+                <div class="container">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        
+                        <li class="breadcrumb-item active" aria-current="page">Login</li>
+                    </ol>
+                </div><!-- End .container -->
+            </nav><!-- End .breadcrumb-nav -->
+
+            <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('assets/images/backgrounds/login-bg.jpg')">
+            	<div class="container">
+            		<div class="form-box">
+            			<div class="form-tab">
+	            			<h3>LOGIN</h3>
+							<div class="tab-content">
+							   
+							  
+                                      
+
+							    	<form action="/login" method="post">
+                                        <% if (messages.error) { %>
+                                            <div class="alert alert-danger d-flex align-items-center  " role="alert" id="error-alert">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2 " viewBox="0 0 16 16" role="img" aria-label="Warning:">
+                                                  <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                                                </svg>
+                                                <div >
+                                                    <strong>Hey !</strong>
+                                                  <%=  messages.error %>
+                                                </div>
+                                              </div>
+                                              
+                                            
+                                        <% } %> 
+                                        <% if(messages.success){%>
+                                          <div class="alert alert-success text-center" id="success-alert" > <%=  messages.success %></div>
+                                         
+                                      <% } %>
+                                        
+							    		<div class="form-group">
+							    			<label for="email">Email Address</label>
+							    			<input type="email" class="form-control" id="email" name="email" required>
+							    		</div><!-- End .form-group -->
+
+                                        <div class="form-group">
+                                            <label for="password">Password *</label>
+                                            <div class="password-input-container">
+                                                <input type="password" class="form-control" id="password" name="password" required>
+                                                <span class="password-toggle" onclick="togglePasswordVisibility('password')">
+                                                    <i id="passwordToggleIcon" class="fa fa-eye-slash"></i>
+                                                </span>
+                                            </div>
+                                            <div class="error-message" id="passwordError"></div>
+                                        </div><!-- End .form-group -->
+                                       
+
+							    		<div class="form-footer">
+							    			<button type="submit" class="btn btn-outline-primary-2">
+			                					<span>LOGIN</span>
+			            						<i class="icon-long-arrow-right"></i>
+			                				</button>
+
+			                				
+                                            <a href="/forgetpass" class="text-muted small  ">Forgot your password?</a>
+												
+											
+							    		</div><!-- End .form-footer -->
+                                        <label class="custom-control-label" for="already have an account">New customer?  <a href="/register"   class="login-p text-primary">Sign up for an account </a></label>
+
+							    	</form>
+							    	<div class="form-choice mt-2">
+								    	<p class="text-center">or sign in with</p>
+                                        <div class="row justify-content-center">
+								    		<div class=" text-center"></div>
+								    			<a href="/auth/google" class="btn btn-login btn-g ">
+								    				<i class="icon-google "></i>
+								    				Login With Google
+								    			</a>
+								    		</div><!-- End .col-6 -->
+								    		
+								    	</div><!-- End .row -->
+							    	</div><!-- End .form-choice -->
+							    </div><!-- .End .tab-pane -->
+							</div><!-- End .tab-content -->
+						</div><!-- End .form-tab -->
+            		</div><!-- End .form-box -->
+            	</div><!-- End .container -->
+            </div><!-- End .login-page section-bg -->
+        </main><!-- End .main -->
+
+  
+   
+
+    <!-- Plugins JS File -->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/jquery.hoverIntent.min.js"></script>
+    <script src="assets/js/jquery.waypoints.min.js"></script>
+    <script src="assets/js/superfish.min.js"></script>
+    <script src="assets/js/owl.carousel.min.js"></script>
+    <!-- Main JS File -->
+    <script src="assets/js/main.js"></script>
+    <script>
+        function togglePasswordVisibility(inputId) {
+        const passwordInput = document.getElementById(inputId);
+        const passwordToggleIcon = document.getElementById(inputId + 'ToggleIcon');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            passwordToggleIcon.classList.remove('fa-eye-slash');
+            passwordToggleIcon.classList.add('fa-eye');
+        } else {
+            passwordInput.type = 'password';
+            passwordToggleIcon.classList.remove('fa-eye');
+            passwordToggleIcon.classList.add('fa-eye-slash');
+        }
+    };
+    </script>
+</body>
+
+
+
+<%- include('../layout/footer.ejs') -%>

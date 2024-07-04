@@ -1,0 +1,151 @@
+<%- include('../layout/admin/adminHeader.ejs') -%>
+
+<body>
+
+  
+    <!-- ?PROD Only: Google Tag Manager (noscript) (Default ThemeSelection: GTM-5DDHKGP, PixInvent: GTM-5J3LMKC) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDHKGP" height="0" width="0" style="display: none; visibility: hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <!-- Layout wrapper -->
+
+
+
+
+  <div class="layout-wrapper layout-content-navbar  ">
+    <div class="layout-container">
+  
+      
+      
+        <%- include('../layout/admin/navbar.ejs') -%>
+
+
+
+
+
+
+        <section class="content-main" >
+   
+            <div class="content-header">
+                
+                <div><h1 class="fw-bold fs-3 mb-2">Products  (<%= products.length %>)</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                          <li class="breadcrumb-item"><a href="/admin/home">Admin</a></li>
+                        
+                          <li class="breadcrumb-item active" aria-current="page">categories</li>
+                        </ol>
+                    </nav>
+                    <p class="m-0 text-muted small">Add,edit or list products</p>        
+                    <p class="m-0 text-muted small">Showing 1 - 9 </p>
+                   
+                </div>
+                <div>
+                    <a href="/admin/addProduct" class="btn btn-primary"><i class="material-icons md-plus"></i> Add product </a>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <header class="card-header">
+                    <div class="row gx-3">
+                        <div class="col-lg-4 col-md-6 me-auto">
+                            <input type="text" placeholder="Search..." class="form-control" id="searchInput" />
+                        </div>
+                    </div>
+                </header>
+
+        <div class="card-body">
+            <div class="table-responsive" id="reloadArea">
+                <table class="table table-hover" id="productTable" >
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Image</th>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Stock</th>
+                            <th>sizes</th>
+                            <th>Price</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (locals.products && locals.products.length > 0) { %>
+                            <% locals.products.map(function (product, index) { %>
+                                <tr>
+                                    <td><%= index + 1 %></td>
+                                    <td>
+                                        <img src="/assets/images/productImage/<%= product.images[0] %> " alt="Product Image" style="width: 50px; height: 50px;">
+                                    </td>
+                                    <td><%= product.name %></td>
+                                   
+                                    <td><%= product.category %></td>
+                                    <td><%= product.stockQuantity %></td>
+                                    
+                                    <td><%= product.sizes %></td>
+                                    <td><%= product.price %></td>
+                                    <td class="text-center " >
+                                        <a class="btn btn-sm btn-danger rounded font-sm mt-15 text-white"  data-user-id="<%= product._id  %>" data-initial-status="<%= product.is_Listed %>" onclick="block('<%= product._id %>')"  >
+                                            <%= product.is_Listed?"Unlist":"List"  %>
+                                            </a>
+                                        <a class="btn btn-sm btn-brand rounded font-sm mt-15" href="/admin/edit-product?id=<%= product._id %>" >Edit</a>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="7">No products available</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+                <!-- table-responsive.// -->
+            </div>
+        </div>
+    </div>
+            <ul class="pagination" id="paginationHi">
+                <% if (totalPages > 1) { %>
+            
+                  <% if (currentPage <= 1) { %>
+                    <li class="page-item"><a class="page-link" aria-disabled="true">Previous</a></li>
+                  <% } else { %>
+                    <li class="page-item"><a class="page-link" href="?page=<%= previous %>">Previous</a></li>
+                  <% } %>
+            
+                  <% for (let j = 1; j <= totalPages; j++) { %>
+                    <li class="page-item"><a class="page-link" href="?page=<%= j %>"><%= j %></a></li>
+                  <% } %>
+            
+                  <% if (currentPage < totalPages) { %>
+                    <li class="page-item"><a class="page-link" href="?page=<%= next %>">Next</a></li>
+                  <% } else { %>
+                  <% } %>
+                <% } else { %>
+                  <li class="page-item"><a class="page-link" aria-disabled="true">Previous</a></li>
+                  <li class="page-item"><a class="page-link" aria-disabled="true">1</a></li>
+                  <li class="page-item"><a class="page-link" aria-disabled="true">Next</a></li>
+                <% } %>
+              </ul>
+        <!-- card end// -->
+        
+        </section>
+
+                 <!-- / Content -->
+          
+                 <div class="content-backdrop fade"></div>
+                </div>
+                <!-- / Layout wrapper -->
+                
+                <!-- Overlay -->
+                <div class="layout-overlay layout-menu-toggle"></div>
+                
+                <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+                <div class="drag-target"></div>
+                
+                <!-- SweetAlert2 -->
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                
+                <!-- jQuery -->
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+             
+
+ <%- include('../layout/admin/adminFooter.ejs') -%>

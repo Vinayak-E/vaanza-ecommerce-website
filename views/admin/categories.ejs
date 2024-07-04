@@ -1,0 +1,186 @@
+<%- include('../layout/admin/adminHeader.ejs') -%>
+
+<body>
+
+  
+    <!-- ?PROD Only: Google Tag Manager (noscript) (Default ThemeSelection: GTM-5DDHKGP, PixInvent: GTM-5J3LMKC) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDHKGP" height="0" width="0" style="display: none; visibility: hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <!-- Layout wrapper -->
+  <div class="layout-wrapper layout-content-navbar  ">
+    <div class="layout-container">
+  <!-- Menu -->
+  <%- include('../layout/admin/navbar.ejs') -%>
+  <!-- / Menu -->
+  
+  <!-- / Navbar -->
+        
+  
+        <!-- Content wrapper -->
+        <div class="content-wrapper">
+            <!-- Content -->
+            <div class="container-xxl flex-grow-1 container-p-y">
+              <div>
+                <h1 class="fw-bold fs-3 mb-2">Category Management</h1>
+
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb"><a href="/admin/home">Home >></a></li>
+                      <li class="breadcrumb-item active" aria-current="page">Category Management</li>
+                    </ol>
+                  </nav>
+              </div>
+         
+              <div class="card mb-4">
+               
+              <!-- Users List Table -->
+                <div  id="reloadArea" class="card-datatable table-responsive">
+                  <table class="datatables-users table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>status</th>
+                        <th>Edit</th>
+                        <th class="text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        <% if(locals.categories) { %>
+                            <% categories.map(function(value) { %>
+                                <tr>
+                                    <td><%= value.name %></td>
+                                    <td width="30%"><%= value.description %></td>
+                                    <% if(value.is_listed === true ) { %>
+                                        <td><a class="btn btn-sm btn-success rounded font-sm mt-15">Listed</a></td>
+                                    <% } else { %>
+                                        <td><a class="btn btn-sm btn-warning rounded font-sm mt-15">Unlisted</a></td>
+                                    <% } %>
+                                    <td><a class="btn btn-sm btn-light rounded font-sm mt-15" href="/admin/edit-category?id=<%= value._id %>" >Edit</a></td>
+                                   
+                                    <td class="text-center">
+                                            <a class="btn btn-sm btn-danger rounded font-sm mt-15 text-white"  data-user-id="<%= value._id  %>" data-initial-status="<%= value.is_listed %>" onclick="block('<%= value._id %>')" >
+                                            <%= value.is_listed?"Unlist":"List"  %>
+                                            </a>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="5">No categories available</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+                </div>
+              </div>
+             <!-- card end// -->
+     <!-- card-body end// -->
+     <% if (messages.error) { %>
+        <div class="alert alert-danger d-flex align-items-center  " role="alert" id="error-alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2 " viewBox="0 0 16 16" role="img" aria-label="Warning:">
+              <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+            </svg>
+            <div >
+                <strong>Hey !</strong>
+              <%= messages.error %>
+            </div>
+          </div>
+    <% } %> 
+</div>
+    </div>
+      <!-- /// -->
+      
+            <!-- / Content -->
+          
+            <div class="content-backdrop fade"></div>
+          </div>
+          <!-- / Layout wrapper -->
+          
+          <!-- Overlay -->
+          <div class="layout-overlay layout-menu-toggle"></div>
+          
+          <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+          <div class="drag-target"></div>
+          
+          <!-- SweetAlert2 -->
+          <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+          
+          <!-- jQuery -->
+          <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+          
+        
+        <script>
+            function block(category) {
+                console.log("Blocking category:", category);
+                const data = { category: category };
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You want to list/unlist this category",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes!',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            method: 'POST',
+                            url: '/admin/list-unlist',
+                            data: JSON.stringify(data),
+                            contentType: 'application/json',
+                            success: function (res) {
+                                if (res.list === true) {
+                                    $('#reloadArea').load('/admin/categories #reloadArea', function() {
+                                        console.log("Category list updated");
+                                    });
+                                }
+                            },
+                            error: function (error) {
+                                console.error("Error:", error);
+                            }
+                        });
+                    }
+                });
+            }
+
+            function confirm(user) {
+                const data = { user: user };
+                console.log("Deleting user:", user);
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!',
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        $.ajax({
+                            method: 'POST',
+                            url: '/admin/delete-category',
+                            data: JSON.stringify(data),
+                            contentType: 'application/json',
+                            success: function (res) {
+                                if (res.list === true) {
+                                    $('#reloadArea').load('/admin/categories #reloadArea', function() {
+                                        console.log("User list updated");
+                                    });
+                                }
+                            },
+                            error: function (error) {
+                                console.error("Error:", error);
+                            }
+                        });
+                    }
+                });
+            }
+
+        </script>
+
+          
+<%- include('../layout/admin/adminFooter.ejs') -%>

@@ -1,0 +1,1 @@
+html,body{background:#fff !important}body>:not(.invoice-print){display:none !important}.invoice-print{min-width:768px !important;font-size:15px !important}.invoice-print svg{fill:#6d6777 !important}.invoice-print *{color:#6d6777 !important}.invoice-print * .border-top{border-top:1px solid rgba(46,38,61,.5) !important}.dark-style .invoice-print th{color:#fff !important}

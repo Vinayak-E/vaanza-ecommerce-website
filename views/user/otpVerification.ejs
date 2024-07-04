@@ -1,0 +1,199 @@
+<%- include('../layout/header.ejs') -%>
+</head>
+
+<div class="d-flex justify-content-center align-items-center container otpcard">
+    <div class="card py-5 px-3">
+        <% if (messages.error && messages.error.length > 0) { %>
+          <div class="alert alert-danger d-flex align-items-center" role="alert" id="existAlert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+              <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+            </svg>
+            <div>
+              <strong>Hey!</strong> <%= messages.error[0] %>
+            </div>
+          </div>
+        <% } %>
+    
+        <form id="verificationForm" method="post" action="/otp">
+            <% if(locals.email) { %>
+                <input type="hidden" name="email" value="<%= email %>">
+                <% } %>
+            <h5 class="m-0">E-mail verification</h5>
+            <span class="mobile-text">Enter the code we just sent to your Email <b class="text-danger"><%= locals.email %></b></span>
+            <div class="d-flex flex-row justify-content-center mt-5 otp-inputs">
+                <input type="text" class="form-control otp-digit" id="digit1" name="digit1" maxlength="1" autofocus required>
+                <input type="text" class="form-control otp-digit" id="digit2" name="digit2" maxlength="1" required>
+                <input type="text" class="form-control otp-digit" id="digit3" name="digit3" maxlength="1" required>
+                <input type="text" class="form-control otp-digit" id="digit4" name="digit4" maxlength="1" required>
+            </div>
+            <button type="submit" class="btn btn-dark d-block w-100 my-4">Submit</button>
+        </form>
+
+        <span class="time text-center"></span>
+        <div class="text-center">
+            <span class="d-block mobile-text">Didn't receive the code?</span>
+            <span class="font-weight-bold text-danger cursor"><a id="resend" href="#" class="disabled" disabled>Resend</a></span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .otpcard {
+        margin-top: -7rem;
+        margin-bottom: -4rem;
+    }
+    .card {
+        width: 350px;
+        padding: 10px;
+        border-radius: 20px;
+        background: #fff;
+        border: none;
+        height: 350px;
+        position: relative;
+    }
+    .container {
+        height: 100vh;
+    }
+    .mobile-text {
+        color: #989696b8;
+        font-size: 15px;
+    }
+    .form-control {
+        margin-right: 12px;
+    }
+    .form-control:focus {
+        color: #495057;
+        background-color: #fff;
+        border-color: #ff8880;
+        outline: 0;
+        box-shadow: none;
+    }
+    .cursor {
+        cursor: pointer;
+    }
+    .time {
+        font-size: 1rem;
+        font-weight: bold;
+        color: #333;
+    }
+    .disabled {
+        pointer-events: none;
+        opacity: 0.6;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const inputs = document.querySelectorAll('.otp-digit');
+        inputs.forEach((input, index) => {
+            input.addEventListener('keyup', (e) => {
+                if (e.key >= '0' && e.key <= '9') {
+                    if (index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                } else if (e.key === 'Backspace') {
+                    if (index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                }
+            });
+        });
+    });
+
+    function validate() {
+        let fields = document.querySelectorAll(".form-control");
+        let isValid = true;
+
+        fields.forEach(function (field) {
+            if (field.value.trim() === "" || field.value.length > 1) {
+                field.style.border = 'solid 1px red';
+                setTimeout(function () {
+                    field.style.border = '';
+                }, 3000);
+                isValid = false;
+            }
+        });
+
+        return isValid;
+    }
+
+    let countdownInterval;
+    const resendButton = document.getElementById("resend");
+
+    function startCountdown(initialValue) {
+    let n;
+    // Check if there is a countdown value stored in localStorage
+    if (localStorage.getItem('countdownValue')  && localStorage.getItem('countdownValue') >= 0) {
+        n = parseInt(localStorage.getItem('countdownValue'), 10);
+    } else {
+        n = initialValue;
+    }
+
+    resendButton.disabled = true;
+    resendButton.classList.add('disabled'); // Add disabled class
+
+    const countdownInterval = setInterval(() => {
+        if (n === 0) {
+            clearInterval(countdownInterval);
+            resendButton.disabled = false;
+            resendButton.classList.remove('disabled'); // Remove disabled class
+        }
+        document.querySelector('.time').innerHTML = n;
+        n = n - 1;
+        // Store the current countdown value in localStorage
+        localStorage.setItem('countdownValue', n.toString());
+    }, 1000);
+
+    // Clear localStorage when countdown ends
+    setTimeout(() => {
+        localStorage.removeItem('countdownValue');
+    }, (initialValue + 1) * 1000); // Adjust the timeout to clear localStorage after countdown ends
+}
+
+    function resend() {
+        resendButton.style.color = 'green';
+        setTimeout(() => {
+            resendButton.style.color = '';
+        }, 1000);
+
+        clearInterval(countdownInterval); 
+        startCountdown(30); 
+
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const email = urlParams.get("email");
+            const postUrl = "/resend" + (email ? `?email=${encodeURIComponent(email)}` : "");
+
+            fetch(postUrl, {
+                method: "POST"
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log("Resend request successful");
+                } else {    
+                    console.error("Resend request failed");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        } catch (error) {
+            console.error("Error:", error);
+        }
+
+        resendButton.disabled = true; // Disable the button immediately after clicking
+        resendButton.classList.add('disabled'); // Add disabled class
+    }
+
+    startCountdown(30); // Start the countdown
+
+    resendButton.onclick = function (event) {
+        event.preventDefault(); // Prevent the default link behavior
+        if (!resendButton.classList.contains('disabled')) {
+            resend();
+        }
+    };
+</script>
+
+
+
+<%- include('../layout/footer.ejs') -%>

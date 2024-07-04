@@ -1,0 +1,403 @@
+<%- include('../layout/admin/adminHeader.ejs') -%>
+<body>
+
+  
+    <!-- ?PROD Only: Google Tag Manager (noscript) (Default ThemeSelection: GTM-5DDHKGP, PixInvent: GTM-5J3LMKC) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDHKGP" height="0" width="0" style="display: none; visibility: hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <!-- Layout wrapper -->
+
+
+
+
+  <div class="layout-wrapper layout-content-navbar  ">
+    <div class="layout-container">
+  
+      
+
+      <%- include('../layout/admin/navbar.ejs') -%>
+  
+        <!-- Content wrapper -->
+        <div class="content-wrapper">
+  
+          <!-- Content -->
+          
+            <div class="container-xxl flex-grow-1 container-p-y">
+              
+              
+  <div class="row gy-6">
+   
+    <!-- Cards with icon profit and loss info -->
+    <div class="col-xl-4 col-lg-5">
+      <div class="row g-6">
+        <div class="col-sm-6">
+          <div class="card h-100">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <div class="avatar">
+                <div class="avatar-initial bg-success rounded-circle shadow-xs">
+                  <i class="ri-money-dollar-circle-line ri-24px"></i>
+                </div>
+              </div>
+              <div class="dropdown">
+                <button class="btn text-muted p-0" type="button" id="revenueID" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="ri-more-2-line ri-24px"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="revenueID">
+                  <a class="dropdown-item" href="javascript:void(0);">Refresh</a>
+                  <a class="dropdown-item" href="javascript:void(0);">Share</a>
+                  <a class="dropdown-item" href="javascript:void(0);">Update</a>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h6 class="mb-1">Revenue</h6>
+              <div class="d-flex flex-wrap mb-1 align-items-center">
+                <h4 class="mb-0 me-2">$95.2k</h4>
+                <p class="text-success mb-0">+12%</p>
+              </div>
+              <small>Revenue Increase</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="card h-100">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <div class="avatar">
+                <div class="avatar-initial bg-info rounded-circle shadow-xs">
+                  <i class="ri-bank-card-line ri-24px"></i>
+                </div>
+              </div>
+              <div class="dropdown">
+                <button class="btn text-muted p-0" type="button" id="transactionsID" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="ri-more-2-line ri-24px"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="transactionsID">
+                  <a class="dropdown-item" href="javascript:void(0);">Refresh</a>
+                  <a class="dropdown-item" href="javascript:void(0);">Share</a>
+                  <a class="dropdown-item" href="javascript:void(0);">Update</a>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h6 class="mb-1">Transactions</h6>
+              <div class="d-flex flex-wrap mb-1 align-items-center">
+                <h4 class="mb-0 me-2">1.2k</h4>
+                <p class="text-success mb-0">+38%</p>
+              </div>
+              <small>Daily Transactions</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--/ Cards with icon profit and loss info -->
+   
+    <!-- three chart -->
+    <div class="col-xl-4">
+      <div class="row gy-6">
+        <!-- Total Sales -->
+        <div class="col-xl-12 col-md-6">
+          <div class="card h-100">
+            <div class="card-body d-flex justify-content-between align-items-center flex-wrap">
+              <div class="me-3">
+                <h5 class="mb-1">Total Sales</h5>
+                <p class="mb-3">Calculated in last 7 days</p>
+                <div class="d-flex align-items-center">
+                  <h4 class="mb-0 me-1">$25,980</h4>
+                  <p class="text-success mb-0"> <i class="ri-arrow-up-s-line ri-24px"></i>15.6%</p>
+                </div>
+              </div>
+              <div id="totalSalesDonutChart" class="mt-3 mt-md-0"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Total Sales -->
+        <!-- Total Revenue chart -->
+        <div class="col-xl-6 col-md-3 col-sm-6">
+          <div class="card">
+            <div class="card-header pb-0">
+              <h4 class="mb-0">$35.4k</h4>
+            </div>
+            <div class="card-body">
+              <div id="totalRevenueChart" class="mb-3"></div>
+              <h6 class="text-center mb-0">Total Revenue</h6>
+            </div>
+          </div>
+        </div>
+        <!--/ Total Revenue chart -->
+        <!-- Total Sales chart -->
+        <div class="col-xl-6 col-md-3 col-sm-6">
+          <div class="card h-100">
+            <div class="card-header pb-0">
+              <h4 class="mb-0">135k</h4>
+            </div>
+            <div class="card-body">
+              <div id="totalSalesSemiDonutChart" class="mb-4"></div>
+              <h6 class="text-center mb-0">Total Sales</h6>
+            </div>
+          </div>
+        </div>
+        <!--/ Total Sales chart -->
+      </div>
+    </div>
+    <!--/ three chart -->
+    <!-- Transactions -->
+    <div class="col-xxl-4 col-md-6 ">
+      <div class="card h-100">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <h5 class="card-title m-0 me-2">Transactions</h5>
+          <div class="dropdown">
+            <button class="btn text-muted p-0" type="button" id="transactionID" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="ri-more-2-line ri-24px"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="transactionID">
+              <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
+              <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
+              <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <ul class="p-0 m-0">
+            <li class="d-flex mb-4 pb-1">
+              <div class="me-4">
+                <div class="avatar flex-shrink-0">
+                  <div class="avatar-initial bg-label-danger rounded">
+                    <div>
+                      <img src="https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/icons/unicons/paypal.svg" alt="paypal" class="img-fluid">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                <div class="me-2">
+                  <h6 class="mb-1">Paypal</h6>
+                  <p class="mb-0">Received Money</p>
+                </div>
+                <div class="user-progress d-flex align-items-center gap-3">
+                  <h6 class="mb-0">+$24,820</h6>
+                  <i class='ri-arrow-up-s-line ri-24px text-success'></i>
+                </div>
+              </div>
+            </li>
+            <li class="d-flex mb-4 pb-1">
+              <div class="me-4">
+                <div class="avatar flex-shrink-0">
+                  <div class="avatar-initial bg-label-success rounded">
+                    <div>
+                      <img src="https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/icons/unicons/credit-card.svg" alt="paypal" class="img-fluid">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                <div class="me-2">
+                  <h6 class="mb-1">Credit Card</h6>
+                  <p class="mb-0">Digital Ocean</p>
+                </div>
+                <div class="user-progress d-flex align-items-center gap-3">
+                  <h6 class="mb-0">-$1,250</h6>
+                  <i class='ri-arrow-down-s-line ri-24px text-danger'></i>
+                </div>
+              </div>
+            </li>
+            <li class="d-flex mb-4 pb-1">
+              <div class="me-4">
+                <div class="avatar flex-shrink-0">
+                  <div class="avatar-initial bg-label-warning rounded">
+                    <div>
+                      <img src="https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/icons/unicons/card-atm.svg" alt="paypal" class="img-fluid">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                <div class="me-2">
+                  <h6 class="mb-1">Mastercard</h6>
+                  <p class="mb-0">Netflix</p>
+                </div>
+                <div class="user-progress d-flex align-items-center gap-3">
+                  <h6 class="mb-0">-$99</h6>
+                  <i class='ri-arrow-down-s-line ri-24px text-danger'></i>
+                </div>
+              </div>
+            </li>
+            <li class="d-flex mb-4 pb-1">
+              <div class="me-4">
+                <div class="avatar flex-shrink-0">
+                  <div class="avatar-initial bg-label-primary rounded">
+                    <div>
+                      <img src="https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/icons/unicons/wallet.svg" alt="paypal" class="img-fluid">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                <div class="me-2">
+                  <h6 class="mb-1">Wallet</h6>
+                  <p class="mb-0">Mac'D</p>
+                </div>
+                <div class="user-progress d-flex align-items-center gap-3">
+                  <h6 class="mb-0">-$82</h6>
+                  <i class='ri-arrow-down-s-line ri-24px text-danger'></i>
+                </div>
+              </div>
+            </li>
+            <li class="d-flex">
+              <div class="me-4">
+                <div class="avatar flex-shrink-0">
+                  <div class="avatar-initial bg-label-info rounded">
+                    <div>
+                      <img src="https://demos.themeselection.com/materio-bootstrap-html-admin-template/assets/img/icons/unicons/arrow-growth.svg" alt="paypal" class="img-fluid">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                <div class="me-2">
+                  <h6 class="mb-1">Trasnfer</h6>
+                  <p class="mb-0">Refund</p>
+                </div>
+                <div class="user-progress d-flex align-items-center gap-3">
+                  <h6 class="mb-0">+$8,934</h6>
+                  <i class='ri-arrow-up-s-line ri-24px text-success'></i>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!--/ Transactions -->
+   
+    <!-- Website Statistics -->
+    <div class="col-xxl-4 col-md-6 ">
+      <div class="card h-100">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <h5 class="card-title m-0 me-2">Website Statistics</h5>
+          <div class="dropdown">
+            <button class="btn text-muted p-0" type="button" id="webStatistics" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="ri-more-2-line ri-24px"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="webStatistics">
+              <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
+              <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
+              <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
+            </div>
+          </div>
+        </div>
+        <div class="card-body d-block d-lg-flex flex-column justify-content-between pt-5 pt-lg-12 pt-xxl-5">
+          <div class="d-flex justify-content-between align-items-end mb-5">
+            <div>
+              <h1 class="card-title mb-2">4,590</h1>
+              <small>Total Traffic</small>
+            </div>
+            <div id="webVisitors"></div>
+          </div>
+          <div>
+            <div class="d-flex align-items-center py-3">
+              <span class="text-success me-2">
+                <i class="ri-circle-fill ri-16px"></i>
+              </span>
+              <h6 class="fw-normal mb-0">Direct</h6>
+              <div class="flex-grow-1"></div>
+              <h6 class="text-end me-7 mb-0">86,471</h6>
+              <h6 class="text-end me-2 mb-0">15%</h6>
+              <i class="ri-arrow-down-s-line ri-24px text-danger"></i>
+            </div>
+            <div class="d-flex align-items-center border-top py-3">
+              <span class="text-primary me-2">
+                <i class="ri-circle-fill ri-16px"></i>
+              </span>
+              <h6 class="fw-normal mb-0">Organic Search</h6>
+              <div class="flex-grow-1"></div>
+              <h6 class="text-end me-7 mb-0">57,484</h6>
+              <h6 class="text-end me-2 mb-0">85%</h6>
+              <i class="ri-arrow-up-s-line ri-24px text-success"></i>
+            </div>
+            <div class="d-flex align-items-center border-top py-3">
+              <span class="text-warning me-2">
+                <i class="ri-circle-fill ri-16px"></i>
+              </span>
+              <h6 class="fw-normal mb-0">Referral</h6>
+              <div class="flex-grow-1"></div>
+              <h6 class="text-end me-7 mb-0">2,534</h6>
+              <h6 class="text-end me-2 mb-0">48%</h6>
+              <i class="ri-arrow-up-s-line ri-24px text-success"></i>
+            </div>
+            <div class="d-flex align-items-center border-top py-3">
+              <span class="text-danger me-2">
+                <i class="ri-circle-fill ri-16px"></i>
+              </span>
+              <h6 class="fw-normal mb-0">Mail</h6>
+              <div class="flex-grow-1"></div>
+              <h6 class="text-end me-7 mb-0">977</h6>
+              <h6 class="text-end me-2 mb-0">36%</h6>
+              <i class="ri-arrow-down-s-line ri-24px text-danger"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--/ Website Statistics -->
+   
+    
+  </div>
+  
+            </div>
+            <!-- / Content -->
+  
+            
+            
+  
+  <!-- Footer -->
+  <footer class="content-footer footer bg-footer-theme">
+    <div class="container-xxl">
+      <div class="footer-container d-flex align-items-center justify-content-between py-4 flex-md-row flex-column">
+        <div class="text-body mb-2 mb-md-0">
+          © <script>
+          document.write(new Date().getFullYear())
+  
+          </script>, made with <span class="text-danger"><i class="tf-icons ri-heart-fill"></i></span> by <a href="https://themeselection.com/" target="_blank" class="footer-link">ThemeSelection</a>
+        </div>
+        <div class="d-none d-lg-inline-block">
+          
+          <a href="https://themeselection.com/license/" class="footer-link me-4" target="_blank">License</a>
+          <a href="https://themeselection.com/" target="_blank" class="footer-link me-4">More Themes</a>
+          
+          <a href="https://demos.themeselection.com/materio-bootstrap-html-admin-template/documentation/" target="_blank" class="footer-link me-4">Documentation</a>
+          
+          
+          <a href="https://themeselection.com/support/" target="_blank" class="footer-link d-none d-sm-inline-block">Support</a>
+          
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!-- / Footer -->
+  
+            
+            <div class="content-backdrop fade"></div>
+          </div>
+          <!-- Content wrapper -->
+        </div>
+        <!-- / Layout page -->
+      </div>
+  
+      
+      
+      <!-- Overlay -->
+      <div class="layout-overlay layout-menu-toggle"></div>
+      
+      
+      <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+      <div class="drag-target"></div>
+      
+    </div>
+    <!-- / Layout wrapper -->
+  
+
+    
+  
+    <%- include('../layout/admin/adminFooter.ejs') -%>
