@@ -1,3 +1,4 @@
+
 <%- include('../layout/admin/adminHeader.ejs') -%>
 
 <body>
@@ -30,28 +31,30 @@
                 
                 <div><h1 class="fw-bold fs-3 mb-2">Products  (<%= products.length %>)</h1>
                     <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                          <li class="breadcrumb-item"><a href="/admin/home">Admin</a></li>
-                        
-                          <li class="breadcrumb-item active" aria-current="page">categories</li>
-                        </ol>
+                      <ol class="breadcrumb">
+                        <li class="breadcrumb"><a href="/admin/home">Admin >></a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Product List</li>
+                      </ol>
                     </nav>
                     <p class="m-0 text-muted small">Add,edit or list products</p>        
                     <p class="m-0 text-muted small">Showing 1 - 9 </p>
                    
                 </div>
-                <div>
-                    <a href="/admin/addProduct" class="btn btn-primary"><i class="material-icons md-plus"></i> Add product </a>
-                </div>
+             
             </div>
             <div class="card mb-4">
-                <header class="card-header">
-                    <div class="row gx-3">
-                        <div class="col-lg-4 col-md-6 me-auto">
-                            <input type="text" placeholder="Search..." class="form-control" id="searchInput" />
-                        </div>
-                    </div>
-                </header>
+              <header class="card-header">
+                <div class="row gx-3 align-items-center">
+                  <div class="col-lg-4 col-md-6">
+                    <input type="text" placeholder="Search..." class="form-control" id="searchInput" />
+                  </div>
+                  <div class="col-lg-8 col-md-6 d-flex justify-content-end">
+                    <button type="button" class="btn btn-lg btn-primary" onclick="location.href='/admin/addProduct';">
+                      Add Product
+                    </button>
+                  </div>
+                </div>
+              </header>
 
         <div class="card-body">
             <div class="table-responsive" id="reloadArea">
@@ -62,8 +65,8 @@
                             <th>Image</th>
                             <th>Product Name</th>
                             <th>Category</th>
-                            <th>Stock</th>
-                            <th>sizes</th>
+                            <!-- <th>Stock</th>
+                            <th>sizes</th> -->
                             <th>Price</th>
                             <th class="text-center">Action</th>
                         </tr>
@@ -74,22 +77,102 @@
                                 <tr>
                                     <td><%= index + 1 %></td>
                                     <td>
-                                        <img src="/assets/images/productImage/<%= product.images[0] %> " alt="Product Image" style="width: 50px; height: 50px;">
+                                        <img src="/assets/images/productImage/sharped/<%= product.variants[0].images[0] %>" alt="Product Image" style="width: 50px; height: 50px;">
                                     </td>
                                     <td><%= product.name %></td>
                                    
-                                    <td><%= product.category %></td>
-                                    <td><%= product.stockQuantity %></td>
-                                    
-                                    <td><%= product.sizes %></td>
+                                    <td><%= product.category ? product.category.name : 'No category' %></td> <!-- Check if category exists -->
+                                   
                                     <td><%= product.price %></td>
-                                    <td class="text-center " >
-                                        <a class="btn btn-sm btn-danger rounded font-sm mt-15 text-white"  data-user-id="<%= product._id  %>" data-initial-status="<%= product.is_Listed %>" onclick="block('<%= product._id %>')"  >
-                                            <%= product.is_Listed?"Unlist":"List"  %>
-                                            </a>
-                                        <a class="btn btn-sm btn-brand rounded font-sm mt-15" href="/admin/edit-product?id=<%= product._id %>" >Edit</a>
-                                    </td>
+                                 
+                                    <td class="text-center">
+                                      <a href="#" class="badge rounded-pill bg-label-primary align-items-center editButton" id="<%= product._id %>"
+                                        data-bs-toggle="modal" data-bs-target="#editModal<%= product._id %>">Edit</a>
+            
+                                     
+                                        <a class="btn btn-sm btn-danger rounded font-sm mt-15 text-white"
+                                           data-user-id="<%= product._id %>"
+                                           data-initial-status="<%= product.is_Listed %>"
+                                           id="list-unlist-<%= product._id %>"
+                                           onclick="toggleListing('<%= product._id %>')">
+                                          <%= product.is_Listed ? "Unlist" : "List" %>
+                                        </a>
+                                        <a class="btn btn-info rounded font-sm mt-15" href="/admin/loadVariant/<%= product._id %>">Varients</a>
+                                      </td>
                                 </tr>
+
+
+
+                               <!-- Modal -->
+<div class="modal fade" id="editModal<%= product._id %>" tabindex="-1" aria-labelledby="editModalLabel<%= product._id %>" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 id="editModalLabel<%= product._id %>" class="modal-title">Edit Product Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <!-- Form Submission -->
+        <form id="edit-product-<%= product._id %>" action="/admin/edit-product" method="POST">
+          <input type="hidden" name="productId" value="<%= product._id %>">
+          <p id="modal-message-<%= product._id %>" class="text-danger text-center"></p>
+          <!-- Name -->
+          <div class="form-floating form-floating-outline mb-5">
+            <input type="text" class="form-control" id="product-name-<%= product._id %>" placeholder="Enter product name" name="newName" aria-label="product name" value="<%= product.name %>">
+            <label for="product-name-<%= product._id %>" id="productNameError-<%= product._id %>">Name</label>
+            <div class="invalid-feedback" id="productNameError-<%= product._id %>"></div>
+          </div>
+          <!-- Gender, Category, Price -->
+          <div class="row mb-5">
+            <div class="col-md-6">
+              <div class="form-floating form-floating-outline mb-5">
+                <select id="product-gender-<%= product._id %>" class="form-select" aria-label="Gender" name="newGender">
+                  <option value="">Select gender</option>
+                  <option value="Men" <% if (product.gender === 'Men') { %>selected<% } %>>Men</option>
+                  <option value="Women" <% if (product.gender === 'Women') { %>selected<% } %>>Women</option>
+                </select>
+                <label for="product-gender-<%= product._id %>" id="productGenderError-<%= product._id %>">Gender</label>
+                <div class="invalid-feedback" id="productGenderError-<%= product._id %>"></div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-floating form-floating-outline mb-5">
+                <select id="product-category-<%= product._id %>" class="form-select" aria-label="Category" name="newCategory">
+                  <option value="">Select category</option>
+                  <% categories.forEach(category => { %>
+                    <option value="<%= category._id %>" <% if (product.category && product.category.toString() === category._id.toString()) { %>selected<% } %>><%= category.name %></option>
+                  <% }); %>
+                </select>
+                <label for="product-category-<%= product._id %>" id="productCategoryError-<%= product._id %>">Category</label>
+                <div class="invalid-feedback" id="productCategoryError-<%= product._id %>"></div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-floating form-floating-outline mb-5">
+                <input type="text" class="form-control" id="product-price-<%= product._id %>" placeholder="Enter price" name="newPrice" aria-label="product price" value="<%= product.price %>">
+                <label for="product-price-<%= product._id %>" id="productPriceError-<%= product._id %>">Price</label>
+                <div class="invalid-feedback" id="productPriceError-<%= product._id %>"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Description -->
+          <div class="form-floating form-floating-outline mb-5">
+            <textarea id="product-description-<%= product._id %>" class="form-control" placeholder="Enter description" aria-label="description" style="height: 200px;" name="newDescription" rows="4"><%= product.description %></textarea>
+            <label for="product-description-<%= product._id %>" id="productDesError-<%= product._id %>">Description</label>
+            <div class="invalid-feedback" id="productDesError-<%= product._id %>"></div>
+          </div>
+          <!-- Submit and reset -->
+          <div class="mb-4">
+            <button type="submit" class="btn btn-primary me-sm-3 me-1 waves-effect waves-light">Update</button>
+            <button type="reset" class="btn btn-outline-danger waves-effect" data-bs-dismiss="modal">Discard</button>
+          </div>
+        </form>
+                                          </div>
+                                      </div>
+                                  </div>
+                                </div>
                             <% }); %>
                         <% } else { %>
                             <tr>
@@ -146,6 +229,144 @@
                 
                 <!-- jQuery -->
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-             
 
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+          const forms = document.querySelectorAll('form[id^="edit-product-"]');
+  
+          forms.forEach(form => {
+              form.addEventListener('submit', function (event) {
+                  event.preventDefault();
+  
+      const productId = this.id.split('edit-product-')[1];
+      const name = document.getElementById(`product-name-${productId}`).value.trim();
+      const description = document.getElementById(`product-description-${productId}`).value.trim();
+      const gender = document.getElementById(`product-gender-${productId}`).value.trim();
+      const price = document.getElementById(`product-price-${productId}`).value.trim();
+      const category = document.getElementById(`product-category-${productId}`).value.trim();
+
+      const nameLabel = document.getElementById(`productNameError-${productId}`)
+      const descriptionLabel = document.getElementById(`productDesError-${productId}`)
+      const genderLabel = document.getElementById(`productGenderError-${productId}`)
+      const priceLabel = document.getElementById(`productPriceError-${productId}`)
+      const categoryLabel = document.getElementById(`productCategoryError-${productId}`)
+
+
+      let isValid = true;
+  
+                  // Validate Name
+                  if (name === '') {
+                      console.log('name error')
+                      nameLabel.innerText = 'Name cannot be empty';
+                      nameLabel.classList.add('error-message');
+                      isValid = false;
+                  } else {
+                      nameLabel.innerText = 'Name';
+                      nameLabel.classList.remove('error-message');
+                  }
+  
+                  // Validate Description
+                  if (description ==='') {
+                      descriptionLabel.innerText = "Description cannot be empty";
+                      descriptionLabel.classList.add('error-message');
+                      isValid = false;
+                  } else {
+                      descriptionLabel.innerText = 'Description';
+                      descriptionLabel.classList.remove('error-message');
+                  }
+  
+                  // Validate Gender
+                  if (gender === '') {
+                      genderLabel.innerText = 'Please select a gender';
+                      genderLabel.classList.add('error-message');
+                      isValid = false;
+                  } else {
+                      genderLabel.innerText = 'Gender';
+                      genderLabel.classList.remove('error-message');
+                  }
+
+                 
+
+                  // Validate Category
+                  if (category === '') {
+                      categoryLabel.innerText = 'Please select a Category';
+                      categoryLabel.classList.add('error-message');
+                      isValid = false;
+                  } else {
+                      categoryLabel.innerText = 'Category';
+                      categoryLabel.classList.remove('error-message');
+                  }
+
+                  // Validate price
+                  if ( !price || isNaN(price) || price < 0) {
+                      priceLabel.innerText = 'Invalid Price';
+                      priceLabel.classList.add('error-message');
+                      isValid = false;
+                  } else {
+                      priceLabel.innerText = 'Price';
+                      priceLabel.classList.remove('error-message');
+                  }
+
+
+                  if (isValid) {
+                    
+                     form.submit()
+                      
+                  }
+              });
+          });
+      });
+
+      document.addEventListener("DOMContentLoaded", function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('success') && urlParams.get('success') === 'true') {
+      Swal.fire({
+        title: 'Success!',
+        text: 'Product updated successfully',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      }).then(() => {
+        // Optionally, you can remove the query string from the URL after displaying the message
+        const newUrl = window.location.href.split('?')[0];
+        window.history.replaceState(null, null, newUrl);
+      });
+    }
+  });
+
+                </script>
+
+
+                <script>
+                async function toggleListing(productId) {
+                      try {
+                        const response = await fetch('/admin/listUnlistProduct', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json'
+                          },
+                          body: JSON.stringify({ productId })
+                        });
+                  
+                        const result = await response.json();
+                  
+                        if (result.success) {
+                          const button = document.getElementById(`list-unlist-${productId}`);
+                          button.textContent = result.is_Listed ? 'Unlist' : 'List';
+                          button.setAttribute('onclick', `toggleListing('${productId}')`);
+                        } else {
+                          alert(result.message || 'Failed to update product status');
+                        }
+                      } catch (error) {
+                        console.error('Error:', error);
+                        alert('An error occurred while updating the product status');
+                      }
+                    }
+                  
+
+
+                  
+
+                  </script>
+                  
  <%- include('../layout/admin/adminFooter.ejs') -%>

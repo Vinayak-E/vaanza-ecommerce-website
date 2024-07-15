@@ -1,0 +1,178 @@
+<%- include('../layout/admin/adminHeader.ejs') -%>
+
+<body>
+
+    <!-- ?PROD Only: Google Tag Manager (noscript) (Default ThemeSelection: GTM-5DDHKGP, PixInvent: GTM-5J3LMKC) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDHKGP" height="0" width="0"
+            style="display: none; visibility: hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar  ">
+        <div class="layout-container">
+
+            <%- include('../layout/admin/navbar.ejs') -%>
+
+            <!-- Content wrapper -->
+            <div class="content-wrapper">
+
+                <!-- Content -->
+
+                <div class="container-xxl flex-grow-1 container-p-y">
+
+                    <div class="app-ecommerce">
+
+                        <!-- Add Product -->
+                        <div
+                            class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 gap-4 gap-md-0">
+                            <div class="d-flex flex-column justify-content-center">
+                                <h4 class="mb-1">Add a new Variant</h4>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- First column-->
+                            <div class="col-12 col-lg-8">
+
+                                <form action="/admin/addVariant" method="POST"  enctype="multipart/form-data" >
+                                   
+                                    <input type="hidden" name="productId" value="<%= product._id %>">
+                                <!-- Variants -->
+                                <div class="card mb-6">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Variants</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row gx-5">
+                                            <div class="mb-6 col-sm-4">
+                                                <div class="form-floating form-floating-outline">
+                                                    <select id="select2Basic" class="select2 form-select"
+                                                        data-placeholder="COLOUR" data-allow-clear="true" name="color">
+                                                        <option value="">Select a color</option>
+                                                        <option value="White">White</option>
+                                                        <option value="Red">Red</option>
+                                                        <option value="Blue">Blue</option>
+                                                        <option value="Yellow">Yellow</option>
+                                                        <option value="Green">Green</option>
+                                                        <option value="Orange">Orange</option>
+                                                        <option value="Black">Black</option>
+                                                    </select>
+                                                    <label for="select2Basic">COLOR</label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-6 col-sm-8">
+                                                <div class="form-floating form-floating-outline">
+                                                    <input type="number" class="form-control" id="quantity"
+                                                        name="quantity">
+                                                    <p id="quantityErr" style="color: red; display: none;"></p>
+                                                    <label for="form-repeater-1-2">QUANTITY</label>
+                                                </div>
+                                            </div>
+                                            <!-- ///// -->
+                                            <div class="mb-6 col-sm-4">
+                                                <label class="d-block">Sizes</label>
+                                                <div class="form-floating form-floating-outline">
+                                                    <div class="d-flex flex-wrap">
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input" type="checkbox" id="sizeS"
+                                                                name="sizes[]" value="S">
+                                                            <label class="form-check-label" for="sizeS">S</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input" type="checkbox" id="sizeM"
+                                                                name="sizes[]" value="M">
+                                                            <label class="form-check-label" for="sizeM">M</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input" type="checkbox" id="sizeL"
+                                                                name="sizes[]" value="L">
+                                                            <label class="form-check-label" for="sizeL">L</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+                                            <!-- /// -->
+
+
+                                            
+                                            <!-- /// -->
+                                            <div class="form-group">
+                                                <h5>Product Images</h5>
+                                                <div class="row">
+                                                    <% for (let i = 1; i <= 4; i++) { %>
+                                                    <div class="col-lg-6 col-md-6 mb-3">
+                                                        <label for="imageInput<%= i %>" class="file-upload">
+                                                            <span class="file-select">Choose Image <%= i %></span>
+                                                            <input name="images" type="file" accept="image/*"
+                                                                id="imageInput<%= i %>" class="imageInput"
+                                                                onchange="previewImage(this, 'imagePreview<%= i %>')">
+                                                            <img id="imagePreview<%= i %>" class="img-preview"
+                                                                alt="Preview">
+                                                        </label>
+                                                    </div>
+                                                    <% } %>
+                                                </div>
+                                                <p id="imagesErr" style="color: red; display: none;">Please upload all four
+                                                    images.</p>
+                                            </div>
+                                            
+                                            <!-- /// -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- /Variants -->
+                                     <!-- Submit Button -->
+                                     <div class="d-flex justify-content-end">
+                                        <button type="submit" class="btn btn-primary">Add Variant</button>
+                                    </div>
+                                </form>
+                                <!-- /Form end -->
+
+                            </div>
+                            <!-- /Second column -->
+
+                        </div>
+                    </div>
+                </div>
+                <!-- / Content -->
+
+                <div class="content-backdrop fade"></div>
+            </div>
+            <!-- Content wrapper -->
+        </div>
+        <!-- / Layout page -->
+    </div>
+
+    <!-- Overlay -->
+    <div class="layout-overlay layout-menu-toggle"></div>
+
+    <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+    <div class="drag-target"></div>
+
+    </div>
+    <!-- / Layout wrapper -->
+    <script>
+        function previewImage(input, imagePreviewId) {
+            const file = input.files[0];
+            const preview = document.getElementById(imagePreviewId);
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                };
+
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = "";
+            }
+        }
+    </script>
+
+
+    <%- include('../layout/admin/adminFooter.ejs') -%>

@@ -1,6 +1,8 @@
 const express = require("express");
 const userRoute = express();
 const userController = require("../controller/userController");
+const productController = require('../controller/productController')
+const cartController = require('../controller/cartController')
 const path =require("path")
 const session = require("express-session");
 const config = require('../config/config');
@@ -83,13 +85,26 @@ userRoute.get("/auth/google/callback",
  
 // =======================================< SHOP & PRODUCT DETAILD >============================================= //
 
+
+
+
+userRoute.get('/shop/gender/:gender',productController.loadShop);
+userRoute.get('/productView/product/:productId/variant/:variantId',productController.productView);
+
 module.exports = userRoute;
 
   
 
+// ==========================================< CART HANDLING >==================================================== //
+
+userRoute.get('/cart',cartController.loadCart);
+
+userRoute.post('/add-to-cart',cartController.addToCart)
+
+userRoute.post('/update-cart-quantity',cartController.quantityUpdationCart)
 
 
-
+userRoute.post('/remove-from-cart',cartController.removeCartItem)
 
 
 

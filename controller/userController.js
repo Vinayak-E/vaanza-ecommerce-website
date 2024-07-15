@@ -8,8 +8,13 @@ const crypto = require("crypto");
 // Load home page
 const loadHome = async (req, res) => {
   try {
-    res.render("home");
-    console.log("home");
+    if(req.session.user){
+      const user =req.session.user
+     res.render("home",{user})
+    }else{
+      res.render("home");
+    }
+   
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");
@@ -32,7 +37,6 @@ const loadLogin = async (req, res) => {
 const loadRegister = async (req,res) => {
   try {
     res.render("register");
-    console.log("register");
   } catch (error) {
     console.log(error);
   }
@@ -244,6 +248,7 @@ const verifyLogin = async (req, res) => {
       email: user.email,
       name: user.name,
       phone: user.mobile
+
     };
 
     res.redirect('/');

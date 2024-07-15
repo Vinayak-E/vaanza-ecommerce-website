@@ -30,7 +30,7 @@ const loadaAddCategory = async(req,res)=>{
 
 const insertCategory = async(req,res)=>{
     try{
-                const { description,name } = req.body;
+                const { description,name,gender } = req.body;
                 const existingCategory = await Category.findOne({ name });
                 if(existingCategory){
                         req.flash('error','already exists a category with this name')
@@ -39,6 +39,7 @@ const insertCategory = async(req,res)=>{
                     const category = new Category({
                         name:name,
                         description:description,
+                        gender:gender,
                         is_listed:1
         
                     })
@@ -96,13 +97,14 @@ const editCategory = async (req, res) => {
     
       const newName = req.body.editname;
       const newDescription = req.body.editdisc;
+      const newGender=    req.body.editgender
       const existingCategory = await Category.findOne({ name: req.body.editname });
       if(existingCategory){
         req.flash('error','error! alredy exixst a category with this name')
         res.redirect('/admin/categories');
       }else{
         
-        await Category.findByIdAndUpdate({_id:req.body.id},{$set:{name:newName  ,description:newDescription}})
+        await Category.findByIdAndUpdate({_id:req.body.id},{$set:{name:newName  ,description:newDescription, gender:newGender}})
         res.redirect('/admin/categories');
       }
    

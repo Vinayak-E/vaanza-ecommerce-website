@@ -1,0 +1,133 @@
+<%- include('../layout/admin/adminHeader.ejs') -%>
+
+<body>
+
+  
+    <!-- ?PROD Only: Google Tag Manager (noscript) (Default ThemeSelection: GTM-5DDHKGP, PixInvent: GTM-5J3LMKC) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDHKGP" height="0" width="0" style="display: none; visibility: hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <!-- Layout wrapper -->
+
+
+
+
+  <div class="layout-wrapper layout-content-navbar  ">
+    <div class="layout-container">
+  
+      
+      
+        <%- include('../layout/admin/navbar.ejs') -%>
+
+
+
+        <section class="content-main" >
+   
+            <div class="content-header">
+                
+                <div><h1 class="fw-bold fs-3 mb-2">Variant Management</h1>
+                    <nav aria-label="breadcrumb">
+                      <ol class="breadcrumb">
+                        <li class="breadcrumb"><a href="/admin/products">Products >></a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Variant Management</li>
+                      </ol>
+                    </nav>
+                    
+                </div>
+             
+            </div>
+            <div class="card mb-4">
+              <header class="card-header">
+                <div class="row gx-3 align-items-center">
+                  <div class="col-lg-4 col-md-6">
+                    <input type="text" placeholder="Search..." class="form-control" id="searchInput" />
+                  </div>
+                  <div class="col-lg-8 col-md-6 d-flex justify-content-end">
+                    <button type="button" class="btn btn-lg btn-primary" onclick="location.href='/admin/addVariant?id=<%= product._id %>';">
+                      Add Variant
+                    </button>
+                  </div>
+              </header>
+
+        <div class="card-body">
+            <div class="table-responsive" id="reloadArea">
+              <table class="table table-hover" id="productTable">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Product Name</th>
+                    <th>Images</th>
+                    <th>Color</th>
+                    <th>Stock</th>
+                    <th>Sizes</th>
+                    <th class="text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (product && product.variants) { %>
+                    <% product.variants.map((item, index) => { %>
+                      <tr>
+                        <td><%= index + 1 %></td>
+                        <td><%= product.name %></td>
+                        <td width="1%">
+                          <div class="itemside" style="display: flex;">
+                              <% if (item.images && Array.isArray(item.images) && item.images.length > 0) { %>
+                                  <% item.images.forEach((image, i) => { %>
+                                      <div class="left me-2">
+                                          <img src="/assets/images/productImage/<%= image %>" class="img-sm" alt="Image <%= i %>" />
+                                      </div>
+                                  <% }) %>
+                              <% } else { %>
+                                  <div class="left me-2">
+                                      <img src="/img/productImage/default.jpg" class="img-sm" alt="No Image Available" />
+                                  </div>
+                              <% } %>
+                          </div>
+                      </td>
+                      
+                        <td><%= item.color %></td>
+                        <td><%= item.quantity %></td>
+                        <td><%= item.sizes.join(', ') %></td>
+                        <td class="text-end">
+                          <a id="button" href="/admin/edit-variant?index=<%= index %>&id=<%= product._id %>" class="btn btn-sm btn-dark font-sm">Edit</a>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="7">No variants available</td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+              
+                <!-- table-responsive.// -->
+            </div>
+        </div>
+    </div>
+
+          <!-- card end// -->
+            
+        <!-- card end// -->
+        
+        </section>
+
+                 <!-- / Content -->
+          
+                 <div class="content-backdrop fade"></div>
+                </div>
+                <!-- / Layout wrapper -->
+                
+                <!-- Overlay -->
+                <div class="layout-overlay layout-menu-toggle"></div>
+                
+                <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+                <div class="drag-target"></div>
+                
+                <!-- SweetAlert2 -->
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                
+                <!-- jQuery -->
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+           
+ <%- include('../layout/admin/adminFooter.ejs') -%>

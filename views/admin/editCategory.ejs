@@ -74,6 +74,13 @@
               placeholder="Enter description"
             />
           </div>
+          <div class="form-group">
+            <label for="gender">Gender:</label>
+            <select class="form-control" id="gender" name="editgender">
+                <option value="Men" <%= categoryedit.gender === 'Men' ? 'selected' : '' %>>Men</option>
+                <option value="Women" <%= categoryedit.gender === 'Women' ? 'selected' : '' %>>Women</option>
+            </select>
+        </div>
 
           <div class="mt-4">
             <button type="submit" class="btn btn-primary">Update</button>

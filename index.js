@@ -8,7 +8,7 @@ const nocache = require("nocache");
 app.use(nocache());
 app.use("/static", express.static(path.join(__dirname, "public/assets")));
 app.use("/assets",express.static(path.join(__dirname, "public/assets/images")));
-
+const bodyParser = require('body-parser');
 // Connect to MongoDB
 dbConnect();
 
@@ -25,6 +25,7 @@ app.use(flash())
 
  
 // Middleware for parsing request bodies
+app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
  
 // Routes

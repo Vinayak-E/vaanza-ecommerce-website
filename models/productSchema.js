@@ -5,18 +5,17 @@ const Schema = mongoose.Schema;
 const variantSchema = new Schema({
   color: { 
     type: String,
-     required: true 
-    },
-  size: { 
-    type: String,
-     required: true
-     },
+    required: true 
+  },
+  images: [String], // Add this line to include images for each variant
+  
   quantity: {
-     type: Number,
-      required: true 
-    },
-  images: [String] 
+    type: Number,
+    required: true 
+  },
+  sizes: [{ type: String }], // Array of size strings
 });
+
 
 const productSchema = mongoose.Schema({
 
@@ -32,38 +31,27 @@ const productSchema = mongoose.Schema({
     type: Number,
     required: true,
   },
-  sizes: {
-    type: Array,
-  },
   category: {
-    type: String,
-    required: true,
-  },
-  categorys: {
     type: mongoose.Types.ObjectId,
     required: true,
     ref: "categories",
   },
-  images: {
-    type: Array,
-  },
-  variants: [variantSchema], 
-  stockQuantity: {
-    type: Number,
+  is_Listed: {
+    type: Boolean,
     required: true,
   },
+  // images: [String], 
+  variants: [variantSchema], 
   date: {
     type: Date,
     default: Date.now,
     required: true,
   },
-  is_Listed: {
-    type: Boolean,
+  gender: {
+    type: String,
     required: true,
+    enum: ["Men", "Women"] // Assuming gender is either Male or Female
   }
 });
 module.exports = mongoose.model("Product", productSchema);
-
-
-
 

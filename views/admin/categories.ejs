@@ -31,16 +31,30 @@
                     </ol>
                   </nav>
               </div>
-         
+            
               <div class="card mb-4">
+                <header class="card-header">
+                    <div class="row gx-3 align-items-center">
+                      <div class="col-lg-4 col-md-6">
+                        <input type="text" placeholder="Search..." class="form-control" id="searchInput" />
+                      </div>
+                      <div class="col-lg-8 col-md-6 d-flex justify-content-end">
+                        <button type="button" class="btn btn-lg btn-primary" onclick="location.href='/admin/createCategory';">
+                          Add Category
+                        </button>
+                      </div>
+                    </div>
+                  </header>
                
               <!-- Users List Table -->
                 <div  id="reloadArea" class="card-datatable table-responsive">
                   <table class="datatables-users table">
                     <thead>
                       <tr>
+                        <th>ID</th>
                         <th>Name</th>
                         <th>Description</th>
+                        <th>Gender</th>
                         <th>status</th>
                         <th>Edit</th>
                         <th class="text-center">Action</th>
@@ -48,10 +62,12 @@
                     </thead>
                     <tbody>
                         <% if(locals.categories) { %>
-                            <% categories.map(function(value) { %>
+                            <% categories.map(function(value,index) { %>
                                 <tr>
+                                    <td><%= index + 1 %></td>
                                     <td><%= value.name %></td>
                                     <td width="30%"><%= value.description %></td>
+                                    <td width="30%"><%= value.gender %></td>
                                     <% if(value.is_listed === true ) { %>
                                         <td><a class="btn btn-sm btn-success rounded font-sm mt-15">Listed</a></td>
                                     <% } else { %>

@@ -2,20 +2,22 @@ let blockCheckUtil =require('../utils/blockChecking.js');
 const isLogin = async (req, res, next) => {
   try {
     if (req.session.user) {
-      if (req.path === "/login") {
-        res.redirect("/");
+      // User is logged in
+      next();
+    } else {
+      // User is not logged in
+      if (req.path !== "/login") {
+        res.redirect("/login");
         return;
       }
       next();
-    } else {
-      if (req.path === "/login") {
-        return next();
-      }
     }
   } catch (error) {
-    console.log(error.message);
+    console.error("Error in authentication middleware:", error.message);
+    next(error); // Passes error to the next middleware or error handler
   }
 };
+
 
 const isLogOut = async (req, res, next) => {
   try {
@@ -41,6 +43,7 @@ const authlogg = async (req, res, next) => {
     console.log(err.message);
   }
 };
+
 const userBlockCheck = async (req, res, next) => {
   try {
     const userId = req.session.user._id;

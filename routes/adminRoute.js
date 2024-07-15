@@ -5,6 +5,7 @@ const adminController = require("../controller/adminController");
 const dashboardController = require("../controller/dashboardController");
 const categoryController = require("../controller/categoryController");
 const productController = require("../controller/productController");
+const cartController = require('../controller/cartController')
 const config = require("../config/config");
 const path =require("path")
 const multer = require("../middlewares/multerConfig");
@@ -73,5 +74,24 @@ adminRoute.get("/products", productController.loadProductList);
 adminRoute.get("/addProduct", productController.loadAddproduct);
 
 adminRoute.post( "/addproduct",multer.array("images"), productController.addProduct);
+
+adminRoute.post('/listUnlistProduct', productController.listUnlistProduct);
+
+
+
+
+adminRoute.post("/edit-product",productController.editProduct);
+
+adminRoute.get("/loadVariant/:id", productController.loadVariant);
+
+
+adminRoute.get("/addVariant", productController.loadAddVariant);
+
+
+adminRoute.post("/addVariant",multer.array("images"), productController.addVariant);
+
+adminRoute.get("/edit-variant",productController.loadEditVariant);
+
+adminRoute.post("/edit-variant",multer.array('images', 4),productController.editVariant);
 
  module.exports = adminRoute;
