@@ -1,4 +1,5 @@
 const User = require("../models/userModel");
+const Address = require("../models/addressSchema")
 const userOtpVerification = require('../models/userOTPverification')
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
@@ -381,7 +382,176 @@ const resetPassword = async (req, res) => {
 };
 
 
- 
+
+// =========================================< Profile >=================================================
+
+const loadProfile = async (req, res) => {
+  try {
+    const userId = req.session.user._id;
+    const user = await User.findById(userId).lean();
+    const addresses = await Address.find({ user: userId }).lean();
+
+      res.render('profilePage', { user, addresses })
+
+  } catch (err) {
+      console.log(err.message)
+  }
+}
+const editProfile = async (req, res) => {
+  try {
+      const { updatedEmail, updatedName, updatedMobile } = req.body;
+      const userId = req.session.user._id;
+
+      const existingUser = await User.findOne({ email: updatedEmail });
+      if (existingUser && existingUser._id.toString() !== userId) {
+          return res.json({ edited: false, message: 'Email already exists.' });
+      }
+
+      const updatedUser = await User.findByIdAndUpdate(
+          userId,
+          { 
+              name: updatedName, 
+              email: updatedEmail, 
+              mobile: updatedMobile 
+          },
+          { new: true }
+      );
+
+      req.session.user = {
+          _id: updatedUser._id,
+          email: updatedUser.email,
+          name: updatedUser.name,
+          phone: updatedUser.mobile
+      };
+
+      res.json({ edited: true, user: updatedUser });
+  } catch (err) {
+      console.error(err.message);
+      res.status(500).json({ edited: false, message: "Server error" });
+  }
+};
+
+
+const resetPasswithOld = async (req, res) => {
+  try {
+      const { confirmPass, useremail, oldPass } = req.body;
+
+      // Validate incoming data
+      if (!confirmPass || !useremail || !oldPass) {
+          return res.status(400).json({ error: 'All fields are required' });
+      }
+
+      // Find the user by email
+      const user = await User.findOne({ email: useremail });
+      if (!user) {
+          return res.status(404).json({ error: 'User not found' });
+      }
+
+
+      // Compare old password with the stored hashed password
+      const passwordMatch = await bcrypt.compare(oldPass, user.password);
+      if (!passwordMatch) {
+          return res.status(400).json({ res: false, message: 'Incorrect old password' });
+      }
+
+      // Check if the new password is the same as the old password
+      const passwordSame = await bcrypt.compare(confirmPass, user.password);
+      if (passwordSame || confirmPass === oldPass) {
+          return res.status(400).json({ reseted: false, message: 'New password should be different from the old password' });
+      }
+
+      // Hash the new password and update it in the database
+      const securePass = await securePassword(confirmPass);
+      await User.findOneAndUpdate({ email: useremail }, { $set: { password: securePass } });
+
+      res.status(200).json({ reseted: true, message: 'Password successfully updated' });
+  } catch (err) {
+      console.log(err.message);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+
+ const addAddress = async (req, res) => {
+
+  try {
+      const { name, number, address, street, postalCode, state, landmark } = req.body;
+      console.log(req.body)
+
+      const newAddress = new Address({
+          name,
+          number,
+          address,
+          street,
+          postalCode,
+          state,
+          landmark,
+          user: req.session.user._id  // Assuming the user is logged in and available in req.user
+      });
+
+      await newAddress.save();
+      res.json({ success: true });
+
+  } catch (err) {
+      console.error(err.message);
+      res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+
+
+const editAddress = async (req, res) => {
+  try {
+      const {id, name, number, address, street, postalCode, state, landmark } = req.body;
+     
+      console.log(req.body);
+      const updatedAddress = await Address.findOneAndUpdate(
+          { _id: id, user: req.session.user._id },
+          {
+              $set: {
+                  name,
+                  number,
+                  address,
+                  street,
+                  postalCode,
+                  state,
+                  landmark
+              }
+          },
+          { new: true } // Return the updated document
+      );
+
+      if (updatedAddress) {
+          res.json({ success: true });
+      } else {
+          res.status(404).json({ success: false, message: 'Address not found or user unauthorized' });
+      }
+  } catch (err) {
+      console.error(err.message);
+      res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+
+ const removeAddress = async (req, res) => {
+
+  const addressId = req.params.id;
+   console.log(addressId)
+  try {
+      // Find the address by ID and delete it
+      const deletedAddress = await Address.findOneAndDelete({ _id: addressId, user: req.session.user._id });
+
+      if (!deletedAddress) {
+          return res.status(404).json({ success: false, message: 'Address not found or user unauthorized' });
+      }
+
+      res.json({ success: true, message: 'Address deleted successfully' });
+  } catch (error) {
+      console.error('Error deleting address:', error);
+      res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
 
 module.exports = {
   
@@ -398,6 +568,12 @@ module.exports = {
   sentResetpass,
   resetPassword,
   resetPage,
+  loadProfile,
+  editProfile,
+  resetPasswithOld,
+  addAddress,
+  editAddress,
+  removeAddress
   
   
 

@@ -38,31 +38,14 @@ const userSchema = mongoose.Schema({
         type:String
 
     },
-    addresses:[
-       {
-        name:{
-            type:String
-        },addressline:{
-            type:String
-        },
-        city:{
-            type:String
-        },
-        state:{
-            type:String
-        },pincode:{
-            type:Number
-        },
-        phone:{
-            type:Number
-        }
-
-       }
-    ],
+   
     createdAt: {
         type: Date,
         default: Date.now
     }, 
+    
+    addresses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }],
+
       wallet:{
         type:Number,
         default:0

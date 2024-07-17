@@ -91,7 +91,7 @@ userRoute.get("/auth/google/callback",
 userRoute.get('/shop/gender/:gender',productController.loadShop);
 userRoute.get('/productView/product/:productId/variant/:variantId',productController.productView);
 
-module.exports = userRoute;
+
 
   
 
@@ -108,4 +108,14 @@ userRoute.post('/remove-from-cart',cartController.removeCartItem)
 
 
 
+// ==========================================< USER PROFILE >==================================================== //
 
+userRoute.get('/profile',userController.loadProfile);
+userRoute.post('/editProfile',userController.editProfile)
+userRoute.post('/reset-pass',userController.resetPasswithOld)
+
+userRoute.post('/add-address',userController.addAddress)
+userRoute.post('/edit-address',userController.editAddress);
+userRoute.delete('/delete-address/:id',userController.removeAddress);
+
+module.exports = userRoute;
