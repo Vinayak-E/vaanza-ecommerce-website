@@ -3,11 +3,14 @@ const userRoute = express();
 const userController = require("../controller/userController");
 const productController = require('../controller/productController')
 const cartController = require('../controller/cartController')
+const orderController =require('../controller/orderController')
 const path =require("path")
 const session = require("express-session");
 const config = require('../config/config');
 const auth = require('../middlewares/userAuth');
 const passport =require("passport");
+
+
 require("../passport")
 userRoute.use(passport.initialize());
 userRoute.use(passport.session());
@@ -97,14 +100,14 @@ userRoute.get('/productView/product/:productId/variant/:variantId',productContro
 
 // ==========================================< CART HANDLING >==================================================== //
 
-userRoute.get('/cart',cartController.loadCart);
+userRoute.get('/cart',auth.authlogg,cartController.loadCart);
 
 userRoute.post('/add-to-cart',cartController.addToCart)
 
-userRoute.post('/update-cart-quantity',cartController.quantityUpdationCart)
+userRoute.post('/update-cart-quantity',auth.authlogg,cartController.quantityUpdationCart)
 
 
-userRoute.post('/remove-from-cart',cartController.removeCartItem)
+userRoute.post('/remove-from-cart',auth.authlogg,cartController.removeCartItem)
 
 
 
@@ -118,4 +121,17 @@ userRoute.post('/add-address',userController.addAddress)
 userRoute.post('/edit-address',userController.editAddress);
 userRoute.delete('/delete-address/:id',userController.removeAddress);
 
+
+
+
+// ==========================================< CHECKOUT >==================================================== //
+
+userRoute.get('/checkout',auth.authlogg,cartController.checkout);
+
+userRoute.post('/place-order',auth.authlogg,orderController.placeOrder)
+
+userRoute.post('/cancel-order',orderController.cancelOrder)
+userRoute.post('/return-order',orderController.cancelOrder)
+
+userRoute.get('/order-summary/:orderId',orderController.orderSuccess)
 module.exports = userRoute;

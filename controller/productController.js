@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const Category = require("../models/categoriesModel");
 const Product = require("../models/productSchema");
+const Cart =require("../models/cartSchema")
 const fs = require('fs'); // Import the fs module
 const sharp = require("sharp");
 
@@ -345,6 +346,7 @@ const editVariant = async (req, res) => {
 
     // Process uploaded images
     const newImages = [];
+    
     if (req.files && req.files.length > 0) {
       for (let i = 0; i < req.files.length; i++) {
         const outputPath = path.resolve(
@@ -388,7 +390,24 @@ const editVariant = async (req, res) => {
         }
       }
     );
+  
+  // Find carts that contain this variant and update if necessary
+  const carts = await Cart.find({ 'products.productId': id });
 
+  for (const cart of carts) {
+    let updated = false;
+
+    for (const item of cart.products) {
+      if (item.productId.toString() === id && item.quantity > parseInt(quantity, 10)) {
+        item.quantity = parseInt(quantity, 10);
+        updated = true;
+      }
+    }
+
+    if (updated) {
+      await cart.save();
+    }
+  }
     // Redirect or respond with success message
     res.redirect(`/admin/loadVariant/${id}`);
   } catch (error) {
@@ -403,7 +422,13 @@ const loadShop = async (req, res) => {
 
     const gender = req.params.gender
 
-    const products = await Product.find({gender}).populate('variants').populate("category")
+    const products = await Product.find({gender,is_Listed:true}).populate('variants').populate("category")
+     // Add additional properties to determine the labels
+     const now = new Date();
+     products.forEach(product => {
+       product.isNew = (now - product.date) <= 7 * 24 * 60 * 60 * 1000; // Check if added within one week
+       product.isOutOfStock = product.variants.every(variant => variant.quantity === 0);
+     });
     const categories = await Category.aggregate([
       {$match:{
         gender:gender,

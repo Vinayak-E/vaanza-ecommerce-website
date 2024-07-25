@@ -2,6 +2,22 @@
 <%- include('../layout/header.ejs') -%>
 
  <style>
+    .custom-swal-popup {
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.custom-swal-title {
+    color: #333;
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+}
+
+.custom-swal-content {
+    color: #666;
+    font-family: 'Arial', sans-serif;
+}
     .btn-disabled {
       background-color: red;
       cursor: not-allowed;
@@ -247,13 +263,13 @@
                                               %>
                                              <input type="number" id="qty" class="form-control" value="1" min="1" max="<%= maxQuantity %>" step="0" data-decimals="0" required>
                                              <% if (stockMessage) { %>
-                                                <p class="stock-message"><%= stockMessage %></p>
+                                                <p class="stock-message" style="color: red;"><%= stockMessage %></p>
                                             <% } %>
                                          </div><!-- End .product-details-quantity -->
 
                                            <!-- Add to Cart Button or Out of Stock -->
                                               <% if (variant.quantity < 1) { %>
-                                               <a href="#" class="btn-product btn-cart btn-disabled"><span>Out of Stock</span></a>
+                                               <a href="#" class="btn-product btn-cart btn-disabled" style="color: azure;"><span>Out of Stock</span></a>
                                               <% } else { %>
                                               <a href="#" class="btn-product btn-cart" id="add-to-cart"><span>Add to Cart</span></a>
                                               <input type="hidden" id="productId" value="<%= product._id %>">
@@ -1021,17 +1037,59 @@
             });
      
             if (response.ok) {
+    Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Product added to cart successfully!',
+        position: 'bottom',
+        showConfirmButton: false,
+        timer: 1500,
+        customClass: {
+            popup: 'custom-swal-popup',
+            title: 'custom-swal-title',
+            content: 'custom-swal-content'
+        },
+        background: '#f0f9ff',
+        iconColor: '#28a745'
+    }).then(() => {
+        window.location.href = '/cart';
+    });
+} else {
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to add product to cart.',
+        position: 'bottom',
+        showConfirmButton: false,
+        timer: 1500,
+        customClass: {
+            popup: 'custom-swal-popup',
+            title: 'custom-swal-title',
+            content: 'custom-swal-content'
+        },
+        background: '#ffebeb',
+        iconColor: '#dc3545'
+    });
+}
+} catch (error) {
+    console.error('Error:', error);
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while adding product to cart.',
+        position: 'bottom',
+        showConfirmButton: false,
+        timer: 1500,
+        customClass: {
+            popup: 'custom-swal-popup',
+            title: 'custom-swal-title',
+            content: 'custom-swal-content'
+        },
+        background: '#ffebeb',
+        iconColor: '#dc3545'
+    });
+}
 
-                window.location.href = '/cart';
-                
-                alert('Product added to cart successfully!');
-            } else {
-              alert('Failed to add product to cart.');
-            }
-          } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred while adding product to cart.');
-          }
         });
       } else {
         console.log('Add to Cart button not found');

@@ -1,6 +1,8 @@
 const {name} = require('ejs');
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt'); 
+const Address = require("../models/addressSchema")
+const Order = require("../models/orderModel");
 
 // Hashing the password
 
@@ -150,13 +152,95 @@ const blockUser = async (req, res) => {
 }
 
 
+const loadOrderlist = async (req, res) => {
+  try {
+    const orders = await Order.find({})
+      .populate('userId', 'name') 
+      .populate('addressId')
+      .populate('products.productId', 'name') 
+     
+    res.render('orderList', { orders });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+
+
+const orderDetails = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const order = await Order.findById(orderId)
+      .populate('userId')
+      .populate('addressId')
+      .populate('products.productId')
+      
+
+    if (!order) {
+      return res.status(404).send('Order not found');
+    }
+      // Calculate the subtotal
+      const subtotal = order.products.reduce((sum, productItem) => {
+        return sum + (productItem.price * productItem.quantity);
+      }, 0);
+
+    res.render('orderDetails', { order,subtotal });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+const updateOrderStatus = async (req, res) => {
+  try {
+    const { orderId, productId, status } = req.body;
+
+    // Define allowed transitions
+    const allowedTransitions = {
+      'Pending': ['Dispatched'],
+      'Dispatched': ['Out For Delivery'],
+      'Out For Delivery': ['Delivered'],
+      'Delivered': [] // No further transitions allowed
+    };
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    const productItem = order.products.id(productId);
+    if (!productItem) {
+      return res.status(404).json({ message: 'Product not found in order' });
+    }
+
+    const currentStatus = productItem.status;
+    if (allowedTransitions[currentStatus] && !allowedTransitions[currentStatus].includes(status)) {
+      return res.status(400).json({ 
+        message: `Invalid status transition from ${currentStatus} to ${status}.` 
+      });
+    }
+
+    productItem.status = status;
+    await order.save();
+
+    res.status(200).json({ message: 'Status updated successfully' });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
 module.exports = {
     loadLogin,
     verifyLogin,
     loadDashboard,
     adminLogout,
     loadUserMangment,
-    blockUser
+    blockUser,
+    loadOrderlist,
+    orderDetails,
+    updateOrderStatus
     
     
 }

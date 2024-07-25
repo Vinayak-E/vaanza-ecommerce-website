@@ -94,4 +94,15 @@ adminRoute.get("/edit-variant",productController.loadEditVariant);
 
 adminRoute.post("/edit-variant",multer.array('images', 4),productController.editVariant);
 
+
+
+
+
+// ===============  Order Management  ==========================//
+
+adminRoute.get("/orders",adminController.loadOrderlist)
+adminRoute.get('/order-details/:orderId', adminController.orderDetails);
+
+adminRoute.post('/update-status', adminController.updateOrderStatus);
+
  module.exports = adminRoute;

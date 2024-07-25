@@ -1,10 +1,53 @@
 <%- include('../layout/header.ejs') -%>
+
 <style>
-     .btn-disabled {
-      background-color: red;
-      cursor: not-allowed;
-      pointer-events: none;
-      color: white; /* This ensures that the button is completely non-interactive */
+    .order-summary-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .order-summary h1, .order-summary h2, .order-summary h3 {
+        color: #333;
+    }
+    .order-summary table {
+        width: 100%;
+        margin-top: 20px;
+    }
+    .order-summary th, .order-summary td {
+        padding: 12px;
+        text-align: left;
+    }
+    .order-summary th {
+        background-color: #007bff;
+        color: #fff;
+    }
+    .order-summary tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+    .variant-image {
+        width: 120px;
+        height: 150px;
+        object-fit: cover;
+    }
+    .order-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+    .address-details {
+        max-width: 50%;
+        text-align: right;
+    }
+    .order-summary-footer {
+        margin-top: 20px;
+        padding-top: 10px;
+        border-top: 1px solid #dee2e6;
+    }
+    .order-summary-footer .row {
+        margin-bottom: 10px;
     }
 </style>
 </head>
@@ -13,7 +56,6 @@
     <div class="page-wrapper">
         <header class="header">
             <div class="header-top">
-                
             </div><!-- End .header-top -->
 
             <div class="header-middle sticky-header">
@@ -22,14 +64,13 @@
                         
 
                         <a href="index.html" class="logo">
-                            <img src="assets/images/logo.png" alt="Molla Logo" width="105" height="25">
+                            <img src="/assets/images/logo.png" alt="Molla Logo" width="105" height="25">
                         </a>
 
                         <nav class="main-nav">
                             <ul class="menu sf-arrows">
                                 <li class="megamenu-container active">
                                     <a href="index.html" class="sf-with-ul">Home</a>
-
                                 </li>
                                 <li>
                                     <a href="category.html" class="sf-with-ul">Shop</a>
@@ -38,18 +79,16 @@
                                 <li>
                                     <a href="product.html" class="sf-with-ul">Product</a>
 
-                                    
+                                   
                                 </li>
                                 <li>
                                     <a href="#" class="sf-with-ul">Pages</a>
 
                                 </li>
+                                
                                 <li>
-                                    <a href="blog.html" class="sf-with-ul">Blog</a>
-
-                                   
-                                        </li>
-                                    
+                                    <a href="elements-list.html" class="sf-with-ul">Elements</a>
+                                </li>
                             </ul><!-- End .menu -->
                         </nav><!-- End .main-nav -->
                     </div><!-- End .header-left -->
@@ -64,29 +103,7 @@
                                 </div><!-- End .header-search-wrapper -->
                             </form>
                         </div><!-- End .header-search -->
-                        <div class="dropdown compare-dropdown">
-                            <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static" title="Compare Products" aria-label="Compare Products">
-                                <i class="icon-random"></i>
-                            </a>
-
-                            <div class="dropdown-menu dropdown-menu-right">
-                                <ul class="compare-products">
-                                    <li class="compare-product">
-                                        <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                                        <h4 class="compare-product-title"><a href="product.html">Blue Night Dress</a></h4>
-                                    </li>
-                                    <li class="compare-product">
-                                        <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                                        <h4 class="compare-product-title"><a href="product.html">White Long Skirt</a></h4>
-                                    </li>
-                                </ul>
-
-                                <div class="compare-actions">
-                                    <a href="#" class="action-link">Clear All</a>
-                                    <a href="#" class="btn btn-outline-primary-2"><span>Compare</span><i class="icon-long-arrow-right"></i></a>
-                                </div>
-                            </div><!-- End .dropdown-menu -->
-                        </div><!-- End .compare-dropdown -->
+                       
 
                         <div class="dropdown cart-dropdown">
                             <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
@@ -94,60 +111,6 @@
                                 <span class="cart-count">2</span>
                             </a>
 
-                            <div class="dropdown-menu dropdown-menu-right">
-                                <div class="dropdown-cart-products">
-                                    <div class="product">
-                                        <div class="product-cart-details">
-                                            <h4 class="product-title">
-                                                <a href="product.html">Beige knitted elastic runner shoes</a>
-                                            </h4>
-
-                                            <span class="cart-product-info">
-                                                <span class="cart-product-qty">1</span>
-                                                x $84.00
-                                            </span>
-                                        </div><!-- End .product-cart-details -->
-
-                                        <figure class="product-image-container">
-                                            <a href="product.html" class="product-image">
-                                                <img src="assets/images/products/cart/product-1.jpg" alt="product">
-                                            </a>
-                                        </figure>
-                                        <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                                    </div><!-- End .product -->
-
-                                    <div class="product">
-                                        <div class="product-cart-details">
-                                            <h4 class="product-title">
-                                                <a href="product.html">Blue utility pinafore denim dress</a>
-                                            </h4>
-
-                                            <span class="cart-product-info">
-                                                <span class="cart-product-qty">1</span>
-                                                x $76.00
-                                            </span>
-                                        </div><!-- End .product-cart-details -->
-
-                                        <figure class="product-image-container">
-                                            <a href="product.html" class="product-image">
-                                                <img src="assets/images/products/cart/product-2.jpg" alt="product">
-                                            </a>
-                                        </figure>
-                                        <a href="#" class="btn-remove" title="Remove Product"><i class="icon-close"></i></a>
-                                    </div><!-- End .product -->
-                                </div><!-- End .cart-product -->
-
-                                <div class="dropdown-cart-total">
-                                    <span>Total</span>
-
-                                    <span class="cart-total-price">$160.00</span>
-                                </div><!-- End .dropdown-cart-total -->
-
-                                <div class="dropdown-cart-action">
-                                    <a href="cart.html" class="btn btn-primary">View Cart</a>
-                                    <a href="checkout.html" class="btn btn-outline-primary-2"><span>Checkout</span><i class="icon-long-arrow-right"></i></a>
-                                </div><!-- End .dropdown-cart-total -->
-                            </div><!-- End .dropdown-menu -->
                         </div><!-- End .cart-dropdown -->
                     </div><!-- End .header-right -->
                 </div><!-- End .container -->
@@ -155,142 +118,103 @@
         </header><!-- End .header -->
 
         <main class="main">
-        	<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+        	<div class="page-header text-center" style="background-image: url('/assets/images/page-header-bg.jpg')">
         		<div class="container">
-        			<h1 class="page-title">Shopping Cart<span>Shop</span></h1>
+        			<h1 class="page-title">Order Summary<span>VAANZA</span></h1>
         		</div><!-- End .container -->
         	</div><!-- End .page-header -->
-            <nav aria-label="breadcrumb" class="breadcrumb-nav">
+            <nav aria-label="breadcrumb" class="breadcrumb-nav mb-3">
                 <div class="container">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="index.html">Home</a></li>
                         <li class="breadcrumb-item"><a href="#">Shop</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Shopping Cart</li>
+                        <li class="breadcrumb-item active" aria-current="page">Order Summary</li>
                     </ol>
                 </div><!-- End .container -->
             </nav><!-- End .breadcrumb-nav -->
 
-            <div class="page-content">
-            	<div class="cart">
-	                <div class="container">
-	                	<div class="row">
-	                		<div class="col-lg-9">
-	                			<table class="table table-cart table-mobile">
-									<thead>
-										<tr>
-											<th>Product</th>
-											<th>Price</th>
-											<th>Quantity</th>
-											<th>Total</th>
-											<th></th>
-										</tr>
-									</thead>
-                                   
-                                    <tbody>
-                                        <% if (cart &&  cart.products && cart.products.length > 0) { %>
-                                       
-                                          <% cart.products.forEach(product => { %>
-                                            <tr>
-                                              <td class="product-col">
-                                                <div class="product">
-                                                  <figure class="product-media">
-                                                    <a href="/productView/product/<%= product.productId._id %>/variant/<%= product.variantId %>">
-                                                      <% const variant = product.productId.variants.find(v => v._id.toString() === product.variantId.toString()); %>
-                                                      <% if (variant && variant.images && variant.images.length > 0) { %>
-                                                        <img src="/assets/images/productImage/sharped/<%= variant.images[0] %>" alt="Product image">
-                                                      <% } %>
-                                                    </a>
-                                                  </figure>
-                                                  <h3 class="product-title">
-                                                    <a href="/productView/product/<%= product.productId._id %>/variant/<%= product.variantId %>"><%= product.productId.name %></a>
-                                                  </h3><!-- End.product-title -->
-                                                </div><!-- End.product -->
-                                              </td>
-                                              <td class="price-col">$<%= product.productId.price %></td>
 
-                                       
-                                              <td class="quantity-col">
-                                                <div class="cart-product-quantity">
-                                                    <% if (variant.quantity < 1) { %>
-                                                        <a href="#" class="btn btn-outline-primary-2 " style="border-color: red;color: red ;"><span>Out of Stock</span></a>
-                                                       <% } else { %>
+            <div class="container order-summary-container">
+                <h1 class="text-center mb-4">Order Summary</h1>
+                <div class="order-summary">
+                    <div class="order-details">
+                        <div class="order-info">
+                            <h2 class="mb-3">Order Details</h2>
+                            <p><strong>Order ID:</strong> <%= order.orderId %></p>
+                            <p><strong>Total Amount:</strong> ₹ <%= order.totalAmount %></p>
+                            <p><strong>Ordered Date:</strong> <%= 
+                                new Date(order.orderDate).toLocaleDateString("en-US", {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit"
+                                }) 
+                              %></p>
+                        </div>
+                        <div class="address-details">
+                            <p><strong>Ship to:</strong> <%= order.addressId.name %></p>
+                            <p><strong>Delivery Address:</strong><br>
+                                <%= order.addressId.address %>, <%= order.addressId.street %><br>
+                                <%= order.addressId.state %>, <%= order.addressId.postalCode %><br>
+                                <%= order.addressId.number %>
+                            </p>
+                        </div>
+                    </div>
+                    <h3 class="mt-4 mb-3">Products</h3>
+                    <table class="table table-striped table-bordered">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th></th>
+                                <th>Product </th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% let subtotal = 0; %>
+                            <% order.products.forEach(item => { %>
+                                <% const product = item.productId; %>
+                                <% const itemTotal = product.price * item.quantity; %>
+                                <% subtotal += itemTotal; %>
+                                <% const variant = product.variants.find(v => v.sizes.includes(item.size)); %>
+                                <% const variantImage = variant ? variant.images[0] : ''; %>
+                                <tr>
+                                    <td><img src="/assets/images/productImage/<%= variantImage %>" alt="<%= product.name %>" class="variant-image"></td>
+                                    <td><%= product.name %> <br><%= variant.color  %> <br> <%= item.size  %></td>
+                                    <td><%= item.quantity %></td>
+                                    <td>₹<%= product.price.toFixed(2) %></td>
+                                    <td>₹<%= itemTotal.toFixed(2) %></td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                    <div class="order-summary-footer">
+                        <div class="row">
+                            <div class="col-md-12 text-right">
+                                <h6>Subtotal: <span>₹<%= subtotal.toFixed(2) %></span></h6>
+                                <h6>Shipping Charge: <span>₹<%= order.shippingCharge.toFixed(2) %></span></h6>
+                                <h3 class="mt-4">Grand Total: <span>₹<%= subtotal + order.shippingCharge %></span></h3>
+                            </div>
+                        </div>
+                    </div>
 
-                                                    <% 
-                                                    // Determine the maximum quantity user can add
-                                                    var maxQuantity = Math.min(5, variant.quantity);
-                                                    var stockMessage = "";
-                                                 if (variant.quantity > 0 && variant.quantity < 5) {
-                                                   stockMessage = "Only " + variant.quantity + " left in stock";
-                                                      }
-                                                      %>
-                                                    <input type="number" class="form-control quantity-input" value="<%= product.quantity %>" min="1" max="<%= maxQuantity %>" step="1" data-product-id="<%= product.productId._id %>" data-variant-id="<%= product.variantId %>" data-size="<%= product.size %>" data-price="<%= product.productId.price %>" required>
-                                                    <% if (stockMessage) { %>
-                                                        <p class="stock-message"><%= stockMessage %></p>
-                                                    <% } %>
-                                                    
-                                                    <td class="total-col item-total">$<%= product.productId.price * product.quantity %></td>
-                                                    <% } %>
-                                                </div><!-- End.cart-product-quantity -->
-                                              </td>
-                                              
-                                              <td class="remove-col"><button class="btn-remove" data-product-id="<%= product.productId._id %>" data-variant-id="<%= product.variantId %>"><i class="icon-close"></i></button></td>
-                                            </tr>
-                                          <% }) %>
-                                        <% } else { %>
-                                          <tr>
-                                            <td colspan="5">Your cart is empty.</td>
-                                          </tr>
-                                        <% } %>
-                                      </tbody>
-                                    
-								</table><!-- End .table table-wishlist -->
+                    <div class="text-center mt-4">
+                        <a href="/" class="btn btn-primary btn-lg mr-2">Continue Shopping</a>
+                        <a href="/download-invoice/<%= order.orderId %>" class="btn btn-secondary btn-lg">Download Invoice</a>
+                    </div>
+                </div>
+            </div>
 
-	                			
-	                		</div><!-- End .col-lg-9 -->
-	                		<aside class="col-lg-3">
-	                			<div class="summary summary-cart">
-	                				<h3 class="summary-title">Cart Total</h3><!-- End .summary-title -->
 
-	                				<table class="table table-summary">
-                                        <tbody>
-                                            <% if (cart && cart.products) { %>
-                                              <tr class="summary-subtotal">
-                                                <td>Subtotal:</td>
-                                                <td class="subtotal">$<%= cart  && cart.products ? cart.products.reduce((acc, product) => acc + (product.productId.price * product.quantity), 0) : 0 %></td>
-                                              </tr><!-- End.summary-subtotal -->
-                                          
-                                              <tr class="summary-total">
-                                                <td>Total:</td>
-                                                 <td class="total">$<%= cart && cart.products ? cart.products.reduce((acc, product) => acc + (product.productId.price * product.quantity), 0) : 0 %></td>
-                                              </tr><!-- End.summary-total -->
-                                          
-                                            <% } else { %>
-                                              <tr class="summary-subtotal">
-                                                <td>Subtotal:</td>
-                                                <td>$0.00</td>
-                                              </tr><!-- End.summary-subtotal -->
-                                          
-                                              <tr class="summary-total">
-                                                <td>Total:</td>
-                                                <td>$0.00</td>
-                                              </tr><!-- End.summary-total -->
-                                            <% } %>
-                                          </tbody>
-	                				</table><!-- End .table table-summary -->
-                                    <% if (typeof cart !== 'undefined' && typeof cart.products !== 'undefined' && cart.products.length != 0) { %>
-                                        <a href="/checkout" class="btn btn-outline-primary-2 btn-order btn-block">PROCEED TO CHECKOUT</a>
-                                      <% } else { %>
-                                        <button class="btn btn-outline-primary-2 btn-order btn-block" disabled>PROCEED TO CHECKOUT</button>
-                                        <p>Please add some products to your cart to proceed to checkout.</p>
-                                      <% } %>
-	                			</div><!-- End .summary -->
 
-		            			<a href="category.html" class="btn btn-outline-dark-2 btn-block mb-3"><span>CONTINUE SHOPPING</span><i class="icon-refresh"></i></a>
-	                		</aside><!-- End .col-lg-3 -->
-	                	</div><!-- End .row -->
-	                </div><!-- End .container -->
-                </div><!-- End .cart -->
-            </div><!-- End .page-content -->
+
+
+
+
+
+            </div>
         </main><!-- End .main -->
 
         <footer class="footer">
@@ -655,118 +579,25 @@
             </div><!-- End .modal-content -->
         </div><!-- End .modal-dialog -->
     </div><!-- End .modal -->
-  
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let quantityInputs = document.querySelectorAll('.quantity-input');
-            const subtotalElement = document.querySelector('.subtotal');
-            const totalElement = document.querySelector('.total');
-            const removeButtons = document.querySelectorAll('.btn-remove');
-    
-            // Helper function to calculate the total for a single item
-            function calculateItemTotal(price, quantity) {
-                return price * quantity;
-            }
-    
-            // Helper function to update the totals
-            function updateTotals() {
-                let subtotal = 0;
-    
-                quantityInputs.forEach(input => {
-                    const price = parseFloat(input.dataset.price);
-                    const quantity = parseInt(input.value);
-                    const itemTotalElement = input.closest('tr').querySelector('.item-total');
-    
-                    if (!isNaN(price) && !isNaN(quantity)) {
-                        const itemTotal = calculateItemTotal(price, quantity);
-                        subtotal += itemTotal;
-                        itemTotalElement.textContent = `$${itemTotal.toFixed(2)}`;
-                    }
-                });
-    
-                subtotalElement.textContent = `$${subtotal.toFixed(2)}`;
-                totalElement.textContent = `$${subtotal.toFixed(2)}`; // Assuming no additional fees
-            }
-    
-            // Function to save updated quantity to the server
-            function saveUpdatedQuantity(productId, variantId, size, quantity) {
-                fetch('/update-cart-quantity', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ productId, variantId, size, quantity })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log('Cart updated successfully');
-                        updateTotals(); // Update totals after successful update
-                    } else {
-                        console.error('Error updating cart');
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            }
-    
-            // Function to remove product from cart
-            function removeProductFromCart(productId, variantId, size, button) {
-                fetch('/remove-from-cart', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ productId, variantId, size })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log('Product removed successfully');
-                        // Remove the product row from the table
-                        const rowToRemove = button.closest('tr');
-                        if (rowToRemove) {
-                            rowToRemove.remove();
-                            // Update quantityInputs after removing a row
-                            quantityInputs = document.querySelectorAll('.quantity-input');
-                            updateTotals(); // Update totals after removing row
-                        }
-                    } else {
-                        console.error('Error removing product');
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            }
-    
-            // Event listener for quantity inputs
-            quantityInputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    const productId = this.dataset.productId;
-                    const variantId = this.dataset.variantId;
-                    const size = this.dataset.size;
-                    const quantity = parseInt(this.value);
-                    saveUpdatedQuantity(productId, variantId, size, quantity);
-                });
-            });
-    
-            // Event listener for remove buttons
-            removeButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const productId = this.dataset.productId;
-                    const variantId = this.dataset.variantId;
-                    const size = this.dataset.size;
-                    removeProductFromCart(productId, variantId, size, this);
-                });
-            });
-    
-            updateTotals(); // Initial call to set totals
-        });
-    </script>
-    
 
-        
-        
-        
+
+
+
+
+
+
+
+
 </body>
+
+
+
+
+
+
+
+
+
 
 
 

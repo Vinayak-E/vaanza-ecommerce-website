@@ -39,6 +39,32 @@
         margin-top: 5px;
     }
 
+    .order-product-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .variant-image {
+        width: 100px;
+        height: 150px;
+        object-fit: cover;
+        margin-right: 10px;
+    }
+
+    .order-product-details {
+        flex-grow: 1;
+    }
+
+    .order-product-status {
+        margin-left: 20px;
+        text-align: right;
+    }
+
+    .order-product-details p, .order-product-status p {
+        margin: 0;
+    }
 
 
    
@@ -193,10 +219,137 @@
  
 								   
 
-								    <div class="tab-pane fade" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
-								    	<p>No order has been made yet.</p>
-								    	<a href="category.html" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
-								    </div><!-- .End .tab-pane -->
+                                        <div class="tab-pane fade" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
+                                            <% if (orders && orders.length > 0) { %>
+                                                <div class="order-list">
+                                                    <% orders.forEach(order => { %>
+                                                        <div class="order-item">
+                                                            <div class="order-header">
+                                                                <div>
+                                                                    <h5>Order ID: <%= order.orderId %></h5>
+                                                                    <p>Order Date: <%= new Date(order.orderDate).toLocaleDateString() %></p>
+                                                                    <p>Total Amount: ₹<%= order.totalAmount.toFixed(2) %></p>
+                                                                    <p>Ship to: <%=order.addressId.name%></p>
+                                                                    <div>Delivery Address: <%= order.addressId.address%>,<%= order.addressId.street%> <br><%= order.addressId.state%>,<%= order.addressId.postalCode %> , <%= order.addressId.number %></div>
+                                                                </div>
+                                                                <div>
+                                                                    <a href="javascript:void(0);" class="view-order-details" onclick="toggleOrderDetails('<%= order._id %>')">View Order Details</a>
+                                                                </div>
+                                                            </div>
+                                                            <div class="order-products" id="order-products-<%= order._id %>" style="display: none;">
+                                                                <h6>Products:</h6>
+                                                                <ul>
+                                                                    <% order.products.forEach(item => { %>
+                                                                        <li>
+                                                                            <div class="order-product-item">
+                                                                                <% 
+                                                                                    const product = item.productId;
+                                                                                    const variant = product.variants.find(v => v.sizes.includes(item.size));
+                                                                                    const variantImage = variant ? variant.images[0] : '';
+                                                                                %>
+                                                                                <div class="order-product-image">
+                                                                                    <img src="/assets/images/productImage/<%= variantImage %>" alt="<%= product.name %>" class="variant-image">
+                                                                                </div>
+                                                                                <div class="order-product-details">
+                                                                                    <p class="mb-1"><strong>Product Name:</strong> <%= product.name %></p>
+                                                                                    <p class="mb-1"><strong>Size:</strong> <%= item.size %></p>
+                                                                                    <p class="mb-1"><strong>Quantity:</strong> <%= item.quantity %></p>
+                                                                                    <p class="mb-1"><strong>Price:</strong> ₹<%= item.price.toFixed(2) %></p>   
+                                                                                    <% if (item.status === 'Cancelled') { %>
+                                                                                        <button type="button" class="btn btn-outline-danger mb-1" disabled>Cancelled</button>
+                                                                                      <% } else if (item.status === 'Delivered') { %>
+                                                                                        <button type="button" class="btn btn-outline-warning mb-1" onclick="openReturnModal('<%= order._id %>', '<%= product._id %>', '<%= variant._id %>')">Return</button>
+                                                                                      <% } else { %>
+                                                                                        <button type="button" class="btn btn-outline-danger mb-1" onclick="openCancelModal('<%= order._id %>', '<%= product._id %>', '<%= variant._id %>')">Cancel</button>
+                                                                                      <% } %>
+                                                                                      
+
+
+                                                                                </div>
+                                                                                
+
+                                                                                   
+                                                                              
+                                                                                <div class="order-product-status">
+                                                                                    <span class="badge 
+                                                                                    <% if (item.status === 'Pending') { %>bg-warning text-dark<% } else if (item.status === 'Dispatched') { %>bg-info<% } else if (item.status === 'Out For Delivery') { %>bg-primary<% } else if (item.status === 'Delivered') { %>bg-success text-white<% } %>">
+                                                                                    <%= item.status %>
+                                                                                  </span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </li>
+                                                                    <% }) %>
+                                                                </ul>
+                                                               
+                                                            </div>
+                                                           
+                                                        </div>
+                                                        <hr>
+                                                    <% }) %>
+                                                </div>
+                                            <% } else { %>
+                                                <p>No order has been made yet.</p>
+                                            <% } %>
+                                        </div><!-- .End .tab-pane -->
+                                        
+                                     
+                                        
+                                        <!-- Cancel Order Modal -->
+<!-- Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="cancelModalLabel">Cancel Product</h5>
+          <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="cancelOrderId">
+          <input type="hidden" id="cancelProductId">
+          <input type="hidden" id="cancelVariantId">
+          <div class="mb-3">
+            <label for="cancelReason" class="form-label">Reason for Cancellation</label>
+            <textarea class="form-control" id="cancelReason" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-danger" id="confirmCancelButton">Cancel Product</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+<!-- modal End   -->
+
+<!-- Return Modal -->
+<div class="modal fade" id="returnModal" tabindex="-1" aria-labelledby="returnModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="returnModalLabel">Return Product</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="returnOrderId">
+          <input type="hidden" id="returnProductId">
+          <input type="hidden" id="returnVariantId">
+          <div class="mb-3">
+            <label for="returnReason" class="form-label">Reason for Return</label>
+            <textarea class="form-control" id="returnReason" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-warning" id="confirmReturnButton">Return Product</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+
+
 
 								    <div class="tab-pane fade" id="tab-downloads" role="tabpanel" aria-labelledby="tab-downloads-link">
 								    	<p>No downloads available yet.</p>
@@ -235,79 +388,85 @@
                                             <% } %>
                                         </div>
                                     </div>
-                                    
-                                                       <!-- Add Address Modal -->
-                                  <div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title text-center w-100" id="addAddressModalLabel">Add Address</h5>
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
+                            
+                                                <!-- Add Address Modal -->
+                            <div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title text-center w-100" id="addAddressModalLabel">Add Address</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="address-form" onsubmit="return validateAddressForm()">
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+                                                        <label for="name">Full Name *</label>
+                                                        <input type="text" class="form-control" id="name" name="name" required>
+                                                        <div class="error-message" id="name-error"></div>
+                                                    </div><!-- End .col-sm-6 -->
+                            
+                                                    <div class="col-sm-6">
+                                                        <label for="number">Mobile Number *</label>
+                                                        <input type="text" class="form-control" id="number" name="number" required>
+                                                        <div class="error-message" id="number-error"></div>
+                                                    </div><!-- End .col-sm-6 -->
+                                                </div><!-- End .row -->
+                            
+                                                <label for="address">Address *</label>
+                                                <input type="text" class="form-control" id="address" name="address" required>
+                                                <div class="error-message" id="address-error"></div>
+                            
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+                                                        <label for="street">Street/City *</label>
+                                                        <input type="text" class="form-control" id="street" name="street" required>
+                                                        <div class="error-message" id="street-error"></div>
+                                                    </div><!-- End .col-sm-6 -->
+                            
+                                                    <div class="col-sm-6">
+                                                        <label for="postalCode">Pincode *</label>
+                                                        <input type="text" class="form-control" id="postalCode" name="postalCode" required>
+                                                        <div class="error-message" id="postalCode-error"></div>
+                                                    </div><!-- End .col-sm-6 -->
+                                                </div><!-- End .row -->
+                            
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+                                                        <label for="state">State *</label>
+                                                        <select class="form-control" id="state" name="state" required>
+                                                            <option value="" disabled selected>Select your state</option>
+                                                            <option value="Kerala">Kerala</option>
+                                                            <option value="Tamil Nadu">Tamil Nadu</option>
+                                                            <option value="Karnataka">Karnataka</option>
+                                                            <!-- Add more options as needed -->
+                                                        </select>
+                                                        <div class="error-message" id="state-error"></div>
+                                                    </div><!-- End .col-sm-6 -->
+                            
+                                                    <div class="col-sm-6">
+                                                        <label for="landmark">Landmark</label>
+                                                        <input type="text" class="form-control" id="landmark" name="landmark">
+                                                        <div class="error-message" id="landmark-error"></div>
+                                                    </div><!-- End .col-sm-6 -->
+                                                </div><!-- End .row -->
+                            
+                                                <input type="hidden" id="userId" value="<%= user._id %>">
+                                                <div class="text-center mt-3">
+                                                    <button type="submit" class="btn btn-outline-primary-2">
+                                                        <span>SAVE CHANGES</span>
+                                                        <i class="icon-long-arrow-right"></i>
                                                     </button>
                                                 </div>
-                                                <div class="modal-body">
-                                                    <form id="address-form">
-                                                        <div class="row">
-                                                            <div class="col-sm-6">
-                                                                <label for="name">Full Name *</label>
-                                                                <input type="text" class="form-control " id="name" name="name" required>
-                                                                <div class="error-message" id="name-error"></div>
-                                                            </div><!-- End .col-sm-6 -->
-                                    
-                                                            <div class="col-sm-6">
-                                                                <label for="number">Mobile Number *</label>
-                                                                <input type="text" class="form-control" id="number" name="number" required>
-                                                                <div class="error-message" id="number-error"></div>
-                                                            </div><!-- End .col-sm-6 -->
-                                                        </div><!-- End .row -->
-                                    
-                                                        <label for="address">Address *</label>
-                                                        <input type="text" class="form-control" id="address" name="address" required>
-                                                        <div class="error-message" id="address-error"></div>
-                                    
-                                                        <div class="row">
-                                                            <div class="col-sm-6">
-                                                                <label for="street">Street/City *</label>
-                                                                <input type="text" class="form-control" id="street" name="street" required>
-                                                                <div class="error-message" id="street-error"></div>
-                                                            </div><!-- End .col-sm-6 -->
-                                    
-                                                            <div class="col-sm-6">
-                                                                <label for="postalCode">Pincode *</label>
-                                                                <input type="text" class="form-control" id="postalCode" name="postalCode" required>
-                                                                <div class="error-message" id="postalCode-error"></div>
-                                                            </div><!-- End .col-sm-6 -->
-                                                        </div><!-- End .row -->
-                                    
-                                                        <div class="row">
-                                                            <div class="col-sm-6">
-                                                                <label for="state">State *</label>
-                                                                <input type="text" class="form-control" id="state" name="state" required>
-                                                                <div class="error-message" id="state-error"></div>
-                                                            </div><!-- End .col-sm-6 -->
-                                    
-                                                            <div class="col-sm-6">
-                                                                <label for="landmark">Landmark</label>
-                                                                <input type="text" class="form-control" id="landmark" name="landmark">
-                                                                <div class="error-message" id="landmark-error"></div>
-                                                            </div><!-- End .col-sm-6 -->
-                                                        </div><!-- End .row -->
-                                    
-                                                        <input type="hidden" id="userId" value="<%= user._id %>">
-                                                        <div class="text-center mt-3">
-                                                            <button type="submit" class="btn btn-outline-primary-2">
-                                                                <span>SAVE CHANGES</span>
-                                                                <i class="icon-long-arrow-right"></i>
-                                                            </button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
+                                            </form>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
 
-                              <!-----Add Address modal End------>
+                        <!-----Add Address modal End------>
 
 
                                         <!-- Edit Address Modal -->
@@ -358,7 +517,14 @@
                                                             <div class="row">
                                                                 <div class="col-sm-6">
                                                                     <label for="Editstate">State *</label>
-                                                                    <input type="text" class="form-control" id="Editstate" name="state" required>
+                                                                    <select class="form-control" id="Editstate" name="state" required>
+                                                                        <option value="" disabled selected>Select your state</option>
+                                                                        <option value="Kerala">Kerala</option>
+                                                                        <option value="Tamil Nadu">Tamil Nadu</option>
+                                                                        <option value="Karnataka">Karnataka</option>
+                                                                        <!-- Add more options as needed -->
+                                                                    </select>
+                                                                
                                                                     <div class="error-message" id="Editstate-error"></div>
                                                                 </div><!-- End .col-sm-6 -->
                                         
@@ -803,13 +969,11 @@
 <script>
 function toggleEdit() {
     const nameField = document.getElementById('profile-name');
-    const emailField = document.getElementById('profile-email');
     const phoneField = document.getElementById('profile-phone');
 
     const isReadOnly = nameField.readOnly;
 
     nameField.readOnly = !isReadOnly;
-    emailField.readOnly = !isReadOnly;
     phoneField.readOnly = !isReadOnly;
 
     document.getElementById('editButton').style.display = isReadOnly ? 'none' : 'block';
@@ -820,30 +984,19 @@ function validate() {
     let isValid = true;
 
     const nameField = document.getElementById('profile-name');
-    const emailField = document.getElementById('profile-email');
     const phoneField = document.getElementById('profile-phone');
 
     const nameError = document.getElementById('name-error');
-    const emailError = document.getElementById('email-error');
     const mobileError = document.getElementById('mobile-error');
 
     nameError.textContent = '';
-    emailError.textContent = '';
     mobileError.textContent = '';
 
     if (nameField.value.trim() === '') {
-                nameError.textContent = 'Name is required.';
-                isValid = false;
-            } else if (!/^[a-zA-Z\s]+$/.test(nameField.value)) {
-                nameError.textContent = 'Name must contain only letters and spaces.';
-                isValid = false;
-            }
-
-    if (emailField.value.trim() === '') {
-        emailError.textContent = 'Email address is required.';
+        nameError.textContent = 'Name is required.';
         isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(emailField.value)) {
-        emailError.textContent = 'Email address is invalid.';
+    } else if (!/^[a-zA-Z\s]+$/.test(nameField.value)) {
+        nameError.textContent = 'Name must contain only letters and spaces.';
         isValid = false;
     }
 
@@ -864,7 +1017,6 @@ function validate() {
 
 async function submitForm() {
     const nameField = document.getElementById('profile-name');
-    const emailField = document.getElementById('profile-email');
     const phoneField = document.getElementById('profile-phone');
 
     const response = await fetch('/editProfile', {
@@ -873,7 +1025,6 @@ async function submitForm() {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            updatedEmail: emailField.value,
             updatedName: nameField.value,
             updatedMobile: phoneField.value,
         }),
@@ -891,17 +1042,14 @@ async function submitForm() {
             location.reload();
         });
     } else {
-        if (result.message === 'Email already exists.') {
-            document.getElementById('email-error').textContent = result.message;
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Something went wrong. Please try again later.',
-            });
-        }
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong. Please try again later.',
+        });
     }
 }
+
 </script>  
 <script>   
 document.addEventListener('DOMContentLoaded', function () {
@@ -1015,158 +1163,192 @@ document.addEventListener('DOMContentLoaded', function () {
     </script>
 
 <script>
-    document.getElementById('address-form').addEventListener('submit', function(event) {
-        event.preventDefault();
-    
-        // Reset all error messages
-        resetErrorMessages();
-    
-        // Fetch form data
-        const name = document.getElementById('name').value.trim();
-        const number = document.getElementById('number').value.trim();
-        const address = document.getElementById('address').value.trim();
-        const street = document.getElementById('street').value.trim();
-        const postalCode = document.getElementById('postalCode').value.trim();
-        const state = document.getElementById('state').value.trim();
-        const landmark = document.getElementById('landmark').value.trim();
-    
-         // Validate each field
-         let isValid = true;
+   document.getElementById('address-form').addEventListener('submit', function(event) {
+    event.preventDefault();
 
-// Validate name
-if (!name) {
-    isValid = false;
-    displayErrorMessage('name', 'Name is required.');
-}
+    // Reset all error messages
+    resetErrorMessages();
 
-// Validate number using regex
-if (!number) {
-    isValid = false;
-    displayErrorMessage('number', 'Mobile number is required.');
-} else if (!/^([6-9]\d{9})$/.test(number)) {
-    isValid = false;
-    displayErrorMessage('number', 'Please enter a valid 10-digit mobile number.');
-}
+    // Fetch form data
+    const name = document.getElementById('name').value.trim();
+    const number = document.getElementById('number').value.trim();
+    const address = document.getElementById('address').value.trim();
+    const street = document.getElementById('street').value.trim();
+    const postalCode = document.getElementById('postalCode').value.trim();
+    const state = document.getElementById('state').value.trim();
+    const landmark = document.getElementById('landmark').value.trim();
 
-// Validate address
-if (!address) {
-    isValid = false;
-    displayErrorMessage('address', 'Address is required.');
-}
+    // Validate each field
+    let isValid = true;
 
-// Validate street
-if (!street) {
-    isValid = false;
-    displayErrorMessage('street', 'Street/City is required.');
-}
+    // Validate name
+    if (!name) {
+        isValid = false;
+        displayErrorMessage('name', 'Name is required.');
+    }
 
-// Validate postal code using regex
-if (!postalCode) {
-    isValid = false;
-    displayErrorMessage('postalCode', 'Pincode is required.');
-} else if (!/^\d{6}$/.test(postalCode)) {
-    isValid = false;
-    displayErrorMessage('postalCode', 'Please enter a valid 6-digit pincode.');
-}
+    // Validate number using regex
+    if (!number) {
+        isValid = false;
+        displayErrorMessage('number', 'Mobile number is required.');
+    } else if (!/^([6-9]\d{9})$/.test(number)) {
+        isValid = false;
+        displayErrorMessage('number', 'Please enter a valid 10-digit mobile number.');
+    }
 
-// Validate state
-if (!state) {
-    isValid = false;
-    displayErrorMessage('state', 'State is required.');
-}
+    // Validate address
+    if (!address) {
+        isValid = false;76
+    }
 
-// If any field is invalid, prevent form submission
-if (!isValid) {
-    return;
-}
+    // Validate street
+    if (!street) {
+        isValid = false;
+        displayErrorMessage('street', 'Street/City is required.');
+    }
 
-    
-        // If all fields are valid, proceed with form submission
-        const addressData = {
-            name,
-            number,
-            address,
-            street,
-            postalCode,
-            state,
-            landmark
-        };
-    
-        fetch('/add-address', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(addressData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Address saved successfully!',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-    
-                // Add the new address to the address list
-                const addressContainer = document.getElementById('address-container');
-                const newAddressHTML = `
-                    <div class="col-lg-12 address-card">
-                        <div class="card card-dashboard">
-                            <div class="card-body">
-                                <h3 class="card-title"> Address</h3>
-                                <p>
-                                    ${addressData.name}<br>
-                                    ${addressData.address}<br>
-                                    ${addressData.street}<br>
-                                    ${addressData.state}, ${addressData.postalCode}<br>
-                                    ${addressData.landmark}<br>
-                                    ${addressData.number}<br>
-                                    <a href="#">Edit <i class="icon-edit"></i></a>
-                                </p>
-                            </div><!-- End .card-body -->
-                        </div><!-- End .card-dashboard -->
-                    </div><!-- End .col-lg-6 -->
-                `;
-                addressContainer.insertAdjacentHTML('beforeend', newAddressHTML);
-    
-                // Reset the form
-                document.getElementById('address-form').reset();
-    
-                // Hide the modal
-                $('#addAddressModal').modal('hide');
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Failed to save address.',
-                    text: data.message
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
+    // Validate postal code using regex
+    if (!postalCode) {
+        isValid = false;
+        displayErrorMessage('postalCode', 'Pincode is required.');
+    } else if (!/^\d{6}$/.test(postalCode)) {
+        isValid = false;
+        displayErrorMessage('postalCode', 'Please enter a valid 6-digit pincode.');
+    }
+
+    // Validate state
+    if (!state) {
+        isValid = false;
+        displayErrorMessage('state', 'State is required.');
+    }
+
+    // If any field is invalid, prevent form submission
+    if (!isValid) {
+        return;
+    }
+
+    // If all fields are valid, proceed with form submission
+    const addressData = {
+        name,
+        number,
+        address,
+        street,
+        postalCode,
+        state,
+        landmark
+    };
+
+    fetch('/add-address', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(addressData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Address saved successfully!',
+                showConfirmButton: false,
+                timer: 1500
+            });
+
+            // Add the new address to the address list
+            const addressContainer = document.getElementById('address-container');
+            const newAddressHTML = `
+                <div class="col-lg-12 address-card" data-address-id="${data.addressId}">
+                    <div class="card card-dashboard">
+                        <div class="card-body">
+                            <h3 class="card-title"> Address</h3>
+                            <p>
+                                ${addressData.name}<br>
+                                ${addressData.address}<br>
+                                ${addressData.street}<br>
+                                ${addressData.state}, ${addressData.postalCode}<br>
+                                ${addressData.landmark}<br>
+                                ${addressData.number}<br>
+                                <a href="#" class="edit-address">Edit <i class="icon-edit"></i></a>
+                            </p>
+                        </div><!-- End .card-body -->
+                    </div><!-- End .card-dashboard -->
+                </div><!-- End .col-lg-6 -->
+            `;
+            addressContainer.insertAdjacentHTML('beforeend', newAddressHTML);
+
+            // Attach the edit functionality to the new address
+            const newEditLink = addressContainer.querySelector('.edit-address:last-of-type');
+            newEditLink.addEventListener('click', function(event) {
+                event.preventDefault();
+                const addressCard = this.closest('.address-card');
+                const addressData = extractAddressData(addressCard);
+                populateEditModal(addressData);
+                $('#editAddressModal').modal('show');
+            });
+
+            // Reset the form
+            document.getElementById('address-form').reset();
+
+            // Hide the modal
+            $('#addAddressModal').modal('hide');
+        } else {
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: 'An error occurred while saving the address.'
+                title: 'Failed to save address.',
+                text: data.message
             });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while saving the address.'
         });
     });
-    
-    function displayErrorMessage(fieldId, message) {
-        const errorElement = document.getElementById(`${fieldId}-error`);
-        if (errorElement) {
-            errorElement.textContent = message;
-        }
+});
+
+function displayErrorMessage(fieldId, message) {
+    const errorElement = document.getElementById(`${fieldId}-error`);
+    if (errorElement) {
+        errorElement.textContent = message;
     }
-    
-    function resetErrorMessages() {
-        const errorMessages = document.querySelectorAll('.error-message');
-        errorMessages.forEach(message => {
-            message.textContent = '';
-        });
-    }
+}
+
+function resetErrorMessages() {
+    const errorMessages = document.querySelectorAll('.error-message');
+    errorMessages.forEach(message => {
+        message.textContent = '';
+    });
+}
+
+function extractAddressData(addressCard) {
+    const paragraphContent = addressCard.querySelector('p').innerText.split('\n');
+    const addressId = addressCard.dataset.addressId;
+    return {
+        id: addressId,
+        name: paragraphContent[0],
+        address: paragraphContent[1],
+        street: paragraphContent[2],
+        stateAndPostal: paragraphContent[3],
+        landmark: paragraphContent[4],
+        number: paragraphContent[5]
+    };
+}
+
+function populateEditModal(address) {
+    document.getElementById('EditId').value = address.id || '';
+    document.getElementById('Editname').value = address.name || '';
+    document.getElementById('Editnumber').value = address.number || '';
+    document.getElementById('Editaddress').value = address.address || '';
+    document.getElementById('Editstreet').value = address.street || '';
+    document.getElementById('EditpostalCode').value = address.stateAndPostal.split(', ')[1] || '';
+    document.getElementById('Editstate').value = address.stateAndPostal.split(', ')[0] || '';
+    document.getElementById('Editlandmark').value = address.landmark || '';
+}
+
 
 </script>
 
@@ -1425,6 +1607,129 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
     
+<script>
+    function toggleOrderDetails(orderId) {
+        const orderProducts = document.getElementById(`order-products-${orderId}`);
+        if (orderProducts.style.display === 'none') {
+            orderProducts.style.display = 'block';
+        } else {
+            orderProducts.style.display = 'none';
+        }
+    }
+
+
+
+    function openCancelModal(orderId, productId, variantId) {
+  // Set the orderId, productId, and variantId in the hidden inputs
+  console.log(`productId ${variantId}`)
+  document.getElementById('cancelOrderId').value = orderId;
+  document.getElementById('cancelProductId').value = productId;
+  document.getElementById('cancelVariantId').value = variantId;
+
+  // Open the modal
+  const cancelModal = new bootstrap.Modal(document.getElementById('cancelModal'));
+  cancelModal.show();
+}
+
+document.getElementById('confirmCancelButton').addEventListener('click', async function () {
+  const orderId = document.getElementById('cancelOrderId').value;
+  const productId = document.getElementById('cancelProductId').value;
+  const variantId = document.getElementById('cancelVariantId').value;
+  const cancelReason = document.getElementById('cancelReason').value;
+
+  try {
+    const response = await fetch('/cancel-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ orderId, productId, variantId, cancelReason })
+    });
+
+    if (response.ok) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Product Cancelled',
+        text: 'The product has been cancelled successfully.',
+        showConfirmButton: false,
+        timer: 2000
+      }).then(() => {
+        location.reload();
+      });
+    } else {
+      const data = await response.json();
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: data.message || 'Failed to cancel the product.',
+      });
+    }
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'An error occurred while cancelling the product.',
+    });
+  }
+});
+
+
+
+
+function openReturnModal(orderId, productId, variantId) {
+  // Set the orderId, productId, and variantId in the hidden inputs
+  document.getElementById('returnOrderId').value = orderId;
+  document.getElementById('returnProductId').value = productId;
+  document.getElementById('returnVariantId').value = variantId;
+
+  // Open the modal
+  const returnModal = new bootstrap.Modal(document.getElementById('returnModal'));
+  returnModal.show();
+}
+
+document.getElementById('confirmReturnButton').addEventListener('click', async function () {
+  const orderId = document.getElementById('returnOrderId').value;
+  const productId = document.getElementById('returnProductId').value;
+  const variantId = document.getElementById('returnVariantId').value;
+  const returnReason = document.getElementById('returnReason').value;
+
+  try {
+    const response = await fetch('/return-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ orderId, productId, variantId, returnReason })
+    });
+
+    if (response.ok) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Product Returned',
+        text: 'The product has been returned successfully.',
+        showConfirmButton: false,
+        timer: 2000
+      }).then(() => {
+        location.reload();
+      });
+    } else {
+      const data = await response.json();
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: data.message || 'Failed to return the product.',
+      });
+    }
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'An error occurred while returning the product.',
+    });
+  }
+});
+
+</script>
 </body>
 
 

@@ -32,6 +32,7 @@ const isLogOut = async (req, res, next) => {
     console.log(error.message);
   }
 };
+
 const authlogg = async (req, res, next) => {
   try {
     if (req.session.user) {

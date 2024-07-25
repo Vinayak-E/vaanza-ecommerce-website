@@ -1,5 +1,6 @@
 const User = require("../models/userModel");
 const Address = require("../models/addressSchema")
+const Order = require("../models/orderModel");
 const userOtpVerification = require('../models/userOTPverification')
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
@@ -390,13 +391,23 @@ const loadProfile = async (req, res) => {
     const userId = req.session.user._id;
     const user = await User.findById(userId).lean();
     const addresses = await Address.find({ user: userId }).lean();
+    const orders = await Order.find({ userId })
+    .populate({
+      path: 'products.productId',
+      populate: { path: 'variants' }
+    })
+    .populate('addressId')  
+    .sort({ orderDate: -1 });
 
-      res.render('profilePage', { user, addresses })
+      res.render('profilePage', { user, addresses,orders})
 
   } catch (err) {
       console.log(err.message)
   }
 }
+
+
+
 const editProfile = async (req, res) => {
   try {
       const { updatedEmail, updatedName, updatedMobile } = req.body;
@@ -504,8 +515,7 @@ const resetPasswithOld = async (req, res) => {
 const editAddress = async (req, res) => {
   try {
       const {id, name, number, address, street, postalCode, state, landmark } = req.body;
-     
-      console.log(req.body);
+      
       const updatedAddress = await Address.findOneAndUpdate(
           { _id: id, user: req.session.user._id },
           {
@@ -526,7 +536,7 @@ const editAddress = async (req, res) => {
           res.json({ success: true });
       } else {
           res.status(404).json({ success: false, message: 'Address not found or user unauthorized' });
-      }
+      }                           
   } catch (err) {
       console.error(err.message);
       res.status(500).json({ success: false, message: 'Server Error' });

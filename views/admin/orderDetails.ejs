@@ -1,0 +1,278 @@
+<%- include('../layout/admin/adminHeader.ejs') -%>
+
+<body>
+    <!-- ?PROD Only: Google Tag Manager (noscript) (Default ThemeSelection: GTM-5DDHKGP, PixInvent: GTM-5J3LMKC) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDHKGP" height="0" width="0" style="display: none; visibility: hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <!-- Layout wrapper -->
+
+  <div class="layout-wrapper layout-content-navbar  ">
+    <div class="layout-container">
+  
+      
+      
+        <%- include('../layout/admin/navbar.ejs') -%>
+
+
+
+           <!-- Content wrapper -->
+      <div class="content-wrapper">
+
+        <!-- Content -->
+        
+          <div class="container-xxl flex-grow-1 container-p-y">
+            
+            
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 gap-3">
+
+  <div class="d-flex flex-column justify-content-center">
+    <div class="d-flex align-items-center mb-1">
+      <h5 class="mb-0">Order Id:<%= order.orderId  %></h5>
+      <span class="badge bg-label-success me-2 ms-2 rounded-pill">Paid</span>
+      <span class="badge bg-label-info rounded-pill">Ready to Pickup</span>
+    </div>
+    <p class="mt-1 mb-3"><%= new Date(order.orderDate).toLocaleDateString() %></p>
+  </div>
+  <div class="d-flex align-content-center flex-wrap gap-2">
+    <button class="btn btn-outline-danger delete-order">Delete Order</button>
+  </div>
+</div>
+
+<!-- Order Details Table -->
+
+<div class="row">
+  <div class="col-12 col-lg-8">
+    <div class="card mb-6">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title m-0">Order details</h5>
+      </div>
+      <div class="card-datatable table-responsive">
+        <table class="datatables-order-details table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th class="w-50">Products</th>
+                <th></th>
+                <th>Status</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+                <% order.products.forEach((productItem, index) => { %>
+                    <% const product = productItem.productId; %>
+                    <% const variant = product.variants.find(v => v._id.toString() === productItem.variantId.toString()); %>
+                    <tr>
+                     
+                      <td>
+                        <% if (variant && variant.images && variant.images.length > 0) { %>
+                          <img src="/assets/images/productImage/<%= variant.images[0] %>" alt="Product Image" width="80">
+                        <% } else { %>
+                          <img src="/path/to/default-image.jpg" alt="Default Image" width="30">
+                        <% } %>
+                      </td>
+                      <td>
+                        <%= product.name %><br>
+                        <small>Color: <%= variant ? variant.color : 'N/A' %> <br>Size: <%= productItem.size %></small>
+                        
+                      </td>
+                      <td>
+                        <span class="badge px-2 rounded-pill bg-label-primary text-capitalized" data-bs-toggle="modal" data-bs-target="#smallModal" onclick="openEditModal('<%= productItem._id %>', '<%= order._id %>')">Edit</span>
+                      </td>
+                      <td>
+                        <% let badgeClass = 'bg-label-secondary'; %> 
+                        <% let badgeText = productItem.status %> 
+                      
+                        <% if (productItem.status === 'Delivered') { %>
+                          <% badgeClass = 'bg-label-success'; %>
+                        <% } else if (productItem.status === 'Dispatched') { %>
+                          <% badgeClass = 'bg-label-warning'; %>
+                        <% } else if (productItem.status === 'Out For Delivery') { %>
+                          <% badgeClass = 'bg-label-primary'; %>
+                        <% } else if (productItem.status === 'Pending') { %>
+                          <% badgeClass = 'bg-label-danger'; %>
+                        <% } %>
+                      
+                        <span id="productStatus-<%= productItem._id %>" class="badge px-2 rounded-pill <%= badgeClass %> text-capitalized">
+                          <%= badgeText %>
+                        </span>
+                      </td>
+                      <td>$<%= productItem.price.toFixed(2) %></td>
+                      <td><%= productItem.quantity %></td>
+                      <td>$<%= (productItem.price * productItem.quantity).toFixed(2) %></td>
+                      
+                    </tr>
+                  <% }) %>
+            </tbody>
+          </table>
+        <div class="d-flex justify-content-end align-items-center m-4 p-1 mb-0 pb-0">
+          <div class="order-calculations">
+            <div class="d-flex justify-content-start gap-4 mb-2">
+                <span class="w-px-100 text-heading">Subtotal:</span>
+                <h6 class="mb-0">$<%= subtotal.toFixed(2) %></h6>
+            </div>
+            <div class="d-flex justify-content-start gap-4 mb-2">
+              <span class="w-px-100 text-heading">Discount:</span>
+              <h6 class="mb-0">$00.00</h6>
+            </div>
+            <div class="d-flex justify-content-start gap-4 mb-2">
+              <span class="w-px-100 text-heading">shipping:</span>
+              <h6 class="mb-0">$<%= order.shippingCharge  %></h6>
+            </div>
+            <div class="d-flex justify-content-start gap-4">
+                <h6 class="w-px-100 mb-0">Total:</h6>
+                <h6 class="mb-0">$<%= order.totalAmount.toFixed(2) %></h6>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="col-12 col-lg-4">
+    <div class="card mb-6">
+      <div class="card-body">
+        <h5 class="card-title mb-6">Customer details</h5>
+        <div class="d-flex justify-content-start align-items-center mb-6">
+          <div class="d-flex flex-column">
+              <h6 class="mb-0"><%=order.userId.name %></h6>
+         
+           </div>
+        </div>
+        <div class="d-flex justify-content-start align-items-center mb-6">
+          <span class="avatar rounded-circle bg-label-success me-3 d-flex align-items-center justify-content-center"><i class='ri-shopping-cart-line ri-24px'></i></span>
+          <!-- <h6 class="text-nowrap mb-0">12 Orders</h6> -->
+        </div>
+        <div class="d-flex justify-content-between">
+          <h6 class="mb-1">Contact info</h6>
+        </div>
+        <p class="mb-1">Email: <%=order.userId.email  %></p>
+        <p class="mb-0">Mobile: <%=order.userId.mobile %></p>
+      </div>
+    </div>
+
+    <div class="card mb-6">
+
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-1">Shipping address</h5>
+      </div>
+      <div class="card-body">
+        <p class="mb-0"><%=order.addressId.name  %> <br><%=order.addressId.address  %> <br><%=order.addressId.street  %>,<%=order.addressId.postalCode  %>  <br><%=order.addressId.state  %> <br><%=order.addressId.landmark  %> ,<%=order.addressId.number  %> </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- modal -->
+<div class="modal fade" id="smallModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel2">Edit Status</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-6 mt-2">
+              <div class="form-floating form-floating-outline">
+                <select class="form-control" id="statusSelect" name="status" required>
+                  <option value="Pending">Pending</option>
+                  <option value="Dispatched">Dispatched</option>
+                  <option value="Out For Delivery">Out For Delivery</option>
+                  <option value="Delivered">Delivered</option>
+                 
+                  
+                  <!-- Add more options as needed -->
+                </select>
+                <label for="statusSelect">Status</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="saveChangesButton">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+<!-- modal end -->
+
+          </div>
+          <!-- / Content -->
+
+          <div class="content-backdrop fade"></div>
+        </div>
+        <!-- Content wrapper -->
+        <script>
+         function openEditModal(productId, orderId) {
+    console.log(productId);
+    // Save productId and orderId to use later
+    const modal = document.getElementById('smallModal');
+    modal.dataset.productId = productId;
+    modal.dataset.orderId = orderId;
+
+    // Find the current status of the product
+    const productStatus = document.querySelector(`#productStatus-${productId}`).innerText;
+
+    // Set the current status in the select input
+    const statusSelect = document.getElementById('statusSelect');
+    statusSelect.value = productStatus;
+}
+
+document.getElementById('saveChangesButton').addEventListener('click', async function () {
+    const modal = document.getElementById('smallModal');
+    const productId = modal.dataset.productId;
+    const orderId = modal.dataset.orderId;
+    const status = document.querySelector('select[name="status"]').value;
+
+    try {
+        const response = await fetch(`/admin/update-status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ orderId, productId, status })
+        });
+
+        if (response.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Status updated successfully',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            const errorData = await response.json();
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: errorData.message,
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to update status due to server error',
+        });
+    }
+});
+
+          </script>
+          
+          <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        
+ <%- include('../layout/admin/adminFooter.ejs') -%>

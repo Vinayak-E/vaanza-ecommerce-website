@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const Category = require("../models/categoriesModel");
 const Product = require("../models/productSchema");
 const Cart = require("../models/cartSchema");
+const Address = require("../models/addressSchema")
 
 
 const loadCart = async (req, res) => {
@@ -15,7 +16,7 @@ const loadCart = async (req, res) => {
 
         const userId = req.session.user._id;
      
-        const cart = await Cart.find({  userId }).populate({
+        const cart = await Cart.findOne({  userId }).populate({
             path: "products.productId",
             populate: { path: "variants" }
           });
@@ -40,6 +41,8 @@ const loadCart = async (req, res) => {
         }
        // Assuming you have a logged in user and`req.session.userId` holds the user's ID
          const userId = req.session.user && req.session.user._id;
+
+
         const { productId, variantId, size, quantity } = req.body;
       // Fetch the product and variant details from the database
       const product = await Product.findById(productId);
@@ -161,12 +164,55 @@ const removeCartItem = async (req, res) => {
         res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 };
+
+const checkout = async (req, res) => {
+  try {
+      if (!req.session.user || !req.session.user._id) {
+          return res.status(401).json({ success: false, message: 'Unauthorized' });
+      }
+
+      const userId = req.session.user._id;
+      
+      // Fetch user and cart details
+      const user = await User.findOne({ _id: userId });
+      const addresses = await Address.find({ user: userId });
+      const cart = await Cart.findOne({ userId }).populate("products.productId") // Ensure product name and price are selected
+      
+      // Check if cart and products are present
+      if (!cart || !cart.products) {
+          return res.render('checkout', { user, addresses, cart: { products: [] }, totalPrice: 0, shippingCharge: 0 });
+      }
+
+      // Calculate total price and shipping charge
+      let subtotal = 0;
+      cart.products.forEach(cartItem => {
+          const product = cartItem.productId;
+          subtotal += product.price * cartItem.quantity;
+      });
+
+      // Determine shipping charge based on subtotal
+      const shippingCharge = subtotal > 500 ? 50 : 0;
+      const totalPrice = subtotal + shippingCharge;
+
+      res.render('checkout', { user, addresses, cart, totalPrice, shippingCharge });
+  } catch (error) {
+      console.error('Error fetching addresses:', error);
+      res.status(500).send('An error occurred');
+  }
+};
+
+
+
+
+
   
   module.exports = {
     loadCart,
     addToCart,
     quantityUpdationCart,
-    removeCartItem
+    removeCartItem,
+    checkout
+    
   };
   
 

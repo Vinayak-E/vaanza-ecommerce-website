@@ -171,7 +171,11 @@
                                     <div class="col-6 col-md-4 col-lg-4">
                                         <div class="product product-7 text-center">
                                             <figure class="product-media">
-                                                <span class="product-label label-new">New</span>
+                                                <% if (product.isOutOfStock) { %>
+                                                    <span class="product-label  label-sale" style="background-color: #ee4040;">Out of Stock</span>
+                                                    <% } else if (product.isNew) { %>
+                                                    <span class="product-label label-new">New</span>
+                                                    <% } %>
                                                 <a href="/productView/product/<%= product._id %>/variant/<%= product.variants[0]._id %>">
                                                     <img src="/assets/images/productImage/sharped/<%= product.variants[0].images[0] %>" alt="Product image" class="product-image">
                                                   </a>
@@ -188,9 +192,7 @@
                                             </figure><!-- End .product-media -->
 
                                             <div class="product-body">
-                                                <div class="product-cat">
-                                                    <a href="#">Women</a>
-                                                </div><!-- End .product-cat -->
+                                                
                                                 <h3 class="product-title"> <a href="/productView/product/<%= product._id %>/variant/<%= product.variants[0]._id %>"><%= product.name %></a></h3><!-- End .product-title -->
                                                 <div class="product-price">
                                                     Rs. <%= product.price.toFixed(2) %>
