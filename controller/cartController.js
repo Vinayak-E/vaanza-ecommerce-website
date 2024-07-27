@@ -39,7 +39,7 @@ const loadCart = async (req, res) => {
               message: "Please login and continue shopping!",
             });
         }
-       // Assuming you have a logged in user and`req.session.userId` holds the user's ID
+       // Assuming you have a logged in user and`req.session.userId` 
          const userId = req.session.user && req.session.user._id;
 
 
@@ -56,12 +56,18 @@ const loadCart = async (req, res) => {
       }
   
      
-  
+     // Define the maximum quantity limit
+     const MAX_QUANTITY = 5;
+
+     // Use Math.min to ensure the quantity does not exceed the limit
+     const requestedQuantity = Math.min(parseInt(quantity), MAX_QUANTITY);
+
+
       // Construct the cart item object
       const cartItem = {
         productId: product._id,
         variantId: variant._id, 
-        quantity: parseInt(quantity),
+        quantity: requestedQuantity,
         size
       };
   
@@ -75,13 +81,13 @@ const loadCart = async (req, res) => {
       // Check if the product with the same variant and size already exists in the cart
       const existingItem = cart.products.find(item =>
         item.productId.equals(cartItem.productId) &&
-        item.variantId.equals(cartItem.variantId) &&
-        item.size === cartItem.size
+        item.variantId.equals(cartItem.variantId) 
+        
       );
   
       if (existingItem) {
         // If the item already exists, increase its quantity
-        existingItem.quantity += cartItem.quantity;
+        existingItem.quantity = Math.min(existingItem.quantity + requestedQuantity, MAX_QUANTITY);
       } else {
         // Otherwise, add the new item to the cart
         cart.products.push(cartItem);
@@ -115,8 +121,8 @@ const loadCart = async (req, res) => {
 
         const product = cart.products.find(item =>
             item.productId.equals(productId) &&
-            item.variantId.equals(variantId) &&
-            item.size === size
+            item.variantId.equals(variantId)   
+            
         );
 
         if (product) {

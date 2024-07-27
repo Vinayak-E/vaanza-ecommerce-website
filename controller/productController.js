@@ -17,15 +17,21 @@ const loadProductList = async (req, res) => {
     if (req.query.page) {
       page = +req.query.page;
     }
+
+    const search = req.query.search || '';
+
+    const query = search ? { name: { $regex: '.*' + search + '.*', $options: 'i' } } : {};
+
+
     const limit = 5;
-    const products = await Product.find({})
+    const products = await Product.find(query)
       .populate('category', 'name') 
       .sort({ date: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .exec();
 
-    const count = await Product.countDocuments();
+    const count = await Product.countDocuments(query);
     const categories = await Category.find({is_listed:true});
 
     const totalPages = Math.ceil(count / limit);
@@ -40,13 +46,16 @@ const loadProductList = async (req, res) => {
       currentPage: page,
       previous: previous,
       next: next,
-      categories 
+      categories ,
+      search
 
     });
   } catch (err) {
     res.status(400).send("internal server error");
   }
 };
+
+
 // add product page load
 
 const loadAddproduct = async (req, res) => {
@@ -419,33 +428,110 @@ const editVariant = async (req, res) => {
 
 const loadShop = async (req, res) => {
   try {
+    const gender = req.params.gender;
+    const { sortby, searchVal, category,page} = req.query;
 
-    const gender = req.params.gender
+    let query = { gender: gender, is_Listed: true };
 
-    const products = await Product.find({gender,is_Listed:true}).populate('variants').populate("category")
-     // Add additional properties to determine the labels
-     const now = new Date();
-     products.forEach(product => {
-       product.isNew = (now - product.date) <= 7 * 24 * 60 * 60 * 1000; // Check if added within one week
-       product.isOutOfStock = product.variants.every(variant => variant.quantity === 0);
-     });
-    const categories = await Category.aggregate([
-      {$match:{
-        gender:gender,
-        is_listed:true
-      }}
-    ])
+    // Handle search
+    if (searchVal) {
+      query.$or = [
+        { name: { $regex: searchVal, $options: 'i' } },
+        
+      ];
+    }
 
-    res.render("shop", { products,
+    //  category filtering
+  
+
+    let selectedCategories = [];
+    if (category) {
+      // If category is an array (multiple categories selected)
+      if (Array.isArray(category)) {
+        query.category = { $in: category };
+        selectedCategories = category;
+      } else {
+        // If it's a single category
+        query.category = category;
+        selectedCategories = [category];
+      }
+    }
+
+
+    let sortOption = {};
+
+    // Handle sorting
+    switch (sortby) {
+      case 'newArrivals':
+        sortOption = { date: -1 };
+        break;
+      case 'highToLow':
+        sortOption = { price: -1 };
+        break;
+      case 'lowToHigh':
+        sortOption = { price: 1 };
+        break;
+      case 'ascending':
+        sortOption = { name: 1 };
+        break;
+      case 'descending':
+        sortOption = { name: -1 };
+        break;
+      default:
+        
+        sortOption = { featured: -1 };
+    }
+  
+
+
+    // Pagination logic
+    const pageSize = 9; // Number of products per page
+    const currentPage = parseInt(page) || 1;
+    const skip = (currentPage - 1) * pageSize;
+   // Count total products that match the query
+   const totalProducts = await Product.countDocuments(query);
+
+    const products = await Product.find(query)
+      .populate('variants')
+      .populate("category")
+      .sort(sortOption)
+      .skip(skip)
+      .limit(pageSize);
+
+    const totalPages = Math.ceil(totalProducts / pageSize);
+
+    // Add additional properties to determine the labels
+    const now = new Date();
+    products.forEach(product => {
+      product.isNew = (now - product.date) <= 7 * 24 * 60 * 60 * 1000; // Check if added within one week
+      product.isOutOfStock = product.variants.every(variant => variant.quantity === 0);
+    });
+
+    const categories = await Category.find({ gender: gender, is_listed: true });
+
+    res.render("shop", {
+      products,
       categories,
-      title:gender
-     });
+      title: gender,
+      sortBy: sortby || 'featured',
+      searchVal: searchVal || '',
+      selectedCategories,
+      currentPage,
+      totalPages,
+      gender // Pass gender to the view
+    });
 
   } catch (err) {
     console.log(err.message);
     res.status(500).send("Internal Server Error");
   }
 };
+
+
+
+
+
+
 
 const productView = async (req, res) => {
   try {
@@ -485,7 +571,7 @@ const productView = async (req, res) => {
     });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Internal Server Error");
+    res.render('404')
   }
 };
 

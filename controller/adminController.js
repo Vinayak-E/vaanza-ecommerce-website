@@ -190,7 +190,7 @@ const orderDetails = async (req, res) => {
     console.log(error.message);
     res.status(500).send('Server Error');
   }
-};
+}; 
 
 const updateOrderStatus = async (req, res) => {
   try {

@@ -250,32 +250,32 @@
                                 <p id="sizeErrP" style="color: red; font-weight: 400;font-size: x-small; letter-spacing: .1rem; display: none;">please select atleast one size</p>
                             </div><!-- End .details-filter-row -->
 
-                                 <div class="product-details-action">
-                                     <div class="details-action-col">
-                                         <div class="product-details-quantity">
-                                            <% 
-                                            // Determine the maximum quantity user can add
-                                            var maxQuantity = Math.min(5, variant.quantity);
-                                            var stockMessage = "";
-                                         if (variant.quantity > 0 && variant.quantity < 5) {
-                                           stockMessage = "Only " + variant.quantity + " left in stock";
-                                              }
-                                              %>
-                                             <input type="number" id="qty" class="form-control" value="1" min="1" max="<%= maxQuantity %>" step="0" data-decimals="0" required>
-                                             <% if (stockMessage) { %>
-                                                <p class="stock-message" style="color: red;"><%= stockMessage %></p>
-                                            <% } %>
-                                         </div><!-- End .product-details-quantity -->
+                                    <div class="product-details-action">
+                                        <div class="details-action-col">
+                                            <div class="product-details-quantity">
+                                                <% 
+                                                // Determine the maximum quantity user can add
+                                                var maxQuantity = Math.min(5, variant.quantity);
+                                                var stockMessage = "";
+                                            if (variant.quantity > 0 && variant.quantity < 5) {
+                                            stockMessage = "Only " + variant.quantity + " left in stock";
+                                                }
+                                                %>
+                                                <input type="number" id="qty" class="form-control" value="1" min="1" max="<%= maxQuantity %>" step="0" data-decimals="0" required>
+                                                <% if (stockMessage) { %>
+                                                    <p class="stock-message" style="color: red;"><%= stockMessage %></p>
+                                                <% } %>
+                                            </div><!-- End .product-details-quantity -->
 
-                                           <!-- Add to Cart Button or Out of Stock -->
-                                              <% if (variant.quantity < 1) { %>
-                                               <a href="#" class="btn-product btn-cart btn-disabled" style="color: azure;"><span>Out of Stock</span></a>
-                                              <% } else { %>
-                                              <a href="#" class="btn-product btn-cart" id="add-to-cart"><span>Add to Cart</span></a>
-                                              <input type="hidden" id="productId" value="<%= product._id %>">
-                                              <input type="hidden" id="variantId" value="<%= variant._id %>">
-                                              <% } %>
-                                     </div><!-- End .details-action-col -->
+                                            <!-- Add to Cart Button or Out of Stock -->
+                                                <% if (variant.quantity < 1) { %>
+                                                <a href="#" class="btn-product btn-cart btn-disabled" style="color: azure;"><span>Out of Stock</span></a>
+                                                <% } else { %>
+                                                <a href="#" class="btn-product btn-cart" id="add-to-cart"><span>Add to Cart</span></a>
+                                                <input type="hidden" id="productId" value="<%= product._id %>">
+                                                <input type="hidden" id="variantId" value="<%= variant._id %>">
+                                                <% } %>
+                                        </div><!-- End .details-action-col -->
 
                                      <div class="details-action-wrapper">
                                          <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>

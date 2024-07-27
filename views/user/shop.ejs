@@ -1,11 +1,7 @@
+
 <%- include('../layout/header.ejs') -%>
-   <!-- Plugins CSS File -->
-   <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
-   <!-- Main CSS File -->
-   <link rel="stylesheet" href="/assets/css/style.css">
-   <link rel="stylesheet" href="/assets/css/plugins/owl-carousel/owl.carousel.css">
-   <link rel="stylesheet" href="/assets/css/plugins/magnific-popup/magnific-popup.css">
-   <link rel="stylesheet" href="/assets/css/plugins/nouislider/nouislider.css">
+
+
 </head>
 
 
@@ -46,14 +42,16 @@
 
                     <div class="header-right">
                         <div class="header-search">
-                            <a href="#" class="search-toggle" role="button" title="Search"><i class="icon-search"></i></a>
-                            <form action="#" method="get">
-                                <div class="header-search-wrapper">
-                                    <label for="q" class="sr-only">Search</label>
-                                    <input type="search" class="form-control" name="q" id="q" placeholder="Search in..." required>
-                                </div><!-- End .header-search-wrapper -->
+                            <a href="#" class="search-toggle" role="button"><i class="icon-search"></i></a>
+                            <form id="searchForm">
+                              <div class="header-search-wrapper">
+                                <label for="q" class="sr-only">Search</label>
+                                <input type="search" class="form-control" value="<%= searchVal %>" name="search" id="search" placeholder="Search product ...">
+                                <button class="btn btn-primary" type="submit"><i class="icon-search"></i></button>
+                              </div>
                             </form>
-                        </div><!-- End .header-search -->
+                          </div>
+                          
                         
 
                         <div class="dropdown cart-dropdown">
@@ -132,9 +130,9 @@
             <nav aria-label="breadcrumb" class="breadcrumb-nav mb-2">
                 <div class="container">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
                         <li class="breadcrumb-item"><a href="#">Shop</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Grid 3 Columns</li>
+                     
                     </ol>
                 </div><!-- End .container -->
             </nav><!-- End .breadcrumb-nav -->
@@ -154,11 +152,16 @@
                 					<div class="toolbox-sort">
                 						<label for="sortby">Sort by:</label>
                 						<div class="select-custom">
-											<select name="sortby" id="sortby" class="form-control">
-												<option value="popularity" selected="selected">Most Popular</option>
-												<option value="rating">Most Rated</option>
-												<option value="date">Date</option>
-											</select>
+                                            <form id="sortForm">
+                                                <select name="sortby" id="sortby" class="form-control">
+                                                    <option value="featured" <%= sortBy === 'featured' ? 'selected' : '' %> selected="selected">Featured</option>
+                                                    <option value="newArrivals" <%= sortBy === 'newArrivals' ? 'selected' : '' %>>New Arrivals</option>
+                                                    <option value="highToLow" <%= sortBy === 'highToLow' ? 'selected' : '' %>>Price: High to Low</option>
+                                                    <option value="lowToHigh" <%= sortBy === 'lowToHigh' ? 'selected' : '' %>>Price: Low to High</option>
+                                                    <option value="ascending" <%= sortBy === 'ascending' ? 'selected' : '' %>>aA - zZ</option>
+                                                    <option value="descending" <%= sortBy === 'descending' ? 'selected' : '' %>>zZ - aA</option>
+                                                </select>
+                                            </form>
 										</div>
                 					</div><!-- End .toolbox-sort -->
                 				
@@ -194,24 +197,18 @@
                                             <div class="product-body">
                                                 
                                                 <h3 class="product-title"> <a href="/productView/product/<%= product._id %>/variant/<%= product.variants[0]._id %>"><%= product.name %></a></h3><!-- End .product-title -->
+                                                <p><%=product.category.name  %></p>
                                                 <div class="product-price">
                                                     Rs. <%= product.price.toFixed(2) %>
                                                 </div><!-- End .product-price -->
                                                 <div class="ratings-container">
                                                     <div class="ratings">
-                                                        <div class="ratings-val" style="width: 20%;"></div><!-- End .ratings-val -->
+                                                        <div class="ratings-val" style="width: 60%;"></div><!-- End .ratings-val -->
                                                     </div><!-- End .ratings -->
                                                     <span class="ratings-text">( 2 Reviews )</span>
                                                 </div><!-- End .rating-container -->
 
-                                                <div class="product-nav product-nav-thumbs">
-                                                    <a href="#" class="active">
-                                                        <img src="/assets/images/products/product-4-thumb.jpg" alt="product desc">
-                                                    </a>
-                                                    <a href="#">
-                                                        <img src="/assets/images/products/product-4-2-thumb.jpg" alt="product desc">
-                                                    </a>
-                                                </div><!-- End .product-nav -->
+                                                
                                             </div><!-- End .product-body -->
                                         </div><!-- End .product -->
                                     </div><!-- End .col-sm-6 col-lg-4 -->
@@ -219,24 +216,31 @@
                                 </div><!-- End .row -->
                             </div><!-- End .products -->
 
-                			<nav aria-label="Page navigation">
-							    <ul class="pagination justify-content-center">
-							        <li class="page-item disabled">
-							            <a class="page-link page-link-prev" href="#" aria-label="Previous" tabindex="-1" aria-disabled="true">
-							                <span aria-hidden="true"><i class="icon-long-arrow-left"></i></span>Prev
-							            </a>
-							        </li>
-							        <li class="page-item active" aria-current="page"><a class="page-link" href="#">1</a></li>
-							        <li class="page-item"><a class="page-link" href="#">2</a></li>
-							        <li class="page-item"><a class="page-link" href="#">3</a></li>
-							        <li class="page-item-total">of 6</li>
-							        <li class="page-item">
-							            <a class="page-link page-link-next" href="#" aria-label="Next">
-							                Next <span aria-hidden="true"><i class="icon-long-arrow-right"></i></span>
-							            </a>
-							        </li>
-							    </ul>
-							</nav>
+                			
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-center">
+                                  <% if (currentPage > 1) { %>
+                                  <li class="page-item">
+                                    <a class="page-link page-link-prev" href="/shop/gender/<%= title %>?sortby=<%= sortBy %>&page=<%= currentPage - 1 %>" aria-label="Previous" tabindex="-1" aria-disabled="true">
+                                      <span aria-hidden="true"><i class="icon-long-arrow-left"></i></span>Prev
+                                    </a>
+                                  </li>
+                                  <% } %>
+                                  <% for (let i = 1; i <= totalPages; i++) { %>
+                                  <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                    <a class="page-link" href="/shop/gender/<%= title %>?sortby=<%= sortBy %>&page=<%= i %>"><%= i %></a>
+                                  </li>
+                                  <% } %>
+                                  <% if (currentPage < totalPages) { %>
+                                  <li class="page-item">
+                                    <a class="page-link page-link-next" href="/shop/gender/<%= title %>?sortby=<%= sortBy %>&page=<%= currentPage + 1 %>" aria-label="Next">
+                                      Next <span aria-hidden="true"><i class="icon-long-arrow-right"></i></span>
+                                    </a>
+                                  </li>
+                                  <% } %>
+                                </ul>
+                              </nav>
+                            
                 		</div><!-- End .col-lg-9 -->
                 		<aside class="col-lg-3 order-lg-first">
                 			<div class="sidebar sidebar-shop">
@@ -254,130 +258,28 @@
 
 									<div class="collapse show" id="widget-1">
 										<div class="widget-body">
-											<div class="filter-items filter-items-count">
-                                                <% categories.forEach((category, index) => { %>
-												<div class="filter-item">
-													<div class="custom-control custom-checkbox">
-														<input type="checkbox" class="custom-control-input"  id="cat-<%= index + 1 %>">
-														<label class="custom-control-label" for="cat-<%= index + 1 %>"><%= category.name %></label>
-													</div><!-- End .custom-checkbox -->
-													<span class="item-count"><%= category.itemCount %></span>
-												</div><!-- End .filter-item -->
-
-                                                <% }); %>
-
-
-
-											
-											</div><!-- End .filter-items -->
-										</div><!-- End .widget-body -->
-									</div><!-- End .collapse -->
-        						</div><!-- End .widget -->
-
-        						<div class="widget widget-collapsible">
-    								<h3 class="widget-title">
-									    <a data-toggle="collapse" href="#widget-2" role="button" aria-expanded="true" aria-controls="widget-2">
-									        Size
-									    </a>
-									</h3><!-- End .widget-title -->
-
-									<div class="collapse show" id="widget-2">
-										<div class="widget-body">
-											<div class="filter-items">
-												<div class="filter-item">
-													<div class="custom-control custom-checkbox">
-														<input type="checkbox" class="custom-control-input" id="size-1">
-														<label class="custom-control-label" for="size-1">XS</label>
-													</div><!-- End .custom-checkbox -->
-												</div><!-- End .filter-item -->
-
-												<div class="filter-item">
-													<div class="custom-control custom-checkbox">
-														<input type="checkbox" class="custom-control-input" id="size-2">
-														<label class="custom-control-label" for="size-2">S</label>
-													</div><!-- End .custom-checkbox -->
-												</div><!-- End .filter-item -->
-
-												<div class="filter-item">
-													<div class="custom-control custom-checkbox">
-														<input type="checkbox" class="custom-control-input" checked id="size-3">
-														<label class="custom-control-label" for="size-3">M</label>
-													</div><!-- End .custom-checkbox -->
-												</div><!-- End .filter-item -->
-
-												<div class="filter-item">
-													<div class="custom-control custom-checkbox">
-														<input type="checkbox" class="custom-control-input" checked id="size-4">
-														<label class="custom-control-label" for="size-4">L</label>
-													</div><!-- End .custom-checkbox -->
-												</div><!-- End .filter-item -->
-
-												<div class="filter-item">
-													<div class="custom-control custom-checkbox">
-														<input type="checkbox" class="custom-control-input" id="size-5">
-														<label class="custom-control-label" for="size-5">XL</label>
-													</div><!-- End .custom-checkbox -->
-												</div><!-- End .filter-item -->
-
-												<div class="filter-item">
-													<div class="custom-control custom-checkbox">
-														<input type="checkbox" class="custom-control-input" id="size-6">
-														<label class="custom-control-label" for="size-6">XXL</label>
-													</div><!-- End .custom-checkbox -->
-												</div><!-- End .filter-item -->
-											</div><!-- End .filter-items -->
-										</div><!-- End .widget-body -->
-									</div><!-- End .collapse -->
-        						</div><!-- End .widget -->
-
-        						<div class="widget widget-collapsible">
-    								<h3 class="widget-title">
-									    <a data-toggle="collapse" href="#widget-3" role="button" aria-expanded="true" aria-controls="widget-3">
-									        Colour
-									    </a>
-									</h3><!-- End .widget-title -->
-
-									<div class="collapse show" id="widget-3">
-										<div class="widget-body">
-											<div class="filter-colors">
-												<a href="#" style="background: #b87145;"><span class="sr-only">Color Name</span></a>
-												<a href="#" style="background: #f0c04a;"><span class="sr-only">Color Name</span></a>
-												<a href="#" style="background: #333333;"><span class="sr-only">Color Name</span></a>
-												<a href="#" class="selected" style="background: #cc3333;"><span class="sr-only">Color Name</span></a>
-												<a href="#" style="background: #3399cc;"><span class="sr-only">Color Name</span></a>
-												<a href="#" style="background: #669933;"><span class="sr-only">Color Name</span></a>
-												<a href="#" style="background: #f2719c;"><span class="sr-only">Color Name</span></a>
-												<a href="#" style="background: #ebebeb;"><span class="sr-only">Color Name</span></a>
-											</div><!-- End .filter-colors -->
+											<form id="filterForm">
+                                                <div class="filter-items filter-items-count">
+                                                    <% categories.forEach((category, index) => { %>
+                                                        <div class="filter-item">
+                                                            <div class="custom-control custom-checkbox">
+                                                                <input type="checkbox" class="custom-control-input" id="cat-<%= category._id %>" name="category" value="<%= category._id %>" <%= selectedCategories.includes(category._id.toString()) ? 'checked' : '' %>>
+                                                                <label class="custom-control-label" for="cat-<%= category._id %>"><%= category.name %></label>
+                                                            </div>
+                                                            <span class="item-count"><%= category.itemCount %></span>
+                                                        </div>
+                                                    <% }); %>
+                                                </div>
+                                            </form>
 										</div><!-- End .widget-body -->
 									</div><!-- End .collapse -->
         						</div><!-- End .widget -->
 
         						
+
                                 
                                 
-                                <!-- End .widget -->
-
-        						<div class="widget widget-collapsible">
-    								<h3 class="widget-title">
-									    <a data-toggle="collapse" href="#widget-5" role="button" aria-expanded="true" aria-controls="widget-5">
-									        Price
-									    </a>
-									</h3><!-- End .widget-title -->
-
-									<div class="collapse show" id="widget-5">
-										<div class="widget-body">
-                                            <div class="filter-price">
-                                                <div class="filter-price-text">
-                                                    Price Range:
-                                                    <span id="filter-price-range"></span>
-                                                </div><!-- End .filter-price-text -->
-
-                                                <div id="price-slider"></div><!-- End #price-slider -->
-                                            </div><!-- End .filter-price -->
-										</div><!-- End .widget-body -->
-									</div><!-- End .collapse -->
-        						</div><!-- End .widget -->
+                            
                 			</div><!-- End .sidebar sidebar-shop -->
                 		</aside><!-- End .col-lg-3 -->
                 	</div><!-- End .row -->
@@ -748,21 +650,71 @@
         </div><!-- End .modal-dialog -->
     </div><!-- End .modal -->
 
-    <!-- Plugins JS File -->
-    <script src="/assets/js/jquery.min.js"></script>
-    <script src="/assets/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/js/jquery.hoverIntent.min.js"></script>
-    <script src="/assets/js/jquery.waypoints.min.js"></script>
-    <script src="/assets/js/superfish.min.js"></script>
-    <script src="/assets/js/owl.carousel.min.js"></script>
-    <script src="/assets/js/wNumb.js"></script>
-    <script src="/assets/js/bootstrap-input-spinner.js"></script>
-    <script src="/assets/js/jquery.magnific-popup.min.js"></script>
-    <script src="/assets/js/nouislider.min.js"></script>
-    <!-- Main JS File -->
-    <script src="/assets/js/main.js"></script>
-</body>
 
+<!-- //Filter -->
+    <!-- //Filter -->
+   <script>
+
+    document.getElementById('filterForm').addEventListener('change', function() {
+ 
+        const sortValue = document.getElementById('sortby').value;
+        const searchValue = document.getElementById('search').value;
+        console.log(sortValue)
+
+        const params = new URLSearchParams(new FormData(this));
+
+        const title ='<%= title %>'
+
+        if (searchValue) {
+            params.set('searchVal', searchValue);
+        }
+
+        if (sortValue) {
+            params.set('sortby', sortValue);
+        }
+
+        window.location.href = `/shop/gender/${title}?${params.toString()}`;
+    });
+
+    document.getElementById('sortForm').addEventListener('change', function() {
+        const filterForm = document.getElementById('filterForm');
+        const sortValue = document.getElementById('sortby').value;
+        const searchValue = document.getElementById('search').value;
+        const title ='<%= title %>'
+        const params = new URLSearchParams(new FormData(filterForm));
+
+        if (searchValue) {
+            params.set('searchVal', searchValue);
+        }
+
+        if (sortValue) {
+            params.set('sortby', sortValue);
+        }
+
+        window.location.href = `/shop/gender/${title}?${params.toString()}`;
+    });
+
+    document.getElementById('searchForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const filterForm = document.getElementById('filterForm');
+        const sortValue = document.getElementById('sortby').value;
+        const searchValue = document.getElementById('search').value;
+        const title ='<%= title %>'
+        const params = new URLSearchParams(new FormData(filterForm));
+
+        if (searchValue) {
+            params.set('searchVal', searchValue);
+        }
+
+        if (sortValue) {
+            params.set('sortby', sortValue);
+        }
+
+        window.location.href = `/shop/gender/${title}?${params.toString()}`;
+    });
+
+</script>
+</body>
 
 
 <%- include('../layout/footer.ejs') -%>

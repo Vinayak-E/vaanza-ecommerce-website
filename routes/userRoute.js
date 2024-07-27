@@ -79,7 +79,7 @@ userRoute.get("/auth/google/callback",
     failureRedirect: "/login"}),
     async (req,res)=>{
 
-      req.session.user = req.session.passport.user;
+      req.session.user = req.user;
       res.redirect("/")
     }
 
@@ -108,20 +108,20 @@ userRoute.post('/update-cart-quantity',auth.authlogg,cartController.quantityUpda
 
 
 userRoute.post('/remove-from-cart',auth.authlogg,cartController.removeCartItem)
-
+ 
 
 
 // ==========================================< USER PROFILE >==================================================== //
 
-userRoute.get('/profile',userController.loadProfile);
+userRoute.get('/profile',auth.authlogg,userController.loadProfile);
 userRoute.post('/editProfile',userController.editProfile)
-userRoute.post('/reset-pass',userController.resetPasswithOld)
+userRoute.post('/reset-pass',userController.resetPasswithOld) 
 
 userRoute.post('/add-address',userController.addAddress)
 userRoute.post('/edit-address',userController.editAddress);
 userRoute.delete('/delete-address/:id',userController.removeAddress);
 
-
+ 
 
 
 // ==========================================< CHECKOUT >==================================================== //

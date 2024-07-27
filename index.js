@@ -34,6 +34,10 @@ const adminRoute = require("./routes/adminRoute");
 
 app.use("/", userRoute) ;
 app.use("/admin",adminRoute);
+
+app.use("*", (req, res) => {
+  res.status(404).render(path.join(__dirname, "views/user/404.ejs"));
+});
  
 // Start server
 app.listen(PORT, () => {

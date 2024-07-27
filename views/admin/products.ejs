@@ -36,9 +36,6 @@
                         <li class="breadcrumb-item active" aria-current="page">Product List</li>
                       </ol>
                     </nav>
-                    <p class="m-0 text-muted small">Add,edit or list products</p>        
-                    <p class="m-0 text-muted small">Showing 1 - 9 </p>
-                   
                 </div>
              
             </div>
@@ -46,7 +43,9 @@
               <header class="card-header">
                 <div class="row gx-3 align-items-center">
                   <div class="col-lg-4 col-md-6">
-                    <input type="text" placeholder="Search..." class="form-control" id="searchInput" />
+                    <form action="">
+                      <input type="text" placeholder="Search..." class="form-control" id="searchInput" name="search" />
+                  </form>
                   </div>
                   <div class="col-lg-8 col-md-6 d-flex justify-content-end">
                     <button type="button" class="btn btn-lg btn-primary" onclick="location.href='/admin/addProduct';">
@@ -239,21 +238,21 @@
               form.addEventListener('submit', function (event) {
                   event.preventDefault();
   
-      const productId = this.id.split('edit-product-')[1];
-      const name = document.getElementById(`product-name-${productId}`).value.trim();
-      const description = document.getElementById(`product-description-${productId}`).value.trim();
-      const gender = document.getElementById(`product-gender-${productId}`).value.trim();
-      const price = document.getElementById(`product-price-${productId}`).value.trim();
-      const category = document.getElementById(`product-category-${productId}`).value.trim();
+                  const productId = this.id.split('edit-product-')[1];
+                  const name = document.getElementById(`product-name-${productId}`).value.trim();
+                  const description = document.getElementById(`product-description-${productId}`).value.trim();
+                  const gender = document.getElementById(`product-gender-${productId}`).value.trim();
+                  const price = document.getElementById(`product-price-${productId}`).value.trim();
+                  const category = document.getElementById(`product-category-${productId}`).value.trim();
 
-      const nameLabel = document.getElementById(`productNameError-${productId}`)
-      const descriptionLabel = document.getElementById(`productDesError-${productId}`)
-      const genderLabel = document.getElementById(`productGenderError-${productId}`)
-      const priceLabel = document.getElementById(`productPriceError-${productId}`)
-      const categoryLabel = document.getElementById(`productCategoryError-${productId}`)
+                  const nameLabel = document.getElementById(`productNameError-${productId}`)
+                  const descriptionLabel = document.getElementById(`productDesError-${productId}`)
+                  const genderLabel = document.getElementById(`productGenderError-${productId}`)
+                  const priceLabel = document.getElementById(`productPriceError-${productId}`)
+                  const categoryLabel = document.getElementById(`productCategoryError-${productId}`)
 
 
-      let isValid = true;
+                  let isValid = true;
   
                   // Validate Name
                   if (name === '') {

@@ -7,6 +7,7 @@ const categoryController = require("../controller/categoryController");
 const productController = require("../controller/productController");
 const cartController = require('../controller/cartController')
 const config = require("../config/config");
+const auth = require("../middlewares/adminAuth");
 const path =require("path")
 const multer = require("../middlewares/multerConfig");
 // Set up view engine and views directory
@@ -25,18 +26,18 @@ adminRoute.use(session({secret:config.sessionSecret,resave:false,
 //admin load login
 
 // Define a route for /admin that redirects to loadLogin
-adminRoute.get("/", adminController.loadLogin);
+adminRoute.get("/",auth.isLogout,adminController.loadLogin);
 
 adminRoute.post("/", adminController.verifyLogin);
 
 
 
-adminRoute.get("/home",adminController.loadDashboard);
-adminRoute.get("/logout",adminController.adminLogout);
+adminRoute.get("/home",auth.isLogin,adminController.loadDashboard);
+adminRoute.get("/logout",auth.isLogin,adminController.adminLogout);
 
 // ===============User Management  ==========================//
 
-adminRoute.get("/ums",adminController.loadUserMangment);
+adminRoute.get("/ums",auth.isLogin,adminController.loadUserMangment);
 adminRoute.post("/blockUser", adminController.blockUser);
 
 
@@ -45,10 +46,10 @@ adminRoute.post("/blockUser", adminController.blockUser);
 
 
 
-adminRoute.get("/categories", categoryController.loadCategory);
+adminRoute.get("/categories",auth.isLogin, categoryController.loadCategory);
 
 
-adminRoute.get("/createCategory",categoryController.loadaAddCategory);
+adminRoute.get("/createCategory",auth.isLogin,categoryController.loadaAddCategory);
 
 adminRoute.post("/categories", categoryController.insertCategory);
 
@@ -56,7 +57,7 @@ adminRoute.post("/categories", categoryController.insertCategory);
 
 adminRoute.post("/list-unlist", categoryController.listUnlistCategory);
 
-adminRoute.get("/edit-category",categoryController.editCategorypageLoad);
+adminRoute.get("/edit-category",auth.isLogin,categoryController.editCategorypageLoad);
 
 adminRoute.post("/edit-category", categoryController.editCategory);
 
@@ -68,10 +69,10 @@ adminRoute.post("/edit-category", categoryController.editCategory);
 // =======    Product managment   =======================//
 
 
-adminRoute.get("/products", productController.loadProductList);
+adminRoute.get("/products",auth.isLogin, productController.loadProductList);
 
 
-adminRoute.get("/addProduct", productController.loadAddproduct);
+adminRoute.get("/addProduct",auth.isLogin, productController.loadAddproduct);
 
 adminRoute.post( "/addproduct",multer.array("images"), productController.addProduct);
 
@@ -82,15 +83,15 @@ adminRoute.post('/listUnlistProduct', productController.listUnlistProduct);
 
 adminRoute.post("/edit-product",productController.editProduct);
 
-adminRoute.get("/loadVariant/:id", productController.loadVariant);
+adminRoute.get("/loadVariant/:id", auth.isLogin,productController.loadVariant);
 
 
-adminRoute.get("/addVariant", productController.loadAddVariant);
+adminRoute.get("/addVariant",auth.isLogin, productController.loadAddVariant);
 
 
 adminRoute.post("/addVariant",multer.array("images"), productController.addVariant);
 
-adminRoute.get("/edit-variant",productController.loadEditVariant);
+adminRoute.get("/edit-variant",auth.isLogin,productController.loadEditVariant);
 
 adminRoute.post("/edit-variant",multer.array('images', 4),productController.editVariant);
 
@@ -100,7 +101,7 @@ adminRoute.post("/edit-variant",multer.array('images', 4),productController.edit
 
 // ===============  Order Management  ==========================//
 
-adminRoute.get("/orders",adminController.loadOrderlist)
+adminRoute.get("/orders",auth.isLogin,adminController.loadOrderlist)
 adminRoute.get('/order-details/:orderId', adminController.orderDetails);
 
 adminRoute.post('/update-status', adminController.updateOrderStatus);

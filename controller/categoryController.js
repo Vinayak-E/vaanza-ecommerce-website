@@ -31,7 +31,9 @@ const loadaAddCategory = async(req,res)=>{
 const insertCategory = async(req,res)=>{
     try{
                 const { description,name,gender } = req.body;
-                const existingCategory = await Category.findOne({ name });
+                const lowerCaseName = name.toLowerCase(); // Convert input name to lowercase
+
+                const existingCategory = await Category.findOne({ name: new RegExp(`^${lowerCaseName}$`, 'i') }); // Case-insensitive search
                 if(existingCategory){
                         req.flash('error','already exists a category with this name')
                         res.redirect('/admin/createCategory')
@@ -90,6 +92,7 @@ const editCategorypageLoad = async(req,res)=>{
         console.log(err.message)
     }
 }
+
 const editCategory = async (req, res) => {
     try {
         
@@ -98,6 +101,8 @@ const editCategory = async (req, res) => {
       const newName = req.body.editname;
       const newDescription = req.body.editdisc;
       const newGender=    req.body.editgender
+
+
       const existingCategory = await Category.findOne({ name: req.body.editname });
       if(existingCategory){
         req.flash('error','error! alredy exixst a category with this name')

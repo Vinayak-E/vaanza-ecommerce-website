@@ -34,102 +34,87 @@
                             <!-- First column-->
                             <div class="col-12 col-lg-8">
 
-                                <form action="/admin/addVariant" method="POST"  enctype="multipart/form-data" >
-                                   
+                                <form action="/admin/addVariant" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
                                     <input type="hidden" name="productId" value="<%= product._id %>">
-                                <!-- Variants -->
-                                <div class="card mb-6">
-                                    <div class="card-header">
+                                    <!-- Variants -->
+                                    <div class="card mb-6">
+                                      <div class="card-header">
                                         <h5 class="card-title mb-0">Variants</h5>
-                                    </div>
-                                    <div class="card-body">
+                                      </div>
+                                      <div class="card-body">
                                         <div class="row gx-5">
-                                            <div class="mb-6 col-sm-4">
-                                                <div class="form-floating form-floating-outline">
-                                                    <select id="select2Basic" class="select2 form-select"
-                                                        data-placeholder="COLOUR" data-allow-clear="true" name="color">
-                                                        <option value="">Select a color</option>
-                                                        <option value="White">White</option>
-                                                        <option value="Red">Red</option>
-                                                        <option value="Blue">Blue</option>
-                                                        <option value="Yellow">Yellow</option>
-                                                        <option value="Green">Green</option>
-                                                        <option value="Orange">Orange</option>
-                                                        <option value="Black">Black</option>
-                                                    </select>
-                                                    <label for="select2Basic">COLOR</label>
-                                                </div>
+                                          <div class="mb-6 col-sm-4">
+                                            <div class="form-floating form-floating-outline">
+                                              <select id="select2Basic" class="select2 form-select" data-placeholder="COLOUR" data-allow-clear="true" name="color">
+                                                <option value="">Select a color</option>
+                                                <option value="White">White</option>
+                                                <option value="Red">Red</option>
+                                                <option value="Blue">Blue</option>
+                                                <option value="Yellow">Yellow</option>
+                                                <option value="Green">Green</option>
+                                                <option value="Orange">Orange</option>
+                                                <option value="Black">Black</option>
+                                              </select>
+                                              <label for="select2Basic">COLOR</label>
+                                              <p id="colorErr" style="color: red; display: none;">Please select a color.</p>
                                             </div>
-                                            <div class="mb-6 col-sm-8">
-                                                <div class="form-floating form-floating-outline">
-                                                    <input type="number" class="form-control" id="quantity"
-                                                        name="quantity">
-                                                    <p id="quantityErr" style="color: red; display: none;"></p>
-                                                    <label for="form-repeater-1-2">QUANTITY</label>
-                                                </div>
+                                          </div>
+                                          <div class="mb-6 col-sm-8">
+                                            <div class="form-floating form-floating-outline">
+                                              <input type="number" class="form-control" id="quantity" name="quantity">
+                                              <p id="quantityErr" style="color: red; display: none;">Please enter a quantity.</p>
+                                              <label for="form-repeater-1-2">QUANTITY</label>
                                             </div>
-                                            <!-- ///// -->
-                                            <div class="mb-6 col-sm-4">
-                                                <label class="d-block">Sizes</label>
-                                                <div class="form-floating form-floating-outline">
-                                                    <div class="d-flex flex-wrap">
-                                                        <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="checkbox" id="sizeS"
-                                                                name="sizes[]" value="S">
-                                                            <label class="form-check-label" for="sizeS">S</label>
-                                                        </div>
-                                                        <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="checkbox" id="sizeM"
-                                                                name="sizes[]" value="M">
-                                                            <label class="form-check-label" for="sizeM">M</label>
-                                                        </div>
-                                                        <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="checkbox" id="sizeL"
-                                                                name="sizes[]" value="L">
-                                                            <label class="form-check-label" for="sizeL">L</label>
-                                                        </div>
-                                                    </div>
+                                          </div>
+                                          <!-- Sizes -->
+                                          <div class="mb-6 col-sm-4">
+                                            <label class="d-block">Sizes</label>
+                                            <div class="form-floating form-floating-outline">
+                                              <div class="d-flex flex-wrap">
+                                                <div class="form-check form-check-inline">
+                                                  <input class="form-check-input" type="checkbox" id="sizeS" name="sizes[]" value="S">
+                                                  <label class="form-check-label" for="sizeS">S</label>
                                                 </div>
-                                            </div>
-
-
-
-                                            <!-- /// -->
-
-
-                                            
-                                            <!-- /// -->
-                                            <div class="form-group">
-                                                <h5>Product Images</h5>
-                                                <div class="row">
-                                                    <% for (let i = 1; i <= 4; i++) { %>
-                                                    <div class="col-lg-6 col-md-6 mb-3">
-                                                        <label for="imageInput<%= i %>" class="file-upload">
-                                                            <span class="file-select">Choose Image <%= i %></span>
-                                                            <input name="images" type="file" accept="image/*"
-                                                                id="imageInput<%= i %>" class="imageInput"
-                                                                onchange="previewImage(this, 'imagePreview<%= i %>')">
-                                                            <img id="imagePreview<%= i %>" class="img-preview"
-                                                                alt="Preview">
-                                                        </label>
-                                                    </div>
-                                                    <% } %>
+                                                <div class="form-check form-check-inline">
+                                                  <input class="form-check-input" type="checkbox" id="sizeM" name="sizes[]" value="M">
+                                                  <label class="form-check-label" for="sizeM">M</label>
                                                 </div>
-                                                <p id="imagesErr" style="color: red; display: none;">Please upload all four
-                                                    images.</p>
+                                                <div class="form-check form-check-inline">
+                                                  <input class="form-check-input" type="checkbox" id="sizeL" name="sizes[]" value="L">
+                                                  <label class="form-check-label" for="sizeL">L</label>
+                                                </div>
+                                              </div>
+                                              <p id="sizesErr" style="color: red; display: none;">Please select at least one size.</p>
                                             </div>
-                                            
-                                            <!-- /// -->
+                                          </div>
+                                  
+                                          <!-- Product Images -->
+                                          <div class="form-group">
+                                            <h5>Product Images</h5>
+                                            <div class="row">
+                                              <% for (let i = 1; i <= 4; i++) { %>
+                                                <div class="col-lg-6 col-md-6 mb-3">
+                                                  <label for="imageInput<%= i %>" class="file-upload">
+                                                    <span class="file-select">Choose Image <%= i %></span>
+                                                    <input name="images" type="file" accept="image/*" id="imageInput<%= i %>" class="imageInput" onchange="previewImage(this, 'imagePreview<%= i %>', 'imageError<%= i %>')">
+                                                    <img id="imagePreview<%= i %>" class="img-preview" alt="Preview">
+                                                  </label>
+                                                  <p id="imageError<%= i %>" style="color: red; display: none;">Invalid image file type.</p>
+                                                </div>
+                                              <% } %>
+                                            </div>
+                                            <p id="imagesErr" style="color: red; display: none;">Please upload all four images.</p>
+                                          </div>
+                                  
                                         </div>
+                                      </div>
                                     </div>
-                                </div>
-
-                                <!-- /Variants -->
-                                     <!-- Submit Button -->
-                                     <div class="d-flex justify-content-end">
-                                        <button type="submit" class="btn btn-primary">Add Variant</button>
+                                  
+                                    <!-- Submit Button -->
+                                    <div class="d-flex justify-content-end">
+                                      <button type="submit" class="btn btn-primary">Add Variant</button>
                                     </div>
-                                </form>
+                                  </form>
                                 <!-- /Form end -->
 
                             </div>
@@ -156,23 +141,77 @@
     </div>
     <!-- / Layout wrapper -->
     <script>
-        function previewImage(input, imagePreviewId) {
-            const file = input.files[0];
-            const preview = document.getElementById(imagePreviewId);
-
-            if (file) {
-                const reader = new FileReader();
-
-                reader.onload = function (e) {
-                    preview.src = e.target.result;
-                };
-
-                reader.readAsDataURL(file);
-            } else {
-                preview.src = "";
-            }
+    function validateForm() {
+        let isValid = true;
+      
+        // Validate color
+        const color = document.querySelector('select[name="color"]').value;
+        if (!color) {
+          document.getElementById('colorErr').style.display = 'block';
+          isValid = false;
+        } else {
+          document.getElementById('colorErr').style.display = 'none';
         }
-    </script>
+      
+        // Validate quantity
+        const quantity = document.getElementById('quantity').value;
+        if (!quantity) {
+          document.getElementById('quantityErr').style.display = 'block';
+          isValid = false;
+        } else {
+          document.getElementById('quantityErr').style.display = 'none';
+        }
+      
+        // Validate sizes
+        const sizes = document.querySelectorAll('input[name="sizes[]"]:checked');
+        if (sizes.length === 0) {
+          document.getElementById('sizesErr').style.display = 'block';
+          isValid = false;
+        } else {
+          document.getElementById('sizesErr').style.display = 'none';
+        }
+      
+        // Validate images
+        let imagesValid = true;
+        const imageInputs = document.querySelectorAll('.imageInput');
+        imageInputs.forEach(input => {
+          if (!input.value) {
+            imagesValid = false;
+          }
+        });
+        if (!imagesValid) {
+          document.getElementById('imagesErr').style.display = 'block';
+          isValid = false;
+        } else {
+          document.getElementById('imagesErr').style.display = 'none';
+        }
+      
+        return isValid;
+      }
+      
+      function previewImage(input, imgId, errorId) {
+        if (input.files && input.files[0]) {
+          const validImageTypes = ['image/gif', 'image/jpeg', 'image/png', 'image/webp'];
+          const file = input.files[0];
+      
+          if (!validImageTypes.includes(file.type)) {
+            input.value = ''; // Clear the input
+            document.getElementById(errorId).style.display = 'block'; // Show error message
+            return;
+          }
+      
+          document.getElementById(errorId).style.display = 'none'; // Hide error message if valid file
+      
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            document.getElementById(imgId).setAttribute('src', e.target.result);
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+
+
+</script>      
 
 
     <%- include('../layout/admin/adminFooter.ejs') -%>

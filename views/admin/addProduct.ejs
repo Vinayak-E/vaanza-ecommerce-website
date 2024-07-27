@@ -66,27 +66,28 @@
                 </div>
                 <!-- /Product Information -->
 
-                <!-- Media -->
-                <div class="card mb-6">
-                  <div class="card-header d-flex justify-content-between align-items-center">
-                    <div class="form-group">
-                      <h5>Product Images</h5>
-                      <div class="row">
-                        <% for (let i = 1; i <= 4; i++) { %>
-                        <div class="col-lg-6 col-md-6 mb-3">
-                          <label for="imageInput<%= i %>" class="file-upload">
-                            <span class="file-select">Choose Image <%= i %></span>
-                            <input name="images" type="file" accept="image/*" id="imageInput<%= i %>" class="imageInput"
-                              onchange="previewImage(this, 'imagePreview<%= i %>')">
-                            <img id="imagePreview<%= i %>" class="img-preview" alt="Preview">
-                          </label>
-                        </div>
-                        <% } %>
-                      </div>
-                      <p id="imagesErr" style="color: red; display: none;">Please upload all four images.</p>
-                    </div>
-                  </div>
-                </div>
+               <!-- Media -->
+<div class="card mb-6">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="form-group">
+      <h5>Product Images</h5>
+      <div class="row">
+        <% for (let i = 1; i <= 4; i++) { %>
+        <div class="col-lg-6 col-md-6 mb-3">
+          <label for="imageInput<%= i %>" class="file-upload">
+            <span class="file-select">Choose Image <%= i %></span>
+            <input name="images" type="file" accept="image/*" id="imageInput<%= i %>" class="imageInput" onchange="previewImage(this, 'imagePreview<%= i %>', 'imageError<%= i %>')" required>
+            <img id="imagePreview<%= i %>" class="img-preview" alt="Preview">
+          </label>
+          <p id="imageError<%= i %>" style="color: red; display: none;">Invalid image file type.</p>
+        </div>
+        <% } %>
+      </div>
+      <p id="imagesErr" style="color: red; display: none;">Please upload all four images.</p>
+    </div>
+  </div>
+</div>
+
                 
 
                 <!-- /Media -->
@@ -112,6 +113,7 @@
               <option value="Green">Green</option>
               <option value="Orange">Orange</option>
               <option value="Black">Black</option>
+              <option value="Black">Grey</option>
             </select>
               <label for="product-color">COLOUR</label>
               <div id="colorErr" style="color: red; display: none;"></div>
@@ -346,18 +348,27 @@
   return isValid;
 }
 
-
-      function previewImage(input, imgId) {
+function previewImage(input, imgId, errorId) {
   if (input.files && input.files[0]) {
-    var reader = new FileReader();
+    const validImageTypes = ['image/gif', 'image/jpeg', 'image/png', 'image/webp'];
+    const file = input.files[0];
 
+    if (!validImageTypes.includes(file.type)) {
+      input.value = ''; // Clear the input
+      document.getElementById(errorId).style.display = 'block'; // Show error message
+      return;
+    }
+
+    document.getElementById(errorId).style.display = 'none'; // Hide error message if valid file
+
+    var reader = new FileReader();
     reader.onload = function(e) {
       document.getElementById(imgId).setAttribute('src', e.target.result);
     };
-
-    reader.readAsDataURL(input.files[0]);
+    reader.readAsDataURL(file);
   }
 }
+
 
 function checkImages() {
     let selectedCount = 0;
