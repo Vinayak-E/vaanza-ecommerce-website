@@ -133,6 +133,33 @@
                     </div>
                     </div>
 
+  <!-- Pagination -->
+                  <ul class="pagination" id="paginationHi">
+                    <% if (totalPages > 1) { %>
+                      <% if (currentPage <= 1) { %>
+                        <li class="page-item disabled"><a class="page-link">Previous</a></li>
+                      <% } else { %>
+                        <li class="page-item"><a class="page-link" href="?page=<%= previous %>">Previous</a></li>
+                      <% } %>
+
+                      <% for (let j = 1; j <= totalPages; j++) { %>
+                        <li class="page-item <%= currentPage === j ? 'active' : '' %>">
+                          <a class="page-link" href="?page=<%= j %>"><%= j %></a>
+                        </li>
+                      <% } %>
+
+                      <% if (currentPage < totalPages) { %>
+                        <li class="page-item"><a class="page-link" href="?page=<%= next %>">Next</a></li>
+                      <% } else { %>
+                        <li class="page-item disabled"><a class="page-link">Next</a></li>
+                      <% } %>
+                    <% } else { %>
+                      <li class="page-item disabled"><a class="page-link">Previous</a></li>
+                      <li class="page-item active"><a class="page-link">1</a></li>
+                      <li class="page-item disabled"><a class="page-link">Next</a></li>
+                    <% } %>
+                  </ul>
+
 
           </div>
           <!-- / Content -->

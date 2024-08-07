@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const Category = require("../models/categoriesModel");
 const Product = require("../models/productSchema");
+const Offer = require("../models/offerModel");
 const Cart =require("../models/cartSchema")
 const fs = require('fs'); // Import the fs module
 const sharp = require("sharp");
@@ -92,75 +93,72 @@ const loadAddproduct = async (req, res) => {
   
 
 
-  const addProduct = async (req, res) => {
-    try {
-      // Extract form data and process as needed
-      const { name, description, category, price, quantity,gender,color } = req.body;
-
-      let { sizes } = req.body;
-
-      // If sizes is not an array, make it an array
-      sizes = Array.isArray(sizes) ? sizes : [sizes];
-  
-  
- // Find the category by name
- const getCategory = await Category.findOne({ name: category});
-
- if (!getCategory) {
-   return res.status(404).send("Category not found");
- }
-      // Process uploaded images
-      let arrImages = [];
-      if (req.files && req.files.length > 0) {
-        for (let i = 0; i < req.files.length; i++) {
-          const outputPath = path.resolve(
-            __dirname,
-            "..",
-            "public",
-            "assets",
-            "images",
-            "productImage",
-            "sharped",
-            `${req.files[i].filename}`
-          );
-          
-        
-          await fs.promises.mkdir(path.dirname(outputPath), { recursive: true });
-          
-          // Resize image using sharp and save to specified path
-          await sharp(req.files[i].path).resize(400, 600).toFile(outputPath);
-  
-          // Collect filenames for images
-          arrImages.push(req.files[i].filename);
-        }
-      }
-  
-      // Create new product 
-      const product = new Product({
-        name,
-        description,
-        category: getCategory._id,
-        price,
-        stockQuantity: quantity,
-        is_Listed: true,
-        // images: arrImages,
-        gender,
-        variants: [{
-          color,
-           sizes,
-          quantity,
-          images: arrImages
-        }]
-      });
-  
-      // Save product to MongoDB
-      await product.save();
-      res.redirect("/admin/products");
-    } catch (error) {
-      console.error(error);
-      res.status(500).send("Internal server error");
+const addProduct = async (req, res) => {
+  try {
+    // Extract form data and process as needed
+    const { name, description,category, price, quantity, gender, color } = req.body;
+    let { sizes } = req.body;
+    
+    // If sizes is not an array, make it an array
+    sizes = Array.isArray(sizes) ? sizes : [sizes];
+  console.log(req.body.category)
+    // Find the category by name
+    const getCategory = await Category.findOne({ name: category });
+    if (!getCategory) {
+      return res.status(404).send("Category not found");
     }
-  };
+
+    // Process uploaded images from Cropper.js
+    let arrImages = [];
+    if (req.files && req.files.length > 0) {
+      for (let i = 0; i < req.files.length; i++) {
+        const outputPath = path.resolve(
+          __dirname,
+          "..",
+          "public",
+          "assets",
+          "images",
+          "productImage",
+          `${req.files[i].filename}`
+        );
+
+        await fs.promises.mkdir(path.dirname(outputPath), { recursive: true });
+
+        // Move the already cropped image to the specified path
+        await fs.promises.rename(req.files[i].path, outputPath);
+
+        // Collect filenames for images
+        arrImages.push(req.files[i].filename);
+      }
+    }
+
+    // Create new product
+    const product = new Product({
+      name,
+      description,
+      category: getCategory._id,
+      price,
+      stockQuantity: quantity,
+      is_Listed: true,
+      gender,
+      variants: [{
+        color,
+        sizes,
+        quantity,
+        images: arrImages
+      }]
+    });
+
+    // Save product to MongoDB
+    await product.save();
+    res.redirect("/admin/products");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal server error");
+  }
+};
+
+
 
 
 
@@ -169,7 +167,7 @@ const loadAddproduct = async (req, res) => {
       const { productId, newName, newDescription, newPrice, newCategory, newGender } = req.body;
      
       // Verify product existence
-      const product = await Product.findById(productId);
+      const product = await Product.findById(productId).populate("category")
       if (!product) {
         console.log(`Product with ID ${productId} not found`);
         return res.status(404).send("Product not found");
@@ -236,6 +234,10 @@ const loadAddVariant = async (req, res) => {
   }
 };
 
+
+
+
+
 const addVariant = async (req, res) => {
   try {
     const { productId, color, quantity, sizes } = req.body;
@@ -262,22 +264,17 @@ const addVariant = async (req, res) => {
           "assets",
           "images",
           "productImage",
-          "sharped",
           `${req.files[i].filename}`
         );
 
         // Create directories if they don't exist
-        await fs.promises.mkdir(path.dirname(outputPath), { recursive: true });
+       await fs.promises.mkdir(path.dirname(outputPath), { recursive: true });
 
-        // Resize image using sharp and save to specified path
-        try {
-          await sharp(req.files[i].path).resize(400, 600).toFile(outputPath);
-          // Collect filenames for images
-          arrImages.push(req.files[i].filename);
-        } catch (err) {
-          console.error(`Error processing image ${req.files[i].filename}:`, err);
-          return res.status(500).send("Error processing image");
-        }
+        // Move the already cropped image to the specified path
+        await fs.promises.rename(req.files[i].path, outputPath);
+
+        // Collect filenames for images
+        arrImages.push(req.files[i].filename);
       }
     }
 
@@ -299,6 +296,8 @@ const addVariant = async (req, res) => {
     res.status(500).send("Internal server error");
   }
 };
+
+
 
 const loadEditVariant = async (req, res) => {
   try {
@@ -337,7 +336,8 @@ const loadEditVariant = async (req, res) => {
 };
 
 
-  
+
+ 
 const editVariant = async (req, res) => {
   try {
     const { id, index, color, quantity, sizes, existingImages } = req.body;
@@ -365,11 +365,14 @@ const editVariant = async (req, res) => {
           'assets',
           'images',
           'productImage',
-          'sharped',
           `${req.files[i].filename}`
         );
+     
+        // Move the already cropped image to the specified path
+        await fs.promises.rename(req.files[i].path, outputPath);
 
-        await sharp(req.files[i].path).resize(400, 600).toFile(outputPath);
+        // Collect filenames for images
+      
         newImages.push(req.files[i].filename);
       }
     }
@@ -426,6 +429,25 @@ const editVariant = async (req, res) => {
 };
 
 
+
+const getBestOffer = (product, offers) => {
+  if (!offers || offers.length === 0) {
+    return null;
+  }
+
+  const relevantOffers = offers.filter(offer => 
+    (offer.type === 'product' && offer.products.some(p => p.productId.toString() === product._id.toString())) ||
+    (offer.type === 'category' && offer.category.some(c => c.category.toString() === product.category._id.toString()))
+  );
+
+  const activeOffers = relevantOffers.filter(offer => offer.status);
+
+  const bestOffer = activeOffers.reduce((maxOffer, offer) => offer.discount > maxOffer.discount ? offer : maxOffer, { discount: 0 });
+
+  return bestOffer.discount > 0 ? bestOffer : null;
+};
+
+
 const loadShop = async (req, res) => {
   try {
     const gender = req.params.gender;
@@ -433,6 +455,7 @@ const loadShop = async (req, res) => {
 
     let query = { gender: gender, is_Listed: true };
 
+    const offers = await Offer.find({});
     // Handle search
     if (searchVal) {
       query.$or = [
@@ -494,6 +517,7 @@ const loadShop = async (req, res) => {
     const products = await Product.find(query)
       .populate('variants')
       .populate("category")
+      .populate("offers")
       .sort(sortOption)
       .skip(skip)
       .limit(pageSize);
@@ -505,9 +529,11 @@ const loadShop = async (req, res) => {
     products.forEach(product => {
       product.isNew = (now - product.date) <= 7 * 24 * 60 * 60 * 1000; // Check if added within one week
       product.isOutOfStock = product.variants.every(variant => variant.quantity === 0);
+      product.bestOffer = getBestOffer(product, offers);
     });
 
     const categories = await Category.find({ gender: gender, is_listed: true });
+     
 
     res.render("shop", {
       products,
@@ -541,9 +567,15 @@ const productView = async (req, res) => {
     const productId = req.params.productId; // Get product ID from URL parameter
     const variantId = req.params.variantId;
     // Fetch product details by ID
-    const product = await Product.findById(productId).populate("variants").populate("category")
+    const product = await Product.findById(productId).populate("variants").populate("category").populate("offers")
 
-    // Handle case where product ID is not found
+ 
+    const offers = await Offer.find({  status: true });
+ 
+    product.bestOffer = getBestOffer(product, offers);
+ 
+    console.log(product)
+  
     if (!Product) {
       
       return res.status(404).send('Product not found');
@@ -574,6 +606,8 @@ const productView = async (req, res) => {
     res.render('404')
   }
 };
+
+
 
 
 module.exports = {

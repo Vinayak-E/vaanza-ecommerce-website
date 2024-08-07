@@ -12,7 +12,7 @@ const userOtpVerificationSchema = mongoose.Schema({
         default: Date.now,
         expires: 60
       }
-    
+     
 
 });
 

@@ -124,8 +124,8 @@
           <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
           
           <!-- jQuery -->
-          <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-          
+       
+     
         
         <script>
             function block(category) {
@@ -162,41 +162,42 @@
                 });
             }
 
-            function confirm(user) {
-                const data = { user: user };
-                console.log("Deleting user:", user);
+            // function confirm(user) {
+            //     const data = { user: user };
+            //     console.log("Deleting user:", user);
 
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!',
-                }).then((res) => {
-                    if (res.isConfirmed) {
-                        $.ajax({
-                            method: 'POST',
-                            url: '/admin/delete-category',
-                            data: JSON.stringify(data),
-                            contentType: 'application/json',
-                            success: function (res) {
-                                if (res.list === true) {
-                                    $('#reloadArea').load('/admin/categories #reloadArea', function() {
-                                        console.log("User list updated");
-                                    });
-                                }
-                            },
-                            error: function (error) {
-                                console.error("Error:", error);
-                            }
-                        });
-                    }
-                });
-            }
+            //     Swal.fire({
+            //         title: "Are you sure?",
+            //         text: "You won't be able to revert this!",
+            //         icon: 'warning',
+            //         showCancelButton: true,
+            //         confirmButtonColor: '#3085d6',
+            //         cancelButtonColor: '#d33',
+            //         confirmButtonText: 'Yes, delete it!',
+            //     }).then((res) => {
+            //         if (res.isConfirmed) {
+            //             $.ajax({
+            //                 method: 'POST',
+            //                 url: '/admin/delete-category',
+            //                 data: JSON.stringify(data),
+            //                 contentType: 'application/json',
+            //                 success: function (res) {
+            //                     if (res.list === true) {
+            //                         $('#reloadArea').load('/admin/categories #reloadArea', function() {
+            //                             console.log("User list updated");
+            //                         });
+            //                     }
+            //                 },
+            //                 error: function (error) {
+            //                     console.error("Error:", error);
+            //                 }
+            //             });
+            //         }
+            //     });
+            // }
 
         </script>
+
 
           
 <%- include('../layout/admin/adminFooter.ejs') -%>

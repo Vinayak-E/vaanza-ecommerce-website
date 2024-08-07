@@ -1,5 +1,5 @@
 \<%- include('../layout/admin/adminHeader.ejs') -%>
-
+</head>
 <body>
 
   
@@ -58,14 +58,15 @@
                     
                 <% } %> 
               <div class="form-floating form-floating-outline mb-5">
-                <input type="text" class="form-control" id="email"  placeholder="Enter your email " name="email" autofocus>
+                <input type="text" class="form-control" id="email" value="admin@gmail.com"  placeholder="Enter your email " name="email" autofocus>
                 <label for="email">Email </label>
+                
               </div>
               <div class="mb-5">
                 <div class="form-password-toggle">
                   <div class="input-group input-group-merge">
                     <div class="form-floating form-floating-outline">
-                      <input type="password" id="password" class="form-control" name="password" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password" />
+                      <input type="password" id="password" class="form-control" name="password" value="Admin123" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="password" />
                       <label for="password">Password</label>
                     </div>
                     <span class="input-group-text cursor-pointer"><i class="ri-eye-off-line ri-20px"></i></span>

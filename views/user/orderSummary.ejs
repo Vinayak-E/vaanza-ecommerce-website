@@ -153,11 +153,11 @@
                               %></p>
                         </div>
                         <div class="address-details">
-                            <p><strong>Ship to:</strong> <%= order.addressId.name %></p>
+                            <p><strong>Ship to:</strong> <%= order.address.name %></p>
                             <p><strong>Delivery Address:</strong><br>
-                                <%= order.addressId.address %>, <%= order.addressId.street %><br>
-                                <%= order.addressId.state %>, <%= order.addressId.postalCode %><br>
-                                <%= order.addressId.number %>
+                                <%= order.address.address %>, <%= order.address.street %><br>
+                                <%= order.address.state %>, <%= order.address.postalCode %><br>
+                                <%= order.address.number %>
                             </p>
                         </div>
                     </div>
@@ -176,7 +176,7 @@
                             <% let subtotal = 0; %>
                             <% order.products.forEach(item => { %>
                                 <% const product = item.productId; %>
-                                <% const itemTotal = product.price * item.quantity; %>
+                                <% const itemTotal = item.price * item.quantity; %>
                                 <% subtotal += itemTotal; %>
                                 <% const variant = product.variants.find(v => v.sizes.includes(item.size)); %>
                                 <% const variantImage = variant ? variant.images[0] : ''; %>
@@ -184,7 +184,7 @@
                                     <td><img src="/assets/images/productImage/<%= variantImage %>" alt="<%= product.name %>" class="variant-image"></td>
                                     <td><%= product.name %> <br><%= variant.color  %> <br> <%= item.size  %></td>
                                     <td><%= item.quantity %></td>
-                                    <td>₹<%= product.price.toFixed(2) %></td>
+                                    <td>₹<%= item.price.toFixed(2) %></td>
                                     <td>₹<%= itemTotal.toFixed(2) %></td>
                                 </tr>
                             <% }); %>
@@ -195,14 +195,14 @@
                             <div class="col-md-12 text-right">
                                 <h6>Subtotal: <span>₹<%= subtotal.toFixed(2) %></span></h6>
                                 <h6>Shipping Charge: <span>₹<%= order.shippingCharge.toFixed(2) %></span></h6>
-                                <h3 class="mt-4">Grand Total: <span>₹<%= subtotal + order.shippingCharge %></span></h3>
+                                <h3 class="mt-4">Grand Total: <span>₹<%= order.totalAmount %></span></h3>
                             </div>
                         </div>
                     </div>
 
                     <div class="text-center mt-4">
                         <a href="/" class="btn btn-primary btn-lg mr-2">Continue Shopping</a>
-                        <a href="/download-invoice/<%= order.orderId %>" class="btn btn-secondary btn-lg">Download Invoice</a>
+                        <a href="/profile" class="btn btn-secondary btn-lg">View Orders</a>
                     </div>
                 </div>
             </div>

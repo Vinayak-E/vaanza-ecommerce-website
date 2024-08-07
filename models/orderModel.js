@@ -18,7 +18,24 @@ const orderSchema = new Schema({
         required:true
     },
 
-    addressId: { type: Schema.Types.ObjectId, ref: 'Address', required: true },
+    coupon: {
+        code: String,
+        description: String,
+        discount: Number,
+        minPurchaseAmount: Number,
+        validity: Date,
+      },
+    
+    address:{
+        name: String,
+        number: Number,
+        address: String,
+        street: String,
+        postalCode: String,
+        state: String,
+        landmark: String,
+    },
+
     products: [{ 
         productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
         variantId: { type: Schema.Types.ObjectId, required: true }, 

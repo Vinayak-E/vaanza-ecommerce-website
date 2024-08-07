@@ -73,7 +73,7 @@ const insertUser = async (req, res) => {
         mobile,
         password: securePass,
         is_admin: 0,
-        blocked: 0,
+        is_blocked: 0,
         verified: false
       });
 
@@ -395,9 +395,7 @@ const loadProfile = async (req, res) => {
     .populate({
       path: 'products.productId',
       populate: { path: 'variants' }
-    })
-    .populate('addressId')  
-    .sort({ orderDate: -1 });
+    }).sort({ orderDate: -1 });
 
       res.render('profilePage', { user, addresses,orders})
 

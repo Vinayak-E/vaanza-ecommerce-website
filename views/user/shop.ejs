@@ -2,6 +2,17 @@
 <%- include('../layout/header.ejs') -%>
 
 
+<style>
+/* Offer price */
+.original-price {
+    text-decoration: line-through;
+    color: #999;
+    margin-right: 5px;
+}
+.offer-price {
+    color: #e74c3c;
+}
+</style>
 </head>
 
 
@@ -174,21 +185,31 @@
                                     <div class="col-6 col-md-4 col-lg-4">
                                         <div class="product product-7 text-center">
                                             <figure class="product-media">
-                                                <% if (product.isOutOfStock) { %>
-                                                    <span class="product-label  label-sale" style="background-color: #ee4040;">Out of Stock</span>
+                                                <div class="label-container left">
+                                                    <% if (product.isOutOfStock) { %>
+                                                        <span class="product-label label-sale" style="background-color: #f60707;">Out of Stock</span>
                                                     <% } else if (product.isNew) { %>
-                                                    <span class="product-label label-new">New</span>
+                                                        <span class="product-label label-new">New</span>
                                                     <% } %>
+                                                    <% if (product.bestOffer) { %>
+                                                        <span class="product-label label-sale"><%= product.bestOffer.discount %>% Off</span>
+                                                    <% } %>
+                                                </div>
+                                               
                                                 <a href="/productView/product/<%= product._id %>/variant/<%= product.variants[0]._id %>">
-                                                    <img src="/assets/images/productImage/sharped/<%= product.variants[0].images[0] %>" alt="Product image" class="product-image">
-                                                  </a>
-
+                                                    <img src="/assets/images/productImage/<%= product.variants[0].images[0] %>" alt="Product image" class="product-image">
+                                                    <img src="/assets/images/productImage/<%= product.variants[0].images[3] %>" alt="Product image" class="product-image-hover">
+                                                </a>
                                                 <div class="product-action-vertical">
-                                                    <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                                    <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                                                    <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                                                </div><!-- End .product-action-vertical -->
 
+                                                    <form class="add-to-whishlist">
+                                                        <input type="hidden" class="wishlist-product-id" value="<%= product._id %>">
+                                                        <a href="#" class="btn-product-icon btn-wishlist btn-expandable" type="submit"><span>add to wishlist</span></a>
+                                                        <!-- <button type="submit" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></button> -->
+                                                    </form>
+                                                   
+                                                 
+                                                </div><!-- End .product-action-vertical -->
                                                 <div class="product-action">
                                                     <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
                                                 </div><!-- End .product-action -->
@@ -199,7 +220,14 @@
                                                 <h3 class="product-title"> <a href="/productView/product/<%= product._id %>/variant/<%= product.variants[0]._id %>"><%= product.name %></a></h3><!-- End .product-title -->
                                                 <p><%=product.category.name  %></p>
                                                 <div class="product-price">
-                                                    Rs. <%= product.price.toFixed(2) %>
+                                                    <% if (product.bestOffer) { %>
+                                                        <!-- Display original price crossed out and offer price -->
+                                                        <span class="original-price">₹<%= product.price %></span>
+                                                        <span class="offer-price">₹<%= Math.round(product.price * (1 - (product.bestOffer.discount / 100))).toFixed(2) %></span>
+                                                    <% } else { %>
+                                                        <!-- Display the price without an offer -->
+                                                        ₹<%= product.price %>
+                                                    <% } %>
                                                 </div><!-- End .product-price -->
                                                 <div class="ratings-container">
                                                     <div class="ratings">
@@ -714,6 +742,60 @@
     });
 
 </script>
+
+<script>
+    document.querySelectorAll('.add-to-whishlist').forEach(form => {
+    form.addEventListener('click', async (event) => {
+        event.preventDefault();
+
+        const productId = form.querySelector('.wishlist-product-id').value;
+
+        try {
+            const response = await fetch(`/addToWishlist/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Added to wishlist'
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else if (!data.success) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: data.message
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to add to wishlist.'
+                });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An unexpected error occurred. Please try again later.'
+            });
+        }
+    });
+});
+</script>
+
+
+
 </body>
 
 

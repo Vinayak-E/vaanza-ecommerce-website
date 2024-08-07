@@ -51,6 +51,10 @@ const productSchema = mongoose.Schema({
     type: String,
     required: true,
     enum: ["Men", "Women"] // Assuming gender is either Male or Female
-  }
+  },
+  offers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Offer',
+  }],
 });
 module.exports = mongoose.model("Product", productSchema);

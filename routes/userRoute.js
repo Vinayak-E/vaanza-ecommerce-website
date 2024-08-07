@@ -4,6 +4,8 @@ const userController = require("../controller/userController");
 const productController = require('../controller/productController')
 const cartController = require('../controller/cartController')
 const orderController =require('../controller/orderController')
+const couponController = require('../controller/couponController')
+const wishlistController = require('../controller/wishlistController')
 const path =require("path")
 const session = require("express-session");
 const config = require('../config/config');
@@ -92,6 +94,7 @@ userRoute.get("/auth/google/callback",
 
 
 userRoute.get('/shop/gender/:gender',productController.loadShop);
+
 userRoute.get('/productView/product/:productId/variant/:variantId',productController.productView);
 
 
@@ -134,4 +137,18 @@ userRoute.post('/cancel-order',orderController.cancelOrder)
 userRoute.post('/return-order',orderController.cancelOrder)
 
 userRoute.get('/order-summary/:orderId',orderController.orderSuccess)
+
+userRoute.post('/applyCoupon/:couponCode',couponController.applyCoupon)
+
+
+
+
+// ==========================================< Wishlist >==================================================== //
+
+userRoute.get('/wishlist',auth.authlogg,wishlistController.loadWishlist);
+
+userRoute.post('/addToWishlist/:product_id', wishlistController.addToWishlist);
+userRoute.delete('/removeFromWishlist/:product_id', wishlistController.removeFromWishlist);
+
+
 module.exports = userRoute;

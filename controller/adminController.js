@@ -77,7 +77,7 @@ const verifyLogin = async (req, res) => {
 const adminLogout = async (req, res) => {
   try {
       req.session.admin = false;
-      res.redirect('/admin')
+      res.redirect('/admin/')
   } catch (err) {
       console.log(err.message)
   }
@@ -132,7 +132,6 @@ const blockUser = async (req, res) => {
   try {
 
       const {userId} = req.body
-      
       const userData = await User.findById(userId)
 
       await User.findByIdAndUpdate(
@@ -152,14 +151,29 @@ const blockUser = async (req, res) => {
 }
 
 
+
+
 const loadOrderlist = async (req, res) => {
   try {
+    const perPage = 10; // Number of orders per page
+    const page = parseInt(req.query.page) || 1; // Current page, default to 1
+
+    const totalOrders = await Order.countDocuments(); // Total number of orders
+    const totalPages = Math.ceil(totalOrders / perPage); // Total number of pages
+
     const orders = await Order.find({})
-      .populate('userId', 'name') 
-      .populate('addressId')
-      .populate('products.productId', 'name') 
-     
-    res.render('orderList', { orders });
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .populate('userId', 'name')
+      .populate('products.productId', 'name');
+
+    res.render('orderList', {
+      orders,
+      currentPage: page,
+      totalPages,
+      previous: page > 1 ? page - 1 : 1,
+      next: page < totalPages ? page + 1 : totalPages
+    });
   } catch (error) {
     console.log(error.message);
     res.status(500).send('Server Error');
@@ -173,7 +187,6 @@ const orderDetails = async (req, res) => {
     const orderId = req.params.orderId;
     const order = await Order.findById(orderId)
       .populate('userId')
-      .populate('addressId')
       .populate('products.productId')
       
 
@@ -231,6 +244,9 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+
+
+
 module.exports = {
     loadLogin,
     verifyLogin,
@@ -240,7 +256,8 @@ module.exports = {
     blockUser,
     loadOrderlist,
     orderDetails,
-    updateOrderStatus
+    updateOrderStatus,
+    
     
     
 }

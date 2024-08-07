@@ -1,5 +1,24 @@
 <%- include('../layout/admin/adminHeader.ejs') -%>
 
+
+<style>
+    .img-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        max-width: 100%;
+        max-height: 80vh; /* Adjust the height as needed */
+        overflow: hidden;
+    }
+    
+    .img-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    
+    </style>
+</head>
 <body>
 
     <!-- ?PROD Only: Google Tag Manager (noscript) (Default ThemeSelection: GTM-5DDHKGP, PixInvent: GTM-5J3LMKC) -->
@@ -62,7 +81,7 @@
                                           <div class="mb-6 col-sm-8">
                                             <div class="form-floating form-floating-outline">
                                               <input type="number" class="form-control" id="quantity" name="quantity">
-                                              <p id="quantityErr" style="color: red; display: none;">Please enter a quantity.</p>
+                                              <p id="quantityErr" style="color: red; display: none;">Please enter a valid quantity.</p>
                                               <label for="form-repeater-1-2">QUANTITY</label>
                                             </div>
                                           </div>
@@ -89,23 +108,52 @@
                                           </div>
                                   
                                           <!-- Product Images -->
-                                          <div class="form-group">
-                                            <h5>Product Images</h5>
-                                            <div class="row">
-                                              <% for (let i = 1; i <= 4; i++) { %>
-                                                <div class="col-lg-6 col-md-6 mb-3">
-                                                  <label for="imageInput<%= i %>" class="file-upload">
-                                                    <span class="file-select">Choose Image <%= i %></span>
-                                                    <input name="images" type="file" accept="image/*" id="imageInput<%= i %>" class="imageInput" onchange="previewImage(this, 'imagePreview<%= i %>', 'imageError<%= i %>')">
-                                                    <img id="imagePreview<%= i %>" class="img-preview" alt="Preview">
-                                                  </label>
-                                                  <p id="imageError<%= i %>" style="color: red; display: none;">Invalid image file type.</p>
-                                                </div>
-                                              <% } %>
-                                            </div>
-                                            <p id="imagesErr" style="color: red; display: none;">Please upload all four images.</p>
-                                          </div>
+                                     
+               <!-- Media -->
+
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="form-group">
+            <h5>Product Images</h5>
+            <div class="row">
+                <% for (let i = 1; i <= 4; i++) { %>
+                <!-- Image Input and Preview -->
+                <div class="col-lg-6 col-md-6 mb-3">
+                    <label for="imageInput<%= i %>" class="file-upload">
+                        <span class="file-select">Choose Image <%= i %></span>
+                        <input name="images" type="file" accept="image/*" id="imageInput<%= i %>" class="imageInput" onchange="openCropper(this)">
+                        <img id="imagePreview<%= i %>" class="img-preview" alt="Preview" style="display:none;">
+                    </label>
+                </div>
+                <% } %>
+            </div>
+            <p id="imagesErr" style="color: red; display: none;">Please upload all four valid images.</p>
+        </div>
+    </div>
+     
                                   
+
+<!-- Cropper Modal -->
+<div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cropperModalLabel">Crop Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="img-container">
+                    <img id="cropperImage" src="" alt="Image to crop">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="cropButton" class="btn btn-primary">Crop</button>
+            </div>
+        </div>
+    </div>
+  </div>
+            
+
                                         </div>
                                       </div>
                                     </div>
@@ -119,7 +167,6 @@
 
                             </div>
                             <!-- /Second column -->
-
                         </div>
                     </div>
                 </div>
@@ -141,6 +188,104 @@
     </div>
     <!-- / Layout wrapper -->
     <script>
+
+document.addEventListener('DOMContentLoaded', function () {
+            let cropper;
+            let currentImageInput;
+
+            window.openCropper = function (input) {
+            if (input.files && input.files[0]) {
+            currentImageInput = input;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+            const cropperImage = document.getElementById('cropperImage');
+            if (cropperImage) {
+            cropperImage.src = e.target.result;
+            $('#cropperModal').modal('show');
+            $('#cropperModal').on('shown.bs.modal', function () {
+            if (cropper) {
+            cropper.destroy();
+          }
+          
+    
+            cropper = new Cropper(cropperImage, {
+                          aspectRatio: 0,
+                            viewMode: 1,
+                            // autoCropArea: 1,
+                            scalable: true,
+                            zoomable: true,
+                            responsive: true,
+                            // background: false,
+            });
+         
+        });
+      } else {
+        console.error("Cropper image element not found");
+      }
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+            function cropImage() {
+                if (cropper) {
+                    const croppedCanvas = cropper.getCroppedCanvas({
+                        width: 900,
+                        height: 900
+                    });
+
+                    croppedCanvas.toBlob(function (blob) {
+                        const newFile = new File([blob], 'croppedImage.jpg', { type: 'image/jpeg', lastModified: Date.now() });
+
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(newFile);
+                        currentImageInput.files = dataTransfer.files;
+
+                        const url = URL.createObjectURL(blob);
+                        const previewId = currentImageInput.id.replace('Input', 'Preview');
+                        const preview = document.getElementById(previewId);
+                        if (preview) {
+                            preview.src = url;
+                            preview.style.display = 'block';
+                        } else {
+                            console.error("Preview image element not found for ID: " + previewId);
+                        }
+
+                        $('#cropperModal').modal('hide');
+                    });
+                } else {
+                    console.error("Cropper is not initialized");
+                }
+            }
+
+            document.getElementById('cropButton').addEventListener('click', cropImage);
+        });
+
+  for (let i = 1; i <= 4; i++) {
+    handleImageUpload(`imageInput${i}`, `croppedImagePreview${i}`);
+  }
+
+  function handleImageUpload(inputId, previewId) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+
+    input.addEventListener('change', function () {
+      openCropper(input);
+    });
+
+    preview.addEventListener('click', function () {
+      input.click();
+    });
+  }
+
+  $('#cropperModal').on('shown.bs.modal', function () {
+    if (cropper) {
+      cropper.resize();
+    }
+  });
+
+
+
     function validateForm() {
         let isValid = true;
       
@@ -155,7 +300,7 @@
       
         // Validate quantity
         const quantity = document.getElementById('quantity').value;
-        if (!quantity) {
+        if (!quantity || quantity < 0) {
           document.getElementById('quantityErr').style.display = 'block';
           isValid = false;
         } else {
@@ -171,6 +316,11 @@
           document.getElementById('sizesErr').style.display = 'none';
         }
       
+
+
+        
+  
+
         // Validate images
         let imagesValid = true;
         const imageInputs = document.querySelectorAll('.imageInput');

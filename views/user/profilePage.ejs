@@ -229,8 +229,8 @@
                                                                     <h5>Order ID: <%= order.orderId %></h5>
                                                                     <p>Order Date: <%= new Date(order.orderDate).toLocaleDateString() %></p>
                                                                     <p>Total Amount: ₹<%= order.totalAmount.toFixed(2) %></p>
-                                                                    <p>Ship to: <%=order.addressId.name%></p>
-                                                                    <div>Delivery Address: <%= order.addressId.address%>,<%= order.addressId.street%> <br><%= order.addressId.state%>,<%= order.addressId.postalCode %> , <%= order.addressId.number %></div>
+                                                                    <p>Ship to: <%=order.address.name%></p>
+                                                                    <div>Delivery Address: <%= order.address.address%>,<%= order.address.street%> <br><%= order.address.state%>,<%= order.address.postalCode %> , <%= order.address.number %></div>
                                                                 </div>
                                                                 <div>
                                                                     <a href="javascript:void(0);" class="view-order-details" onclick="toggleOrderDetails('<%= order._id %>')">View Order Details</a>

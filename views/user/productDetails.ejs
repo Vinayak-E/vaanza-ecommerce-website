@@ -24,6 +24,19 @@
       pointer-events: none;
       color: white; /* This ensures that the button is completely non-interactive */
     }
+
+
+    
+    /* Offer */
+    .original-price {
+        text-decoration: line-through;
+        color: #999;
+        margin-right: 5px;
+    }
+
+    .offer-price {
+        color: #e74c3c;
+    }
   </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
 </head>
@@ -139,9 +152,9 @@
          <nav aria-label="breadcrumb" class="breadcrumb-nav border-0 mb-0">
              <div class="container d-flex align-items-center">
                  <ol class="breadcrumb">
-                     <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                     <li class="breadcrumb-item"><a href="#">Products</a></li>
-                     <li class="breadcrumb-item active" aria-current="page">Centered</li>
+                     <li class="breadcrumb-item"><a href="/">Home</a></li>
+                     <li class="breadcrumb-item"><a href="/">Shop</a></li>
+                     <li class="breadcrumb-item active" aria-current="page">Product View</li>
                  </ol>
 
                  <nav class="product-pager ml-auto" aria-label="Product">
@@ -206,7 +219,14 @@
                                  </div><!-- End .rating-container -->
 
                                  <div class="product-price">
-                                    Rs. <%= product.price %>
+                                    <% if (product.bestOffer) { %>
+                                        <!-- Display original price crossed out and offer price -->
+                                        <span class="original-price">₹<%= product.price %></span>
+                                        <span class="offer-price">₹<%= Math.round(product.price * (1 - (product.bestOffer.discount / 100))).toFixed(2) %></span>
+                                        <span class="product-label label-circle label-sale  "  style="background-color: red; font-weight: 400; margin-left: 6rem;"><%= product.bestOffer.discount %>% Off</span>
+                                    <% } else { %>
+                                        ₹<%= product.price %>
+                                    <% } %>
                                  </div><!-- End .product-price -->
 
                                  <div class="product-content">

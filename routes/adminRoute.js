@@ -6,6 +6,10 @@ const dashboardController = require("../controller/dashboardController");
 const categoryController = require("../controller/categoryController");
 const productController = require("../controller/productController");
 const cartController = require('../controller/cartController')
+const offerController = require('../controller/offerController')
+const couponController = require('../controller/couponController')
+
+
 const config = require("../config/config");
 const auth = require("../middlewares/adminAuth");
 const path =require("path")
@@ -105,5 +109,37 @@ adminRoute.get("/orders",auth.isLogin,adminController.loadOrderlist)
 adminRoute.get('/order-details/:orderId', adminController.orderDetails);
 
 adminRoute.post('/update-status', adminController.updateOrderStatus);
+
+
+// =============== Offer Management  ==========================//
+
+
+
+adminRoute.get("/offers",offerController.loadOffers)
+
+adminRoute.post("/addOffer",offerController.addOffer)
+adminRoute.delete('/offers/:offerId', offerController.deleteOffer);
+
+
+adminRoute.post("/addCategoryOffer",offerController.addCategoryOffer)
+
+
+adminRoute.post("/editOffer",offerController.editOffer)
+
+adminRoute.post("/editCategoryOffer",offerController.editCategoryOffer)
+
+
+
+// =============== Coupon Management  ==========================//
+
+
+adminRoute.get("/coupons",couponController.loadCoupons)
+adminRoute.delete('/coupons/:couponId', couponController.deleteCoupon);
+
+
+adminRoute.post("/addCoupon",couponController.addCoupon)
+
+adminRoute.post("/editCoupon",couponController.editCoupon)
+
 
  module.exports = adminRoute;

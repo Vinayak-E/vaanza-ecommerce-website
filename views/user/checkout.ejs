@@ -234,12 +234,51 @@
             	<div class="checkout">
 	                <div class="container">
             			<div class="checkout-discount">
-            				<form action="#">
+            				<form action="#" id="applyCouponForm">
         						<input type="text" class="form-control" required id="checkout-discount-input">
-            					<label for="checkout-discount-input" class="text-truncate">Have a coupon? <span>Click here to enter your code</span></label>
             				</form>
             			</div><!-- End .checkout-discount -->
 
+                        <input type="hidden" id="appliedCouponCode" name="appliedCouponCode">
+
+                        <!-- Button to open the modal -->
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#availableCouponsModal">
+                            Show Available Coupons
+                        </button>
+             
+<!-- Remove Coupon Button -->
+<button type="button" class="btn btn-danger" id="removeCouponBtn" style="display: none;">Remove Coupon</button>
+
+<!-- Available Coupons Modal -->
+<div class="modal fade" id="availableCouponsModal" tabindex="-1" aria-labelledby="availableCouponsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="availableCouponsModalLabel">Available Coupons</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <% if (locals.coupons && coupons.length > 0) { %>
+                    <ul class="list-group">
+                        <% coupons.forEach(coupon => { %>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>
+                                    <strong><%= coupon.couponId %></strong> - <%= coupon.description %> <br>
+                                    <strong>Minimum Purchase Amount</strong> -<%= coupon.minPurchaseAmount %>
+                                </span>
+                                <button class="btn btn-outline-primary btn-sm apply-coupon-btn" data-coupon-code="<%= coupon.couponId %>">Apply</button>
+                            </li>
+                        <% }) %>
+                    </ul>
+                <% } else { %>
+                    <p>No available coupons.</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
@@ -293,17 +332,22 @@
                                                 <% if (cart && cart.products && cart.products.length > 0) { %>
                                                     <% cart.products.forEach(cartItem => { %>
                                                         <% const product = cartItem.productId; %>
-                                                        <% const itemTotal = product.price * cartItem.quantity; %>
+                                                        <% const itemTotal = cartItem.finalPrice * cartItem.quantity; %>
                                                         <tr>
                                                             <td>
                                                                 <a href="#">
                                                                     <%= cartItem.productId.name %>
                                                                 </a>
                                                             </td>
-                                                            <td>₹ <%= itemTotal.toFixed(2) %></td>
+                                                            <td>₹ <%= Math.round(itemTotal).toFixed(2) %></td>
                                                         </tr>
                                                         <% subtotal += itemTotal; %>
                                                     <% }); %>
+
+                                                    <tr>
+                                                        <td>Discount Amount:</td>
+                                                        <td>₹ <%= Math.round(totalDiscount).toFixed(2) %></td>
+                                                    </tr>
                                                     
                                                     <tr>
                                                         <td>Shipping:</td>
@@ -311,7 +355,7 @@
                                                     </tr>
                                                     <tr class="summary-total">
                                                         <td>Total Price:</td>
-                                                        <td>₹ <%= totalPrice.toFixed(2) %></td>
+                                                        <td>₹ <%= Math.round(totalPrice).toFixed(2) %></td>
                                                     </tr>
                                                 <% } else { %>
                                                     <tr>
@@ -334,7 +378,7 @@
                                             <div class="card mb-1">
                                                 <div class="card-header" id="heading-2">
                                                     <h2 class="card-title">
-                                                        <input type="radio" name="paymentMethod" id="payment-method-2" value="Check payments">
+                                                        <input type="radio" name="paymentMethod" id="payment-method-2" value="Razor pay">
                                                         <label for="payment-method-2" role="button" data-toggle="collapse" href="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
                                                             Razor Pay
                                                         </label>
@@ -342,11 +386,10 @@
                                                 </div>
                                                 <div id="collapse-2" class="collapse" aria-labelledby="heading-2" data-parent="#accordion-payment">
                                                     <div class="card-body">
-                                                        Ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis.
+                                                      Razor Pay
                                                     </div>
                                                 </div>
                                             </div>
-                                
                                             <div class="card">
                                                 <div class="card-header" id="heading-3">
                                                     <h2 class="card-title">
@@ -390,14 +433,14 @@
                                                     <% let total = 0; %> <!-- Initialize total variable -->
                                                     <% cart.products.forEach(item => { %>
                                                         <% const product = item.productId; %>
-                                                        <% const itemTotal = product.price * item.quantity; %> <!-- Calculate item total -->
+                                                        <% const itemTotal = Math.round(item.finalPrice * item.quantity); %> <!-- Calculate item total -->
                                                         <% total += itemTotal; %> <!-- Accumulate the total -->
                                                         <div class="order-item">
                                                             <div class="order-item-name">
                                                                <%= product.name %>
                                                             </div>
                                                             <div class="order-item-quantity">
-                                                                <%= item.quantity %> x  <%= product.price.toFixed(2) %>
+                                                                <%= item.quantity %> x  <%= item.finalPrice.toFixed(2) %>
                                                             </div>
                                                             <div class="order-item-total">
                                                                 ₹<%= itemTotal.toFixed(2) %>
@@ -955,159 +998,139 @@
 
 
 
-    
+
+
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const addressForm = document.getElementById("address-form");
-    const errorMessages = {
-        name: "Name is required.",
-        number: "Mobile number is required and must be a valid 10-digit number.",
-        address: "Address is required.",
-        street: "Street/City is required.",
-        postalCode: "Pincode is required and must be a valid 6-digit number.",
-        state: "State is required.",
+document.getElementById('address-form').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    // Reset all error messages
+    resetErrorMessages();
+
+    // Fetch form data
+    const name = document.getElementById('name').value.trim();
+    const number = document.getElementById('number').value.trim();
+    const address = document.getElementById('address').value.trim();
+    const street = document.getElementById('street').value.trim();
+    const postalCode = document.getElementById('postalCode').value.trim();
+    const state = document.getElementById('state').value.trim();
+    const landmark = document.getElementById('landmark').value.trim();
+
+    // Validate each field
+    let isValid = true;
+
+    // Validate name
+    if (!name) {
+        isValid = false;
+        displayErrorMessage('name', 'Name is required.');
+    }
+
+    // Validate number using regex
+    if (!number) {
+        isValid = false;
+        displayErrorMessage('number', 'Mobile number is required.');
+    } else if (!/^([6-9]\d{9})$/.test(number)) {
+        isValid = false;
+        displayErrorMessage('number', 'Please enter a valid 10-digit mobile number.');
+    }
+
+    // Validate address
+    if (!address) {
+        isValid = false;
+        displayErrorMessage('address', 'Address is required.');
+    }
+
+    // Validate street
+    if (!street) {
+        isValid = false;
+        displayErrorMessage('street', 'Street/City is required.');
+    }
+
+    // Validate postal code using regex
+    if (!postalCode) {
+        isValid = false;
+        displayErrorMessage('postalCode', 'Pincode is required.');
+    } else if (!/^\d{6}$/.test(postalCode)) {
+        isValid = false;
+        displayErrorMessage('postalCode', 'Please enter a valid 6-digit pincode.');
+    }
+
+    // Validate state
+    if (!state) {
+        isValid = false;
+        displayErrorMessage('state', 'State is required.');
+    }
+
+    // If any field is invalid, prevent form submission
+    if (!isValid) {
+        return;
+    }
+
+    // If all fields are valid, proceed with form submission
+    const addressData = {
+        name,
+        number,
+        address,
+        street,
+        postalCode,
+        state,
+        landmark
     };
 
-    addressForm.addEventListener("submit", async function(event) {
-        event.preventDefault();
+    try {
+        const response = await fetch('/add-address', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(addressData)
+        });
 
-        // Collect form data
-        const formData = new FormData(addressForm);
-        const formDataObject = Object.fromEntries(formData.entries());
-
-        // Clear previous errors
-        clearErrors();
-
-        // Validate form
-        const errors = validateForm(formDataObject);
-        if (Object.keys(errors).length > 0) {
-            displayErrors(errors);
-            return;
-        }
-
-        // Proceed with form submission if valid
-        try {
-            const response = await fetch('/add-address', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formDataObject)
+        const data = await response.json();
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Address saved successfully!',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                $('#addAddressModal').modal('hide');
+                window.location.reload();
             });
-
-            if (response.ok) {
-                const result = await response.json();
-                if (result.success) {
-                    addAddressToList(formDataObject);
-                    $('#addAddressModal').modal('hide');
-                    addressForm.reset();
-                } else {
-                    console.error('Server response indicates failure:', result.message);
-                }
-            } else {
-                const errorText = await response.text();
-                console.error('Server error:', errorText);
-            }
-        } catch (error) {
-            console.error('Error adding address:', error);
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to save address.',
+                text: data.message
+            });
         }
-    });
-
-    function validateForm(data) {
-        const errors = {};
-        let isValid = true;
-
-        // Validate name
-        if (!data.name.trim()) {
-            isValid = false;
-            errors.name = errorMessages.name;
-        }
-
-        // Validate number using regex
-        if (!data.number.trim()) {
-            isValid = false;
-            errors.number = errorMessages.number;
-        } else if (!/^([6-9]\d{9})$/.test(data.number.trim())) {
-            isValid = false;
-            errors.number = 'Please enter a valid 10-digit mobile number.';
-        }
-
-        // Validate address
-        if (!data.address.trim()) {
-            isValid = false;
-            errors.address = errorMessages.address;
-        }
-
-        // Validate street
-        if (!data.street.trim()) {
-            isValid = false;
-            errors.street = errorMessages.street;
-        }
-
-        // Validate postal code using regex
-        if (!data.postalCode.trim()) {
-            isValid = false;
-            errors.postalCode = errorMessages.postalCode;
-        } else if (!/^\d{6}$/.test(data.postalCode.trim())) {
-            isValid = false;
-            errors.postalCode = 'Please enter a valid 6-digit pincode.';
-        }
-
-        // Validate state
-        if (!data.state.trim()) {
-            isValid = false;
-            errors.state = errorMessages.state;
-        }
-
-        return errors;
-    }
-
-    function displayErrors(errors) {
-        Object.keys(errors).forEach(key => {
-            const errorElement = document.getElementById(`${key}-error`);
-            if (errorElement) {
-                errorElement.textContent = errors[key];
-                errorElement.style.color = 'red'; // Optional: change text color to red
-            }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while saving the address.'
         });
-    }
-
-    function clearErrors() {
-        const errorElements = document.querySelectorAll(".error-message");
-        errorElements.forEach(element => {
-            element.textContent = '';
-        });
-    }
-
-    
-
-    function addAddressToList(address) {
-        const addressCard = document.createElement("div");
-        addressCard.classList.add("card", "card-dashboard", "mb-2", "address-card");
-        addressCard.setAttribute("data-address-id", address._id);  // Ensure you handle _id if it's part of the response
-
-        addressCard.innerHTML = `
-            <div class="card-body d-flex justify-content-between align-items-center p-0 m-1">
-                <div>
-                    <input type="radio" class="pl-4 ml-3 mr-1" name="addressRadioButton" id="addressRadio${address._id}" value="${address._id}" ${address.isDefault ? 'checked' : ''}>
-                    <p class="pl-5">
-                        ${address.name}<br>
-                        ${address.address}<br>
-                        ${address.street},${address.state},${address.postalCode},${address.landmark},${address.number}<br>
-                    </p>
-                </div>
-                <a href="#" class="edit-address text-right mr-3" data-toggle="modal" data-target="#editAddressModal${address._id}">
-                    <i class="icon-edit" style="color: #cc9966;"></i>EDIT
-                </a>
-            </div>
-        `;
-
-        addressContainer.insertBefore(addressCard, addressContainer.querySelector("button"));
     }
 });
 
+function displayErrorMessage(fieldId, message) {
+    const errorElement = document.getElementById(`${fieldId}-error`);
+    if (errorElement) {
+        errorElement.textContent = message;
+    }
+}
 
+function resetErrorMessages() {
+    const errorMessages = document.querySelectorAll('.error-message');
+    errorMessages.forEach(message => {
+        message.textContent = '';
+    });
+}
 </script>
+
+
+
 
 
 
@@ -1280,54 +1303,18 @@ document.addEventListener("DOMContentLoaded", function() {
         });
         </script>
         
-        <script>
-            
-            document.getElementById('placeOrderButton').addEventListener('click', function() {
+<script>
+  document.getElementById('placeOrderButton').addEventListener('click', function() {
     const selectedAddress = document.querySelector('input[name="addressRadioButton"]:checked');
     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
-     
+    const couponCodeInput = document.getElementById('appliedCouponCode');
+    const couponCodeValue = couponCodeInput ? couponCodeInput.value : '';
+
     if (selectedAddress && selectedPaymentMethod) {
         const addressId = selectedAddress.value;
         const paymentMethod = selectedPaymentMethod.value;
 
-        
-        fetch('/place-order', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ addressId: addressId, paymentMethod: paymentMethod })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'Order placed successfully!',
-                    icon: 'success',
-                    confirmButtonText: 'OK'
-                })
-                .then(() => {
-                    window.location.href = `/order-summary/${data.orderId}`;
-                });
-            } else {
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Failed to place order. Please try again.',
-                    icon: 'error',
-                    confirmButtonText: 'Retry'
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            Swal.fire({
-                title: 'Error!',
-                text: 'An unexpected error occurred. Please try again later.',
-                icon: 'error',
-                confirmButtonText: 'Retry'
-            });
-        });
+        placeOrder(addressId, paymentMethod, couponCodeValue);
     } else {
         Swal.fire({
             title: 'Warning!',
@@ -1337,9 +1324,175 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 });
+
+function placeOrder(addressId, paymentMethod, couponCodeValue, razorpayResponse = null) {
+    const orderData = {
+        addressId: addressId,
+        paymentMethod: paymentMethod,
+        couponCode: couponCodeValue
+    };
+
+    if (razorpayResponse) {
+        orderData.razorpay_payment_id = razorpayResponse.razorpay_payment_id;
+        orderData.razorpay_order_id = razorpayResponse.razorpay_order_id;
+        orderData.razorpay_signature = razorpayResponse.razorpay_signature;
+    }
+
+    fetch('/place-order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.razorpayOrderId) {
+                // Initialize Razorpay payment
+                const options = {
+                    key: data.keyId,
+                    amount: data.amount,
+                    currency: data.currency,
+                    name: 'VAANZA',
+                    description: 'Order Payment',
+                    order_id: data.razorpayOrderId,
+                    handler: function (response) {
+                        // On successful payment, call placeOrder again with Razorpay response
+                        placeOrder(addressId, paymentMethod, couponCodeValue, response);
+                    },
+                    prefill: {
+                        name: 'Customer Name',
+                        email: 'customer@example.com',
+                        contact: 'Customer Phone Number'
+                    },
+                    theme: {
+                        color: '#F37254'
+                    }
+                };
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } else {
+                // Order placed successfully
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Order placed successfully!',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                })
+                .then(() => {
+                    window.location.href = `/order-summary/${data.orderId}`;
+                });
+            }
+        } else {
+            Swal.fire({
+                title: 'Error!',
+                text: data.message || 'Failed to place order. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'Retry'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'An unexpected error occurred. Please try again later.',
+            icon: 'error',
+            confirmButtonText: 'Retry'
+        });
+    });
+}
+
+</script>
+<script>
+    const couponCode = document.getElementById('checkout-discount-input');
+    const couponForm = document.getElementById('applyCouponForm');
+    const removeCouponBtn = document.getElementById('removeCouponBtn');
+    const applyCouponBtns = document.querySelectorAll('.apply-coupon-btn');
+    const appliedCouponCodeInput = document.getElementById('appliedCouponCode');
+
+    couponForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        validateCode(couponCode.value.trim());
+    });
+
+    // Apply coupon buttons event listeners
+    applyCouponBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const code = btn.getAttribute('data-coupon-code');
+            couponCode.value = code;
+            validateCode(code);
+        });
+    });
+
+    // Function to validate and apply coupon
+    const validateCode = async (code) => {
+        try {
+            const response = await fetch(`/applyCoupon/${code}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Coupon applied successfully!'
+                }).then(() => {
+                    appliedCouponCodeInput.value = code;
+                    updateCartSummary(data);  // Pass entire data object
+                    $('#availableCouponsModal').modal('hide');
+                    removeCouponBtn.style.display = 'inline-block';  // Show the remove button
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'Failed to apply the coupon.'
+                });
+            }
+        } catch (error) {
+            console.error('Error validating coupon code:', error);
+        }
+    };
+
+    // Remove coupon button event listener
+    removeCouponBtn.addEventListener('click', () => {
+        appliedCouponCodeInput.value = '';
+        couponCode.value = '';
+        removeCouponBtn.style.display = 'none';  // Hide the remove button
+        updateCartSummary({ subtotal: 0, totalAmount: 0, couponDiscount: 0 });  // Reset the cart summary
+    });
+
+    // Function to update cart summary
+    const updateCartSummary = (data) => {
+        // Ensure data is valid and contains necessary properties
+        if (!data || typeof data !== 'object') {
+            console.error('Invalid data for updateCartSummary:', data);
+            return;
+        }
+
+        const {
+            subtotal = 0,
+            totalAmount = 0,
+            couponDiscount = 0,
+        } = data;
+
+        // Update the cart summary UI here
+        console.log(`Subtotal: ${subtotal}, Total: ${totalAmount}, Discount: ${couponDiscount}`);
+        // Example: document.getElementById('subtotal').textContent = subtotal;
+        // Example: document.getElementById('totalAmount').textContent = totalAmount;
+        // Example: document.getElementById('couponDiscount').textContent = couponDiscount;
+    };
 </script>
 
-  
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </body>
 
 

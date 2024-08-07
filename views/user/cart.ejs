@@ -163,8 +163,8 @@
             <nav aria-label="breadcrumb" class="breadcrumb-nav">
                 <div class="container">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                        <li class="breadcrumb-item"><a href="#">Shop</a></li>
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <!-- <li class="breadcrumb-item"><a href="#">Shop</a></li> -->
                         <li class="breadcrumb-item active" aria-current="page">Shopping Cart</li>
                     </ol>
                 </div><!-- End .container -->
@@ -206,8 +206,7 @@
                                                   </h3><!-- End.product-title -->
                                                 </div><!-- End.product -->
                                               </td>
-                                              <td class="price-col">$<%= product.productId.price %></td>
-
+                                              <td class="price-col">₹<%= Math.round(product.finalPrice).toFixed(2)  %></td>
                                        
                                               <td class="quantity-col">
                                                 <div class="cart-product-quantity">
@@ -223,12 +222,12 @@
                                                    stockMessage = "Only " + variant.quantity + " left in stock";
                                                       }
                                                       %>
-                                                    <input type="number" class="form-control quantity-input" value="<%= product.quantity %>" min="1" max="<%= maxQuantity %>" step="1" data-product-id="<%= product.productId._id %>" data-variant-id="<%= product.variantId %>" data-size="<%= product.size %>" data-price="<%= product.productId.price %>" required>
+                                                    <input type="number" class="form-control quantity-input" value="<%= product.quantity %>" min="1" max="<%= maxQuantity %>" step="1" data-product-id="<%= product.productId._id %>" data-variant-id="<%= product.variantId %>" data-size="<%= product.size %>"  data-final-price="<%= product.finalPrice %>"  required>
                                                     <% if (stockMessage) { %>
                                                         <p class="stock-message"><%= stockMessage %></p>
                                                     <% } %>
                                                     
-                                                    <td class="total-col item-total">$<%= product.productId.price * product.quantity %></td>
+                                                    <td class="total-col item-total">₹<%= (product.finalPrice * product.quantity).toFixed(2) %></td>
                                                     <% } %>
                                                 </div><!-- End.cart-product-quantity -->
                                               </td>
@@ -256,23 +255,24 @@
                                             <% if (cart && cart.products) { %>
                                               <tr class="summary-subtotal">
                                                 <td>Subtotal:</td>
-                                                <td class="subtotal">$<%= cart  && cart.products ? cart.products.reduce((acc, product) => acc + (product.productId.price * product.quantity), 0) : 0 %></td>
+                                                <td class="subtotal">₹<%= cart.products.reduce((acc, product) => acc + (product.finalPrice * product.quantity), 0).toFixed(2) %></td>
+                                             
                                               </tr><!-- End.summary-subtotal -->
                                           
                                               <tr class="summary-total">
                                                 <td>Total:</td>
-                                                 <td class="total">$<%= cart && cart.products ? cart.products.reduce((acc, product) => acc + (product.productId.price * product.quantity), 0) : 0 %></td>
+                                                <td class="total">₹<%= cart.products.reduce((acc, product) => acc + (product.finalPrice * product.quantity), 0).toFixed(2) %></td>
                                               </tr><!-- End.summary-total -->
                                           
                                             <% } else { %>
                                               <tr class="summary-subtotal">
                                                 <td>Subtotal:</td>
-                                                <td>$0.00</td>
+                                                <td>₹0.00</td>
                                               </tr><!-- End.summary-subtotal -->
                                           
                                               <tr class="summary-total">
                                                 <td>Total:</td>
-                                                <td>$0.00</td>
+                                                <td>₹0.00</td>
                                               </tr><!-- End.summary-total -->
                                             <% } %>
                                           </tbody>
@@ -657,109 +657,115 @@
     </div><!-- End .modal -->
   
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let quantityInputs = document.querySelectorAll('.quantity-input');
-            const subtotalElement = document.querySelector('.subtotal');
-            const totalElement = document.querySelector('.total');
-            const removeButtons = document.querySelectorAll('.btn-remove');
-    
-            // Helper function to calculate the total for a single item
-            function calculateItemTotal(price, quantity) {
-                return price * quantity;
+    document.addEventListener('DOMContentLoaded', function() {
+    let quantityInputs = document.querySelectorAll('.quantity-input');
+    const subtotalElement = document.querySelector('.subtotal');
+    const totalElement = document.querySelector('.total');
+    const removeButtons = document.querySelectorAll('.btn-remove');
+
+    // Helper function to calculate the total for a single item
+    function calculateItemTotal(price, quantity) {
+        return price * quantity;
+    }
+
+    // Helper function to update the totals
+    function updateTotals() {
+        let subtotal =0;
+
+        quantityInputs.forEach(input => {
+            const price = parseFloat(input.dataset.finalPrice);
+            const quantity = parseInt(input.value);
+            const itemTotalElement = input.closest('tr').querySelector('.item-total');
+
+            if (!isNaN(price) && !isNaN(quantity)) {
+                const itemTotal = calculateItemTotal(price, quantity);
+                subtotal += itemTotal;
+                itemTotalElement.textContent = `₹${itemTotal.toFixed(2)}`;
             }
-    
-            // Helper function to update the totals
-            function updateTotals() {
-                let subtotal = 0;
-    
-                quantityInputs.forEach(input => {
-                    const price = parseFloat(input.dataset.price);
-                    const quantity = parseInt(input.value);
-                    const itemTotalElement = input.closest('tr').querySelector('.item-total');
-    
-                    if (!isNaN(price) && !isNaN(quantity)) {
-                        const itemTotal = calculateItemTotal(price, quantity);
-                        subtotal += itemTotal;
-                        itemTotalElement.textContent = `$${itemTotal.toFixed(2)}`;
-                    }
-                });
-    
-                subtotalElement.textContent = `$${subtotal.toFixed(2)}`;
-                totalElement.textContent = `$${subtotal.toFixed(2)}`; // Assuming no additional fees
-            }
-    
-            // Function to save updated quantity to the server
-            function saveUpdatedQuantity(productId, variantId, size, quantity) {
-                fetch('/update-cart-quantity', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ productId, variantId, size, quantity })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log('Cart updated successfully');
-                        updateTotals(); // Update totals after successful update
-                    } else {
-                        console.error('Error updating cart');
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            }
-    
-            // Function to remove product from cart
-            function removeProductFromCart(productId, variantId, size, button) {
-                fetch('/remove-from-cart', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ productId, variantId, size })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log('Product removed successfully');
-                        // Remove the product row from the table
-                        const rowToRemove = button.closest('tr');
-                        if (rowToRemove) {
-                            rowToRemove.remove();
-                            // Update quantityInputs after removing a row
-                            quantityInputs = document.querySelectorAll('.quantity-input');
-                            updateTotals(); // Update totals after removing row
-                        }
-                    } else {
-                        console.error('Error removing product');
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            }
-    
-            // Event listener for quantity inputs
-            quantityInputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    const productId = this.dataset.productId;
-                    const variantId = this.dataset.variantId;
-                    const size = this.dataset.size;
-                    const quantity = parseInt(this.value);
-                    saveUpdatedQuantity(productId, variantId, size, quantity);
-                });
-            });
-    
-            // Event listener for remove buttons
-            removeButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const productId = this.dataset.productId;
-                    const variantId = this.dataset.variantId;
-                    const size = this.dataset.size;
-                    removeProductFromCart(productId, variantId, size, this);
-                });
-            });
-    
-            updateTotals(); // Initial call to set totals
         });
+
+        subtotalElement.textContent = `₹${subtotal.toFixed(2)}`;
+        totalElement.textContent = `₹${subtotal.toFixed(2)}`; // Assuming no additional fees
+    }
+
+    // Function to save updated quantity to the server
+    function saveUpdatedQuantity(productId, variantId, size, quantity) {
+        fetch('/update-cart-quantity', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId, variantId, size, quantity })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Cart updated successfully');
+                // Update the final price data attribute
+                const input = document.querySelector(`[data-product-id="${productId}"][data-variant-id="${variantId}"][data-size="${size}"]`);
+                if (input) {
+                    input.dataset.finalPrice = data.finalPrice;
+                }
+                updateTotals(); // Update totals after successful update
+            } else {
+                console.error('Error updating cart');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Function to remove product from cart
+    function removeProductFromCart(productId, variantId, size, button) {
+        fetch('/remove-from-cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId, variantId, size })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Product removed successfully');
+                // Remove the product row from the table
+                const rowToRemove = button.closest('tr');
+                if (rowToRemove) {
+                    rowToRemove.remove();
+                    // Update quantityInputs after removing a row
+                    quantityInputs = document.querySelectorAll('.quantity-input');
+                    updateTotals(); // Update totals after removing row
+                }
+            } else {
+                console.error('Error removing product');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Event listener for quantity inputs
+    quantityInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            const productId = this.dataset.productId;
+            const variantId = this.dataset.variantId;
+            const size = this.dataset.size;
+            const quantity = parseInt(this.value);
+            saveUpdatedQuantity(productId, variantId, size, quantity);
+        });
+    });
+
+    // Event listener for remove buttons
+    removeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            const variantId = this.dataset.variantId;
+            const size = this.dataset.size;
+            removeProductFromCart(productId, variantId, size, this);
+        });
+    });
+
+   
+});
+
     </script>
     
 
