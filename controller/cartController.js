@@ -70,9 +70,8 @@ const loadCart = async (req, res) => {
         }
        // Assuming you have a logged in user and`req.session.userId` 
          const userId = req.session.user && req.session.user._id;
-
-console.log("helo",req.body)
         const { productId, variantId, size, quantity } = req.body;
+        console.log("size",req.body.size)
       // Fetch the product and variant details from the database
       const product = await Product.findById(productId);
       if (!product) {
@@ -135,8 +134,7 @@ console.log("helo",req.body)
 
 const quantityUpdationCart = async (req, res) => {
   const { productId, variantId, size, quantity } = req.body;
-     console.log("fetch cLLED")
-  console.log(req.body)
+    
  
   try {
       const userId = req.session.user._id;
@@ -172,7 +170,6 @@ const quantityUpdationCart = async (req, res) => {
               offer.discount > best.discount ? offer : best, { discount: 0 }
           );
      
-
           const finalPrice = product.price * (1 - bestOffer.discount / 100);
 
           // Save the cart

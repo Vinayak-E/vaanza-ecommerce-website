@@ -134,7 +134,7 @@ userRoute.get('/checkout',auth.authlogg,cartController.checkout);
 userRoute.post('/place-order',auth.authlogg,orderController.placeOrder)
 
 userRoute.post('/cancel-order',orderController.cancelOrder)
-userRoute.post('/return-order',orderController.cancelOrder)
+userRoute.post('/return-order',orderController.returnOrder)
 
 userRoute.get('/order-summary/:orderId',orderController.orderSuccess)
 
@@ -147,8 +147,8 @@ userRoute.post('/applyCoupon/:couponCode',couponController.applyCoupon)
 
 userRoute.get('/wishlist',auth.authlogg,wishlistController.loadWishlist);
 
-userRoute.post('/addToWishlist/:product_id', wishlistController.addToWishlist);
-userRoute.delete('/removeFromWishlist/:product_id', wishlistController.removeFromWishlist);
+userRoute.post('/addToWishlist', wishlistController.addToWishlist);
+userRoute.delete('/removeFromWishlist', wishlistController.removeFromWishlist);
 
 
 module.exports = userRoute;

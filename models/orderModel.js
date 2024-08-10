@@ -23,9 +23,10 @@ const orderSchema = new Schema({
         description: String,
         discount: Number,
         minPurchaseAmount: Number,
+        maxAmount: Number,
         validity: Date,
+
       },
-    
     address:{
         name: String,
         number: Number,

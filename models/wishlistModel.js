@@ -4,6 +4,7 @@ const wishlistSchema = new mongoose.Schema({
     products: [
         {
           product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+          variant: { type: mongoose.Schema.Types.ObjectId, ref: 'Product.variants' }
         }
       ],
     user: {

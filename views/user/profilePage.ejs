@@ -83,14 +83,14 @@
                     <div class="header-left">
                         
 
-                        <a href="index.html" class="logo">
+                        <a href="/" class="logo">
                             <img src="assets/images/logo.png" alt="Molla Logo" width="105" height="25">
                         </a>
 
                         <nav class="main-nav">
                             <ul class="menu sf-arrows">
                                 <li class="megamenu-container active">
-                                    <a href="index.html" class="sf-with-ul">Home</a>
+                                    <a href="/" class="sf-with-ul">Home</a>
                                 </li>
                                 <li>
                                     <a href="category.html" class="sf-with-ul">Shop</a>
@@ -146,8 +146,8 @@
             <nav aria-label="breadcrumb" class="breadcrumb-nav mb-3">
                 <div class="container">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                        <li class="breadcrumb-item"><a href="#">Shop</a></li>
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <!-- <li class="breadcrumb-item"><a href="#">Shop</a></li> -->
                         <li class="breadcrumb-item active" aria-current="page">My Account</li>
                     </ol>
                 </div><!-- End .container -->
@@ -166,7 +166,7 @@
                                         <a class="nav-link" id="tab-orders-link" data-toggle="tab" href="#tab-orders" role="tab" aria-controls="tab-orders" aria-selected="false">Orders</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" id="tab-downloads-link" data-toggle="tab" href="#tab-downloads" role="tab" aria-controls="tab-downloads" aria-selected="false">Downloads</a>
+                                        <a class="nav-link" id="tab-wallet-link" data-toggle="tab" href="#tab-wallet" role="tab" aria-controls="tab-wallet" aria-selected="false">Wallet</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" id="tab-address-link" data-toggle="tab" href="#tab-address" role="tab" aria-controls="tab-address" aria-selected="false">Address</a>
@@ -227,13 +227,13 @@
                                                             <div class="order-header">
                                                                 <div>
                                                                     <h5>Order ID: <%= order.orderId %></h5>
-                                                                    <p>Order Date: <%= new Date(order.orderDate).toLocaleDateString() %></p>
-                                                                    <p>Total Amount: ₹<%= order.totalAmount.toFixed(2) %></p>
-                                                                    <p>Ship to: <%=order.address.name%></p>
-                                                                    <div>Delivery Address: <%= order.address.address%>,<%= order.address.street%> <br><%= order.address.state%>,<%= order.address.postalCode %> , <%= order.address.number %></div>
+                                                                    <p><strong> Order Date:</strong> <%= new Date(order.orderDate).toLocaleDateString() %></p>
+                                                                    <p><strong>Total Amount: </strong>  ₹<%= order.totalAmount.toFixed(2) %></p>
+                                                                    <p> <strong>Ship to: </strong><%=order.address.name%></p>
+                                                                    <div> <strong>Delivery Address:</strong> <%= order.address.address%>,<%= order.address.street%> <br><%= order.address.state%>,<%= order.address.postalCode %> , <%= order.address.number %></div>
                                                                 </div>
                                                                 <div>
-                                                                    <a href="javascript:void(0);" class="view-order-details" onclick="toggleOrderDetails('<%= order._id %>')">View Order Details</a>
+                                                                    <a href="javascript:void(0);" class="view-order-details" onclick="toggleOrderDetails('<%= order._id %>')"><strong>View Order Details</strong></a>
                                                                 </div>
                                                             </div>
                                                             <div class="order-products" id="order-products-<%= order._id %>" style="display: none;">
@@ -258,13 +258,10 @@
                                                                                     <% if (item.status === 'Cancelled') { %>
                                                                                         <button type="button" class="btn btn-outline-danger mb-1" disabled>Cancelled</button>
                                                                                       <% } else if (item.status === 'Delivered') { %>
-                                                                                        <button type="button" class="btn btn-outline-warning mb-1" onclick="openReturnModal('<%= order._id %>', '<%= product._id %>', '<%= variant._id %>')">Return</button>
-                                                                                      <% } else { %>
+                                                                                        <button type="button" class="btn btn-outline-warning mb-1" onclick="openReturnModal('<%= order._id %>', '<%= product._id %>', '<%= variant._id %>')">Return Request</button>
+                                                                                      <% } else if (item.status === 'Pending' || item.status === 'Out for Delivery' || item.status === 'Dispatched')  { %>
                                                                                         <button type="button" class="btn btn-outline-danger mb-1" onclick="openCancelModal('<%= order._id %>', '<%= product._id %>', '<%= variant._id %>')">Cancel</button>
                                                                                       <% } %>
-                                                                                      
-
-
                                                                                 </div>
                                                                                 
 
@@ -327,7 +324,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="returnModalLabel">Return Product</h5>
+          <h5 class="modal-title" id="returnModalLabel">Return Request</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -341,7 +338,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-warning" id="confirmReturnButton">Return Product</button>
+          <button type="button" class="btn btn-warning" id="confirmReturnButton">Submit</button>
         </div>
       </div>
     </div>
@@ -351,10 +348,37 @@
 
 
 
-								    <div class="tab-pane fade" id="tab-downloads" role="tabpanel" aria-labelledby="tab-downloads-link">
-								    	<p>No downloads available yet.</p>
-								    	<a href="category.html" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
-								    </div><!-- .End .tab-pane -->
+								    <!-- .End .tab-pane -->
+                                    <div class="tab-pane fade" id="tab-wallet" role="tabpanel" aria-labelledby="tab-wallet-link">
+                                        <div class="card card-dashboard shadow">
+                                          <div class="row g-0">
+                                            <div class="col-12">
+                                              <div class="card-body d-flex align-items-center justify-content-center py-4 mb-3" style="background-image: url(/assets/images/banners/Wallet\ Banner.png.webp); background-size: cover; background-position: center;">
+                                                <h3 class="text-light ls-3 mb-0">Vaanza Wallet</h3>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div class="row g-0">
+                                            <div class="col-12 col-md-6 offset-md-3 col-lg-6 offset-lg-0">
+                                              <div class="card-body p-4">
+                                                <h5 class="text-muted mb-3">Balance Amount : <span class="text-dark "><%= locals.wallet ? wallet.balance : '0' %></span></h5>
+                                                <div class="d-flex flex-column gap-3">
+                                                  <a href="#" class="d-flex align-items-center text-muted">
+                                                    <i class="fa-regular fa-square-plus fa-la mr-2" style="color: #cc9966;"></i>
+                                                    Add money to wallet
+                                                  </a>
+                                                  <a href="#" class="d-flex align-items-center text-muted" data-toggle="modal" data-target="#transationDetailsModal">
+                                                    <i class="fa-solid fa-clock-rotate-left fa-la mr-2" style="color: #cc9966;"></i>
+                                                    Transaction history
+                                                  </a>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+
+
 
                                     <div class="tab-pane fade" id="tab-address" role="tabpanel" aria-labelledby="tab-address-link">
                                         <button type="button" class="btn btn-outline-primary-2 mb-1 mx-4" data-toggle="modal" data-target="#addAddressModal">
@@ -1692,7 +1716,7 @@ document.getElementById('confirmReturnButton').addEventListener('click', async f
   const productId = document.getElementById('returnProductId').value;
   const variantId = document.getElementById('returnVariantId').value;
   const returnReason = document.getElementById('returnReason').value;
-
+console.log("productId",productId)
   try {
     const response = await fetch('/return-order', {
       method: 'POST',

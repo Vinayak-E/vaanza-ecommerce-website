@@ -298,7 +298,12 @@
                                         </div><!-- End .details-action-col -->
 
                                      <div class="details-action-wrapper">
-                                         <a href="#" class="btn-product btn-wishlist" title="Wishlist"><span>Add to Wishlist</span></a>
+                                        
+                                        <form class="add-to-whishlist">
+                                            <input type="hidden" class="wishlist-product-id" value="<%= product._id %>">
+                                            <input type="hidden" class="wishlist-variant-id"  value="<%= variant._id %>">
+                                         <a href="#" class="btn-product btn-wishlist" type="submit" title="Wishlist"><span>Add to Wishlist</span></a>
+                                         </form>
                                         
                                      </div><!-- End .details-action-wrapper -->
                                  </div><!-- End .product-details-action -->
@@ -1117,6 +1122,52 @@
     });
   </script>
 
+<script>
+    document.querySelectorAll('.add-to-whishlist').forEach(form => {
+        form.addEventListener('click', async (event) => {
+            event.preventDefault();
+
+            const productId = form.querySelector('.wishlist-product-id').value;
+            const variantId = form.querySelector('.wishlist-variant-id').value;
+
+            try {
+                const response = await fetch('/addToWishlist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ productId, variantId })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Added to wishlist'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Info',
+                        text: data.message
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An unexpected error occurred. Please try again later.'
+                });
+            }
+        });
+    });
+</script>
 
 </body>
 

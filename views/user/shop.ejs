@@ -203,6 +203,7 @@
                                                 <div class="product-action-vertical">
 
                                                     <form class="add-to-whishlist">
+                                                        <input type="hidden" class="wishlist-variant-id" value="<%= product.variants[0]._id %>">
                                                         <input type="hidden" class="wishlist-product-id" value="<%= product._id %>">
                                                         <a href="#" class="btn-product-icon btn-wishlist btn-expandable" type="submit"><span>add to wishlist</span></a>
                                                         <!-- <button type="submit" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></button> -->
@@ -742,56 +743,51 @@
     });
 
 </script>
-
 <script>
     document.querySelectorAll('.add-to-whishlist').forEach(form => {
-    form.addEventListener('click', async (event) => {
-        event.preventDefault();
+        form.addEventListener('click', async (event) => {
+            event.preventDefault();
 
-        const productId = form.querySelector('.wishlist-product-id').value;
+            const productId = form.querySelector('.wishlist-product-id').value;
+            const variantId = form.querySelector('.wishlist-variant-id').value;
 
-        try {
-            const response = await fetch(`/addToWishlist/${productId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: 'Added to wishlist'
-                }).then(() => {
-                    window.location.reload();
+            try {
+                const response = await fetch('/addToWishlist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ productId, variantId })
                 });
-            } else if (!data.success) {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Info',
-                    text: data.message
-                });
-            } else {
+
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Added to wishlist'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Info',
+                        text: data.message
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Failed to add to wishlist.'
+                    text: 'An unexpected error occurred. Please try again later.'
                 });
             }
-        } catch (error) {
-            console.error('Error:', error);
-
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'An unexpected error occurred. Please try again later.'
-            });
-        }
+        });
     });
-});
 </script>
 
 

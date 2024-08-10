@@ -94,6 +94,7 @@
 						<thead>
 							<tr>
 								<th>Product</th>
+                                <th></th>
 								<th>Price</th>
 								<th>Stock Status</th>
 								<th></th>
@@ -117,6 +118,21 @@
                                                         </h3><!-- End .product-title -->
                                                     </div><!-- End .product -->
                                                 </td>
+                                        
+                                                <td>
+                                                    <% if (variant.sizes && variant.sizes.length > 0) { %>
+                                                        <div class="form-group">
+                                                            <label for="size-<%= variant._id %>">Select Size:</label>
+                                                            <select name="size" id="size-<%= variant._id %>" class="form-control">
+                                                                <% variant.sizes.forEach(size => { %>
+                                                                    <option value="<%= size %>"><%= size %></option>
+                                                                <% }) %>
+                                                            </select>
+                                                        </div>
+                                                    <% } %>
+
+                                                </td>
+                                           
                                                 <td class="price-col">
                                                     <% if (product.bestOffer) { %>
                                                         <!-- Display original price crossed out and offer price -->
@@ -132,11 +148,15 @@
                                                     <form class="add-to-cart">
                                                         <input type="hidden" class="product-id" name="productId" value="<%= product._id %>">
                                                         <input type="hidden" class="variant-id" name="variantId" value="<%= variant._id %>">
+
+                                                            <!-- Size Selection Dropdown -->
+                           
+                            
                                                         <% if (variant.quantity !== 0) { %>
                                                                 <!-- <button type="submit" style="outline: none; border: none; background: none;">
                                                                     <span>add to cart</span>
                                                                 </button> -->
-                                                            <button class="btn btn-block btn-outline-primary-2" type="submit"><i class="icon-cart-plus"></i>Add to Cart</button>
+                                                            <button id="add-to-cart" class="btn btn-block btn-outline-primary-2" type="submit"><i class="icon-cart-plus"></i>Add to Cart</button>
                                                                
                                                             </a>
                                                         <% } %>
@@ -558,72 +578,56 @@
 
 
 
-
-
-
-
-
-<script>
-
-
-    document.querySelectorAll('.add-to-cart').forEach(form => {
-        form.addEventListener('submit', async (event) => {
+    <script>
+        // Get all "Add to Cart" buttons
+        const addToCartButtons = document.querySelectorAll('.add-to-cart button[type="submit"]');
+        
+        // Add event listener to each button
+        addToCartButtons.forEach(button => {
+          button.addEventListener('click', async event => {
             event.preventDefault();
-
-            const productId = form.querySelector('.product-id').value;
-
+        
+            // Get the product ID, variant ID, and size from the form
+            const form = button.form;
+            const productId = form.querySelector('input[name="productId"]').value;
+            const variantId = form.querySelector('input[name="variantId"]').value;
+            const sizeInput = form.querySelector('select[name="size"]');
+            const size = sizeInput ? sizeInput.value : null;
+        
+            // Send AJAX request to addToCart endpoint
             try {
-                const response = await fetch('/add-to-cart', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ productId })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                const cartData = await response.json();
-                console.log('Cart Data:', cartData); // Log response
-
-                if (!cartData.user) {
-                    window.location.href = '/userLogin';
-                } else if (cartData.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: 'Added to cart'
-                    }).then(() => {
-                        window.location.reload();
-                    });
-                } else if (cartData.message) {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Info',
-                        text: cartData.message
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Failed to add the product.'
-                    });
-                }
-            } catch (error) {
-                console.error('Error:', error);
-
+              const response = await fetch('/add-to-cart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId, variantId, size, quantity: 1 }),
+              });
+        
+              const result = await response.json();
+        
+              if (result.message) {
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'An unexpected error occurred. Please try again later.'
+                  icon: 'success',
+                  title: 'Success',
+                  text: result.message,
                 });
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: 'Error adding product to cart',
+                });
+              }
+            } catch (error) {
+              console.error('Error adding product to cart:', error);
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error adding product to cart',
+              });
             }
+          });
         });
-    });
-    </script>
-
+        </script>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -631,14 +635,19 @@
 
         removeButtons.forEach(button => {
             button.addEventListener('click', async (event) => {
+                event.preventDefault(); // Prevent default button action
+
                 const productId = event.currentTarget.getAttribute('data-product-id');
+                const variantId = event.currentTarget.getAttribute('data-variant-id');
+    
 
                 try {
-                    const response = await fetch(`/removeFromWishlist/${productId}`, {
+                    const response = await fetch('/removeFromWishlist', {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json'
-                        }
+                        },
+                        body: JSON.stringify({ productId, variantId })
                     });
 
                     const result = await response.json();
@@ -659,13 +668,18 @@
                         });
                     }
                 } catch (error) {
-                    console.error('Error removing product from wishlist:', error);
-                    alert('An error occurred while removing the product.');
+                    console.error('Error removing item from wishlist:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while removing the item.'
+                    });
                 }
             });
         });
     });
 </script>
+
 </body>
 
 

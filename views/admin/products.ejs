@@ -141,7 +141,8 @@
                 <select id="product-category-<%= product._id %>" class="form-select" aria-label="Category" name="newCategory">
                   <option value="">Select category</option>
                   <% categories.forEach(category => { %>
-                    <option value="<%= category._id %>" <% if (product.category && product.category.toString() === category._id.toString()) { %>selected<% } %>><%= category.name %></option>
+                    <option value="<%= category._id %>" <%= category._id.equals(product.category._id) ? 'selected' : '' %>><%= category.name %></option>
+                  
                   <% }); %>
                 </select>
                 <label for="product-category-<%= product._id %>" id="productCategoryError-<%= product._id %>">Category</label>

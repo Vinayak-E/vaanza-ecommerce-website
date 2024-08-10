@@ -111,9 +111,10 @@ adminRoute.get('/order-details/:orderId', adminController.orderDetails);
 adminRoute.post('/update-status', adminController.updateOrderStatus);
 
 
+adminRoute.post('/accept-return', adminController.handleReturnRequest);
+adminRoute.post('/reject-return', adminController.handleReturnRequest);
+
 // =============== Offer Management  ==========================//
-
-
 
 adminRoute.get("/offers",offerController.loadOffers)
 
@@ -142,4 +143,7 @@ adminRoute.post("/addCoupon",couponController.addCoupon)
 adminRoute.post("/editCoupon",couponController.editCoupon)
 
 
+adminRoute.get("/salesReport",adminController.loadSalesReport)
+adminRoute.post("/generateSalesReport",adminController.generateSalesReport)
+adminRoute.post("/downloadSalesReport",adminController.downloadSalesReport)
  module.exports = adminRoute;

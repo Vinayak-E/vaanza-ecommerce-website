@@ -1,6 +1,7 @@
 const User = require("../models/userModel");
 const Address = require("../models/addressSchema")
 const Order = require("../models/orderModel");
+const Wallet = require("../models/walletModel");
 const userOtpVerification = require('../models/userOTPverification')
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
@@ -388,16 +389,19 @@ const resetPassword = async (req, res) => {
 
 const loadProfile = async (req, res) => {
   try {
-    const userId = req.session.user._id;
+
+    const userId = req.session.user._id; 
+    console.log(userId)
     const user = await User.findById(userId).lean();
+    const wallet = await Wallet.findOne({ user:userId });
     const addresses = await Address.find({ user: userId }).lean();
     const orders = await Order.find({ userId })
     .populate({
       path: 'products.productId',
       populate: { path: 'variants' }
     }).sort({ orderDate: -1 });
-
-      res.render('profilePage', { user, addresses,orders})
+console.log("wallet ",wallet)
+      res.render('profilePage', { user, addresses,orders,wallet})
 
   } catch (err) {
       console.log(err.message)

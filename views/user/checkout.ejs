@@ -80,7 +80,6 @@
 
 
 }
-
 </style>
 </head>
 
@@ -234,15 +233,19 @@
             	<div class="checkout">
 	                <div class="container">
             			<div class="checkout-discount">
-            				<form action="#" id="applyCouponForm">
-        						<input type="text" class="form-control" required id="checkout-discount-input">
-            				</form>
-            			</div><!-- End .checkout-discount -->
+                            <form action="#" id="applyCouponForm">
+                                <div style="display: flex; align-items: center;">
+                                    <input type="text" class="form-control" required id="checkout-discount-input" style="flex: 1; margin-right: 5px;">
+                                    <button type="submit" class="btn btn-link" style="padding: 3; height: 100%; "><span>Apply</span><i class="icon-long-arrow-right ml-1"></i> </button>
+                                </div>
+                            </form>
+                            
+                          </div><!-- End .checkout-discount -->
 
                         <input type="hidden" id="appliedCouponCode" name="appliedCouponCode">
 
                         <!-- Button to open the modal -->
-                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#availableCouponsModal">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#availableCouponsModal">
                             Show Available Coupons
                         </button>
              
@@ -350,12 +353,18 @@
                                                     </tr>
                                                     
                                                     <tr>
+                                                        <td>Coupon Applied:</td>
+                                                        <td id="couponDiscount">₹ 0.00</td>
+                                                    </tr>
+
+                                                    <tr>
                                                         <td>Shipping:</td>
                                                         <td>₹ <%= shippingCharge %></td>
                                                     </tr>
-                                                    <tr class="summary-total">
+
+                                                    <tr class="summary-total" >
                                                         <td>Total Price:</td>
-                                                        <td>₹ <%= Math.round(totalPrice).toFixed(2) %></td>
+                                                        <td  id="finalTotal">₹ <%= Math.round(totalPrice).toFixed(2) %></td>
                                                     </tr>
                                                 <% } else { %>
                                                     <tr>
@@ -1412,6 +1421,9 @@ function placeOrder(addressId, paymentMethod, couponCodeValue, razorpayResponse 
     const applyCouponBtns = document.querySelectorAll('.apply-coupon-btn');
     const appliedCouponCodeInput = document.getElementById('appliedCouponCode');
 
+    let originalTotalAmount = 0;
+    let isOriginalAmountSet = false;
+
     couponForm.addEventListener('submit', (event) => {
         event.preventDefault();
         validateCode(couponCode.value.trim());
@@ -1466,7 +1478,11 @@ function placeOrder(addressId, paymentMethod, couponCodeValue, razorpayResponse 
         appliedCouponCodeInput.value = '';
         couponCode.value = '';
         removeCouponBtn.style.display = 'none';  // Hide the remove button
-        updateCartSummary({ subtotal: 0, totalAmount: 0, couponDiscount: 0 });  // Reset the cart summary
+        updateCartSummary({
+            subtotal: originalTotalAmount,
+            totalAmount: originalTotalAmount,
+            couponDiscount: 0
+        });  // Reset the cart summary
     });
 
     // Function to update cart summary
@@ -1483,13 +1499,20 @@ function placeOrder(addressId, paymentMethod, couponCodeValue, razorpayResponse 
             couponDiscount = 0,
         } = data;
 
+        // Set original total amount if it's not set yet
+        if (!isOriginalAmountSet) {
+            originalTotalAmount = subtotal;
+            isOriginalAmountSet = true;
+        }
+
         // Update the cart summary UI here
+        document.getElementById('couponDiscount').textContent = `₹ ${Math.round(couponDiscount).toFixed(2)}`;
+        document.getElementById('finalTotal').textContent = `₹ ${Math.round(totalAmount).toFixed(2)}`;
+
         console.log(`Subtotal: ${subtotal}, Total: ${totalAmount}, Discount: ${couponDiscount}`);
-        // Example: document.getElementById('subtotal').textContent = subtotal;
-        // Example: document.getElementById('totalAmount').textContent = totalAmount;
-        // Example: document.getElementById('couponDiscount').textContent = couponDiscount;
     };
 </script>
+
 
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

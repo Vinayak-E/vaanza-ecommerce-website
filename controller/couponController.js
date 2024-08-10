@@ -165,14 +165,15 @@ const editCoupon =async (req, res) => {
         // Check coupon validity
         const currDate = Date.now();
         if (subtotal < coupon.minPurchaseAmount || new Date(coupon.expiryDate) < currDate) {
-            return res.status(400).json({ success: false, message: 'The coupon is not valid!' });
+            return res.status(400).json({ success: false, message: 'The coupon is not valid' });
         }
 
         // Calculate coupon discount as a fixed amount
-        const couponDiscount = subtotal * coupon.discount / 100;
+        let couponDiscount = subtotal * coupon.discount / 100;
+        couponDiscount =  couponDiscount <= coupon.maxAmount ? couponDiscount : coupon.maxAmount;
         const finalShippingCharge = subtotal > 500 ? 0 : shippingCharge;
         const totalAmount = subtotal - couponDiscount + finalShippingCharge;
-console.log("tatalAmount",totalAmount)
+        console.log("tatalAmount",totalAmount)
         // Ensure totalAmount is a number and not NaN
         if (isNaN(totalAmount) || totalAmount < 0) {
             throw new Error('Total amount calculation failed.');

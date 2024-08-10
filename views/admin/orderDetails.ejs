@@ -78,9 +78,17 @@
                         <small>Color: <%= variant ? variant.color : 'N/A' %> <br>Size: <%= productItem.size %></small>
                         
                       </td>
-                      <td>
+                      <!-- <td>
                         <span class="badge px-2 rounded-pill bg-label-primary text-capitalized" data-bs-toggle="modal" data-bs-target="#smallModal" onclick="openEditModal('<%= productItem._id %>', '<%= order._id %>')">Edit</span>
+                      </td> -->
+                      <td>
+                        <% if (!['Delivered', 'Return Requested', 'Returned', 'Cancelled'].includes(productItem.status)){ %>
+                          <span class="badge px-2 rounded-pill bg-label-primary text-capitalized" data-bs-toggle="modal" data-bs-target="#smallModal" onclick="openEditModal('<%= productItem._id %>', '<%= order._id %>')">Edit</span>
+                        <% } else if (productItem.status === 'Return Requested') { %>
+                          <span class="badge px-2 rounded-pill bg-label-info text-capitalized" data-bs-toggle="modal" data-bs-target="#returnModal" onclick="openReturnModal('<%= productItem._id %>', '<%= order._id %>')">Update Return</span>
+                        <% } %>
                       </td>
+                      
                       <td>
                         <% let badgeClass = 'bg-label-secondary'; %> 
                         <% let badgeText = productItem.status %> 
@@ -186,6 +194,8 @@
                   <option value="Dispatched">Dispatched</option>
                   <option value="Out For Delivery">Out For Delivery</option>
                   <option value="Delivered">Delivered</option>
+             
+                 
                  
                   
                   <!-- Add more options as needed -->
@@ -204,6 +214,25 @@
   </div>
   
 <!-- modal end -->
+
+<!-- Return Request Modal -->
+<div class="modal fade" id="returnModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Handle Return Request</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Do you want to accept the return request for this product?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" id="rejectReturnButton" data-bs-dismiss="modal">Reject</button>
+        <button type="button" class="btn btn-primary" id="acceptReturnButton">Accept</button>
+      </div>
+    </div>
+  </div>
+</div>
 
           </div>
           <!-- / Content -->
@@ -271,6 +300,104 @@ document.getElementById('saveChangesButton').addEventListener('click', async fun
 });
 
           </script>
+
+          <script>
+  // Function to open the Return Modal and set the necessary data
+  function openReturnModal(productId, orderId) {
+    // Store productId and orderId for later use
+    const modal = document.getElementById('returnModal');
+    modal.dataset.productId = productId;
+    modal.dataset.orderId = orderId;
+  }
+
+  // Handle Accept Return button click
+  document.getElementById('acceptReturnButton').addEventListener('click', async function () {
+    const modal = document.getElementById('returnModal');
+    const productId = modal.dataset.productId;
+    const orderId = modal.dataset.orderId;
+
+    try {
+      const response = await fetch(`/admin/accept-return`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ orderId, productId, action: 'accept' })
+      });
+
+      if (response.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Return Accepted',
+          text: 'The return request has been accepted',
+          showConfirmButton: false,
+          timer: 1500
+        }).then(() => {
+          location.reload();
+        });
+      } else {
+        const errorData = await response.json();
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorData.message,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to accept return request due to server error',
+      });
+    }
+  });
+
+  // Handle Reject Return button click
+  document.getElementById('rejectReturnButton').addEventListener('click', async function () {
+    const modal = document.getElementById('returnModal');
+    const productId = modal.dataset.productId;
+    const orderId = modal.dataset.orderId;
+
+    try {
+      const response = await fetch(`/admin/reject-return`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ orderId, productId, action: 'reject' })
+      });
+
+      if (response.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Return Rejected',
+          text: 'The return request has been rejected',
+          showConfirmButton: false,
+          timer: 1500
+        }).then(() => {
+          location.reload();
+        });
+      } else {
+        const errorData = await response.json();
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorData.message,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to reject return request due to server error',
+      });
+    }
+  });
+        
+          </script>
+       
           
           <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

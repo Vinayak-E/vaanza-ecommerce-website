@@ -1,0 +1,269 @@
+
+<%- include('../layout/admin/adminHeader.ejs') -%>
+
+
+<style>
+  #dateRangeInputs {
+    transition: all 0.3s ease;
+    overflow: hidden;
+    max-height: 0;
+  }
+  #dateRangeInputs.show {
+    max-height: 100px; /* Adjust this value as needed */
+  }
+</style>
+<body>
+
+  
+    <!-- ?PROD Only: Google Tag Manager (noscript) (Default ThemeSelection: GTM-5DDHKGP, PixInvent: GTM-5J3LMKC) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDHKGP" height="0" width="0" style="display: none; visibility: hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <!-- Layout wrapper -->
+
+
+
+
+  <div class="layout-wrapper layout-content-navbar  ">
+    <div class="layout-container">
+  
+      
+      
+        <%- include('../layout/admin/navbar.ejs') -%>
+        <div class="container-xxl flex-grow-1 container-p-y">
+      
+        
+
+
+
+        <div class="card mb-6">
+            <div class="card-widget-separator-wrapper">
+              <div class="card-body card-widget-separator">
+                <div class="row gy-4 gy-sm-1">
+                    <h2 class="mb-4 ">Sales Report</h2>
+                  <div class="col-sm-6 col-lg-3">
+                    <div class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-4 pb-sm-0">
+                      <div>
+                        <h4 class="mb-0" id="totalOrders"></h4>
+                        <p class="mb-0">Total Orders</p>
+                      </div>
+                      <div class="avatar me-sm-6">
+                        <span class="avatar-initial rounded bg-label-secondary text-heading">
+                          <i class="ri-calendar-2-line ri-24px"></i>
+                        </span>
+                      </div>
+                    </div>
+                    <hr class="d-none d-sm-block d-lg-none me-6">
+                  </div>
+                  <div class="col-sm-6 col-lg-3">
+                    <div class="d-flex justify-content-between align-items-start card-widget-2 border-end pb-4 pb-sm-0">
+                      <div>
+                        <h4 class="mb-0" id="totalDiscounts"></h4>
+                        <p class="mb-0">Total Discount</p>
+                      
+                      </div>
+                      <div class="avatar me-lg-6">
+                        <span class="avatar-initial rounded bg-label-secondary text-heading">
+                          <i class="ri-check-double-line ri-24px"></i>
+                        </span>
+                      </div>
+                    </div>
+                    <hr class="d-none d-sm-block d-lg-none">
+                  </div>
+                  <div class="col-sm-6 col-lg-3">
+                    <div class="d-flex justify-content-between align-items-start border-end pb-4 pb-sm-0 card-widget-3">
+                      <div>
+                        <h4 class="mb-0" id="totalSales"></h4>
+                        <p class="mb-0">Total Sales Amount</p>
+                      </div>
+                      <div class="avatar me-sm-6">
+                        <span class="avatar-initial rounded bg-label-secondary text-heading">
+                          <i class="ri-wallet-3-line ri-24px"></i>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-lg-3">
+                    <div class="d-flex justify-content-between align-items-start">
+                      <div>
+                        <h4 class="mb-0">32</h4>
+                        <p class="mb-0">Failed</p>
+                      </div>
+                      <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-secondary text-heading">
+                          <i class="ri-error-warning-line ri-24px"></i>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Order List Table -->
+          <div class="card">
+
+            <header class="card-header">
+              <div class="row gx-4 align-items-end">
+                <div class="col-lg-2 col-md-4">
+                  <label for="reportType">Filters</label>
+                  <select id="reportType" class="form-control" onchange="toggleDateInputs()">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="custom">Custom Date Range</option>
+                  </select>
+                </div>
+                <div class="col-lg-6 col-md-8">
+                  <div id="dateRangeInputs" class="row" style="display: none;">
+                    <div class="col-lg-6 col-md-6">
+                      <label for="startDate">Start Date</label>
+                      <input type="date" id="startDate" class="form-control">
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                      <label for="endDate">End Date</label>
+                      <input type="date" id="endDate" class="form-control">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                  <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle btn-outline-secondary waves-effect waves-light w-100" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                      <i class="ri-download-line ri-16px me-2"></i>
+                      <span class="d-none d-sm-inline-block">Export</span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                      <li><a class="dropdown-item" href="#"  onclick="downloadReport('pdf')">PDF</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="exportExcel()">Excel</a></li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                  <button class="btn btn-primary w-100" onclick="generateReport()">
+                    <i class="ri-add-line ri-16px me-md-1_5"></i>Generate
+                  </button>
+                </div>
+              </div>
+            </header>
+            <div class="card-datatable table-responsive">
+            
+              <table class="datatables-order table">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                    <th>Discount</th>
+                  </tr>
+                </thead>
+                <tbody id="reportDetails">
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          
+                    </div>
+                    <div class="mt-3">
+                      <button class="btn btn-secondary" onclick="downloadReport('pdf')">Download PDF</button>
+                      <button class="btn btn-secondary" onclick="downloadReport('excel')">Download Excel</button>
+                  </div>
+
+        
+
+
+    </div>
+
+
+          <!-- / Content -->
+          
+          <div class="content-backdrop fade"></div>
+        </div>
+        <!-- / Layout wrapper -->
+        
+        <!-- Overlay -->
+        <div class="layout-overlay layout-menu-toggle"></div>
+        
+        <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+        <div class="drag-target"></div>
+        <script>
+          function toggleDateInputs() {
+            const reportType = document.getElementById('reportType');
+            const dateRangeInputs = document.getElementById('dateRangeInputs');
+            
+            if (reportType.value === 'custom') {
+              dateRangeInputs.style.display = 'flex';
+              dateRangeInputs.classList.add('show');
+            } else {
+              dateRangeInputs.classList.remove('show');
+              setTimeout(() => {
+                dateRangeInputs.style.display = 'none';
+              }, 300); // This should match the transition duration in CSS
+            }
+          }
+          
+          // Call the function on page load to set the initial state
+          document.addEventListener('DOMContentLoaded', toggleDateInputs);
+          </script>
+        
+    <script>
+      async function generateReport() {
+      const reportType = document.getElementById('reportType').value;
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+
+      const response = await fetch('/admin/generateSalesReport', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ reportType, startDate, endDate })
+      });
+
+      const report = await response.json();
+      console.log("Received report data:", report);
+      document.getElementById('totalOrders').textContent = report.totalOrders;
+      document.getElementById('totalSales').textContent = `₹${report.totalSales.toFixed(2)}`;
+      document.getElementById('totalDiscounts').textContent = `₹${report.totalDiscounts.toFixed(2)}`;
+
+      const reportDetails = document.getElementById('reportDetails');
+      reportDetails.innerHTML = '';
+      report.orders.forEach(order => {
+          order.products.forEach(product => {
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                  <td>${order.orderId}</td>
+                  <td>${new Date(order.orderDate).toLocaleDateString()}</td>
+                  <td>${product.productName}</td>
+                  <td>${product.quantity}</td>
+                  <td>₹${product.price.toFixed(2)}</td>
+                  <td>₹${(product.price * product.quantity).toFixed(2)}</td>
+                  <td>₹${order.discountAmount.toFixed(2)}</td>
+              `;
+              reportDetails.appendChild(row);
+          });
+      });
+  }
+
+      function downloadReport(format) {
+          const reportType = document.getElementById('reportType').value;
+          const startDate = document.getElementById('startDate').value;
+          const endDate = document.getElementById('endDate').value;
+          window.location.href = `/admin/downloadSalesReport?format=${format}&reportType=${reportType}&startDate=${startDate}&endDate=${endDate}`;
+      }
+  </script>
+        
+        <!-- SweetAlert2 -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        
+ <%- include('../layout/admin/adminFooter.ejs') -%>
+
+

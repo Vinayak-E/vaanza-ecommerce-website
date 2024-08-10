@@ -5,6 +5,7 @@ const Address = require("../models/addressSchema")
 const Product = require("../models/productSchema");
 const Offer = require("../models/offerModel");
 const Coupon = require("../models/couponModel");
+const Wallet = require("../models/walletModel");
 const crypto = require('crypto');
 const Razorpay = require('razorpay');
 
@@ -95,6 +96,9 @@ if (couponCode && typeof couponCode === 'string') {
           validity: couponDoc.validity
       };
       couponDiscount = subtotal * coupon.discount / 100;
+      if (coupon.maxAmount && couponDiscount > coupon.maxAmount) {
+        couponDiscount = coupon.maxAmount;
+      }
   }
 }
  // Fixed shipping charge
@@ -191,6 +195,7 @@ if (couponCode && typeof couponCode === 'string') {
         landmark: address.landmark
       },
       products,
+      coupon,
       totalAmount,
       orderDate: new Date(),
       paymentMethod,
@@ -236,7 +241,8 @@ const loadOrders = async (req, res) => {
 const cancelOrder = async (req, res) => {
     try {
       const { orderId, productId, variantId, cancelReason } = req.body;
-     
+       
+      const user = req.session.user
   
       const order = await Order.findById(orderId);
       if (!order) {
@@ -260,6 +266,28 @@ const cancelOrder = async (req, res) => {
   
       // Save the order
       await order.save();
+
+
+      
+      const productPurchasePrice = product.price;
+
+      let wallet  = await Wallet.findOne({ user: user._id });
+
+      if (!wallet) {
+          const newWallet = new Wallet({
+              user: user._id,
+              balance: 0,
+              transactions: []
+          });
+
+          await newWallet.save();
+
+          wallet = await Wallet.findOne({ user: user._id });
+      }
+
+      wallet.balance += productPurchasePrice;
+
+      await wallet.save();
   
       // Restock the product variant
       const mainProduct = await Product.findById(productId);
@@ -276,6 +304,7 @@ const cancelOrder = async (req, res) => {
     }
   };
   
+
   const returnOrder = async (req, res) => {
     try {
       const { orderId, productId, variantId, returnReason } = req.body;
@@ -285,7 +314,7 @@ const cancelOrder = async (req, res) => {
         return res.status(404).json({ message: 'Order not found' });
       }
   
-      const product = order.products.find(p => p._id.toString() === productId && p.variantId === variantId);
+      const product = order.products.find(prod => prod.productId.equals(productId) && prod.variantId.equals(variantId));
       if (!product) {
         return res.status(404).json({ message: 'Product not found in the order' });
       }
@@ -294,26 +323,20 @@ const cancelOrder = async (req, res) => {
         return res.status(400).json({ message: 'Only delivered products can be returned' });
       }
   
-      product.status = 'Returned';
+      product.status = 'Return Requested';
       product.returnReason = returnReason;
   
-      const originalProduct = await Product.findById(productId);
-      const variant = originalProduct.variants.id(variantId);
-      if (!variant) {
-        return res.status(404).json({ message: 'Variant not found in the product' });
-      }
-  
-      variant.quantity += product.quantity;
-      await originalProduct.save();
+      // Removed the quantity update code here
+      
       await order.save();
   
-      res.status(200).json({ message: 'Product returned and restocked successfully' });
+      res.status(200).json({ message: 'Return request submitted successfully' });
     } catch (error) {
       console.error(error.message);
       res.status(500).json({ message: 'Server Error' });
     }
   };
-
+  
 
   const orderSuccess = async (req, res) => {
     try {

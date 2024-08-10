@@ -447,96 +447,94 @@ const getBestOffer = (product, offers) => {
   return bestOffer.discount > 0 ? bestOffer : null;
 };
 
-
 const loadShop = async (req, res) => {
   try {
     const gender = req.params.gender;
-    const { sortby, searchVal, category,page} = req.query;
+    const { sortby, searchVal, category, page } = req.query;
 
     let query = { gender: gender, is_Listed: true };
 
     const offers = await Offer.find({});
+
     // Handle search
     if (searchVal) {
       query.$or = [
         { name: { $regex: searchVal, $options: 'i' } },
-        
       ];
     }
 
-    //  category filtering
-  
-
+    // Category filtering
     let selectedCategories = [];
     if (category) {
-      // If category is an array (multiple categories selected)
       if (Array.isArray(category)) {
         query.category = { $in: category };
         selectedCategories = category;
       } else {
-        // If it's a single category
         query.category = category;
         selectedCategories = [category];
       }
     }
 
-
-    let sortOption = {};
-
-    // Handle sorting
-    switch (sortby) {
-      case 'newArrivals':
-        sortOption = { date: -1 };
-        break;
-      case 'highToLow':
-        sortOption = { price: -1 };
-        break;
-      case 'lowToHigh':
-        sortOption = { price: 1 };
-        break;
-      case 'ascending':
-        sortOption = { name: 1 };
-        break;
-      case 'descending':
-        sortOption = { name: -1 };
-        break;
-      default:
-        
-        sortOption = { featured: -1 };
-    }
-  
-
-
     // Pagination logic
     const pageSize = 9; // Number of products per page
     const currentPage = parseInt(page) || 1;
     const skip = (currentPage - 1) * pageSize;
-   // Count total products that match the query
-   const totalProducts = await Product.countDocuments(query);
 
+    // Count total products that match the query
+    const totalProducts = await Product.countDocuments(query);
+
+    // Fetch products
     const products = await Product.find(query)
       .populate('variants')
-      .populate("category")
-      .populate("offers")
-      .sort(sortOption)
+      .populate('category')
+      .sort({}) // Sorting will be handled after calculating effective prices
       .skip(skip)
       .limit(pageSize);
 
+    // Calculate effective price and apply sorting
+    const productsWithEffectivePrice = products.map(product => {
+      const bestOffer = getBestOffer(product, offers);
+      const effectivePrice = bestOffer
+        ? product.price - (product.price * bestOffer.discount) / 100
+        : product.price;
+      return {
+        ...product.toObject(),
+        effectivePrice
+      };
+    });
+
+    // Sort products based on effective price
+    productsWithEffectivePrice.sort((a, b) => {
+      switch (sortby) {
+        case 'highToLow':
+          return b.effectivePrice - a.effectivePrice;
+        case 'lowToHigh':
+          return a.effectivePrice - b.effectivePrice;
+        case 'newArrivals':
+          return new Date(b.date) - new Date(a.date);
+        case 'ascending':
+          return a.name.localeCompare(b.name);
+        case 'descending':
+          return b.name.localeCompare(a.name);
+        default:
+          return b.featured - a.featured;
+      }
+    });
+
     const totalPages = Math.ceil(totalProducts / pageSize);
 
-    // Add additional properties to determine the labels
+    // Additional properties for products
     const now = new Date();
-    products.forEach(product => {
+    productsWithEffectivePrice.forEach(product => {
       product.isNew = (now - product.date) <= 7 * 24 * 60 * 60 * 1000; // Check if added within one week
       product.isOutOfStock = product.variants.every(variant => variant.quantity === 0);
       product.bestOffer = getBestOffer(product, offers);
     });
 
     const categories = await Category.find({ gender: gender, is_listed: true });
-     
 
-    res.render("shop", {
-      products,
+    res.render('shop', {
+      products: productsWithEffectivePrice,
       categories,
       title: gender,
       sortBy: sortby || 'featured',
@@ -544,16 +542,14 @@ const loadShop = async (req, res) => {
       selectedCategories,
       currentPage,
       totalPages,
-      gender // Pass gender to the view
+      gender
     });
 
   } catch (err) {
     console.log(err.message);
-    res.status(500).send("Internal Server Error");
+    res.status(500).send('Internal Server Error');
   }
 };
-
-
 
 
 
