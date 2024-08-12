@@ -9,17 +9,13 @@ const Wallet = require("../models/walletModel");
 const crypto = require('crypto');
 const Razorpay = require('razorpay');
 
-key_id = "rzp_test_vVHTvfU31Svako"
-key_secret = "Qv0v56Dn7c3pdmtfhc0LKmjS"
-
-
 
 const placeOrder = async (req, res) => {
   try {
     const userId = req.session.user._id;
     const { addressId, paymentMethod,  couponCode, razorpay_payment_id, razorpay_order_id, razorpay_signature, } = req.body;
   
-    // Fetch address
+
     const address = await Address.findById(addressId);
     if (!address) {
       return res.status(400).json({ success: false, message: 'Address not found.' });
@@ -131,7 +127,7 @@ if (couponCode && typeof couponCode === 'string') {
       const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
       let result = '';
       const randomValues = new Uint8Array(length);
-      crypto.randomFillSync(randomValues); // Use Node.js crypto library
+      crypto.randomFillSync(randomValues); 
 
       for (let i = 0; i < length; i++) {
         result += charset[randomValues[i] % charset.length];
@@ -140,13 +136,13 @@ if (couponCode && typeof couponCode === 'string') {
     }
 
     // Generate order ID
-    const orderId = generateRandomId(10); // Implement this function as before
+    const orderId = generateRandomId(10); 
 
     if (paymentMethod === 'Razor pay') {
       // Initialize Razorpay
       const razorpay = new Razorpay({
-        key_id: 'rzp_test_vVHTvfU31Svako',
-        key_secret: 'Qv0v56Dn7c3pdmtfhc0LKmjS'
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET
       });
 
       if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
@@ -154,10 +150,10 @@ if (couponCode && typeof couponCode === 'string') {
         const amountInPaise = Math.round(totalAmount * 100);
         console.log("Amount in Paise for Razorpay:", amountInPaise);
         const razorpayOrder = await razorpay.orders.create({
-          amount: amountInPaise, // Razorpay expects amount in paise
+          amount: amountInPaise, 
           currency: 'INR',
           receipt: orderId,
-          payment_capture: 1 // Auto-capture payment
+          payment_capture: 1 
         });
 
         // Return Razorpay order details to client
@@ -166,12 +162,13 @@ if (couponCode && typeof couponCode === 'string') {
           razorpayOrderId: razorpayOrder.id,
           amount: amountInPaise,
           currency: 'INR',
-          keyId: 'rzp_test_vVHTvfU31Svako'
+          keyId:  process.env.RAZORPAY_KEY_ID
+
         });
       } else {
         // Verify the payment signature
         const generated_signature = crypto
-          .createHmac('sha256', 'Qv0v56Dn7c3pdmtfhc0LKmjS')
+          .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
           .update(razorpay_order_id + "|" + razorpay_payment_id)
           .digest('hex');
 
@@ -343,14 +340,26 @@ const cancelOrder = async (req, res) => {
         const order = await Order.findById(req.params.orderId).populate({
             path: 'products.productId',
             populate: { path: 'variants' }
-          })
-         
+        });
 
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
 
-        res.render('orderSummary', { order });
+        // Calculate subtotal
+        let subtotal = order.products.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+        // Calculate the discount amount
+        let discountAmount = 0;
+        if (order.coupon && order.coupon.discount) {
+            discountAmount = (subtotal * order.coupon.discount) / 100;
+            // Apply max discount if applicable
+            if (order.coupon.maxAmount && discountAmount > order.coupon.maxAmount) {
+                discountAmount = order.coupon.maxAmount;
+            }
+        }
+
+        res.render('orderSummary', { order, subtotal, discountAmount });
     } catch (error) {
         console.error(error.message);
         res.status(500).json({ message: 'Server Error' });

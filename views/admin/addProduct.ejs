@@ -474,28 +474,46 @@ function validateForm() {
 
   
   if (!checkImages()) {
-    document.getElementById('imagesErr').innerText = 'All 4 images are required';
-    document.getElementById('imagesErr').style.display = 'block';
     isValid = false;
-  } else {
-    document.getElementById('imagesErr').style.display = 'none';
   }
-
 
   return isValid;
 }
-
 function checkImages() {
   let selectedCount = 0;
+  let validTypes = ['image/jpeg', 'image/jpg'];
+  let imagesErr = document.getElementById('imagesErr');
+
+  imagesErr.style.display = 'none'; // Hide the error message initially
+
   for (let i = 1; i <= 4; i++) {
     const input = document.getElementById(`imageInput${i}`);
+    
     if (input.files && input.files.length > 0) {
+      const fileType = input.files[0].type;
+
+      if (!validTypes.includes(fileType)) {
+        imagesErr.innerText = `Image ${i} must be a JPG file`;
+        imagesErr.style.display = 'block';
+        return false;
+      }
+
       selectedCount++;
     }
   }
-  
-  return selectedCount === 4;
+
+  if (selectedCount !== 4) {
+    imagesErr.innerText = 'All 4 images are required';
+    imagesErr.style.display = 'block';
+    return false;
+  }
+
+  imagesErr.style.display = 'none'; // No errors, hide the message
+  return true;
 }
+
+
+
 function handleSubmit(event) {
   event.preventDefault();
   console.log("Form submission attempted");

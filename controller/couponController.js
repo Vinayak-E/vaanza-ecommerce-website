@@ -147,17 +147,17 @@ const editCoupon =async (req, res) => {
                 offer.discount > best.discount ? offer : best, { discount: 0 }
             );
 
-            // Calculate the final price after applying the best offer
+          
             const finalPrice = product.price * (1 - bestOffer.discount / 100);
             const itemTotal = finalPrice * item.quantity;
 
-            subtotal += itemTotal; // Calculate subtotal
+            subtotal += itemTotal; 
 
             return {
                 productId: product._id,
                 variantId: variant._id,
                 quantity: item.quantity,
-                size: item.size, // Assuming size is available in cart item
+                size: item.size, 
                 price: finalPrice
             };
         }));

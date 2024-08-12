@@ -63,7 +63,7 @@
                     <div class="header-left">
                         
 
-                        <a href="index.html" class="logo">
+                        <a href="/" class="logo">
                             <img src="/assets/images/logo.png" alt="Molla Logo" width="105" height="25">
                         </a>
 
@@ -194,8 +194,12 @@
                         <div class="row">
                             <div class="col-md-12 text-right">
                                 <h6>Subtotal: <span>₹<%= subtotal.toFixed(2) %></span></h6>
+
+                                <% if (discountAmount > 0) { %>
+                                    <h6>Coupon Discount: <span>-₹<%= discountAmount.toFixed(2) %></span></h6>
+                                <% } %>
                                 <h6>Shipping Charge: <span>₹<%= order.shippingCharge.toFixed(2) %></span></h6>
-                                <h3 class="mt-4">Grand Total: <span>₹<%= order.totalAmount %></span></h3>
+                                <h3 class="mt-4">Grand Total: <span>₹<%= order.totalAmount.toFixed(2)  %></span></h3>
                             </div>
                         </div>
                     </div>

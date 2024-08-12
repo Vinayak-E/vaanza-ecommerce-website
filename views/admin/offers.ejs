@@ -470,9 +470,9 @@
     }
 
     const discountValue = parseFloat(discount.value);
-    if (!discount.value.trim() || isNaN(discountValue) || discountValue <= 0 || discountValue > 100) {
+    if (!discount.value.trim() || isNaN(discountValue) || discountValue <= 0 || discountValue > 70) {
       isValid = false;
-      showError(discount, "Valid discount is required (1-100).");
+      showError(discount, "Valid discount is required (1-70).");
     }
 
     const selectedProducts = Array.from(appliedProducts.selectedOptions).map(option => option.value);

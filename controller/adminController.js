@@ -5,6 +5,9 @@ const Address = require("../models/addressSchema")
 const Order = require("../models/orderModel");
 const Product = require("../models/productSchema");
 const Wallet = require("../models/walletModel");
+const PDFDocument = require('pdfkit');
+const ExcelJS = require('exceljs');
+
 
 // Hashing the password
 
@@ -154,16 +157,24 @@ const blockUser = async (req, res) => {
 
 
 
-
 const loadOrderlist = async (req, res) => {
   try {
     const perPage = 10; // Number of orders per page
     const page = parseInt(req.query.page) || 1; // Current page, default to 1
+    const search = req.query.search; // Get the search term from the query
 
-    const totalOrders = await Order.countDocuments(); // Total number of orders
+    // Define a query object
+    let query = {};
+
+    // If a search term is provided, search by orderId
+    if (search) {
+      query = { orderId: { $regex: search, $options: 'i' } };
+    }
+
+    const totalOrders = await Order.countDocuments(query); // Total number of orders matching the query
     const totalPages = Math.ceil(totalOrders / perPage); // Total number of pages
 
-    const orders = await Order.find({})
+    const orders = await Order.find(query)
       .skip((page - 1) * perPage)
       .limit(perPage)
       .populate('userId', 'name')
@@ -174,7 +185,8 @@ const loadOrderlist = async (req, res) => {
       currentPage: page,
       totalPages,
       previous: page > 1 ? page - 1 : 1,
-      next: page < totalPages ? page + 1 : totalPages
+      next: page < totalPages ? page + 1 : totalPages,
+      search // Pass the search term back to the view to maintain it in the input field
     });
   } catch (error) {
     console.log(error.message);
@@ -414,6 +426,107 @@ const generateSalesReport = async (req, res) => {
   }
 }
 
+
+const generatePDF = (reportData) => {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ margin: 50 });
+    let buffers = [];
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', () => {
+      const pdfBuffer = Buffer.concat(buffers);
+      resolve(pdfBuffer);
+    });
+
+    // Helper function to format currency
+    const formatCurrency = (amount) => `₹${parseFloat(amount).toFixed(2)}`;
+
+    // Add a header
+    doc.fontSize(20).font('Helvetica-Bold').text('Sales Report', { align: 'center' });
+    doc.moveDown();
+
+    // Add report summary
+    doc.fontSize(12).font('Helvetica-Bold').text('Report Summary');
+    doc.fontSize(10).font('Helvetica')
+      .text(`Total Orders: ${reportData.totalOrders}`)
+      .text(`Total Sales Amount: ${formatCurrency(reportData.totalSales)}`)
+   
+    
+    doc.moveDown();
+
+    // Add order details
+    doc.fontSize(12).font('Helvetica-Bold').text('Order Details');
+    doc.moveDown(0.5);
+
+    reportData.orders.forEach((order, index) => {
+      // Add a light gray background for every other order
+      if (index % 2 === 0) {
+        doc.rect(50, doc.y, 500, 100).fill('#f0f0f0');
+        doc.fill('#000000');
+      }
+
+      doc.fontSize(10).font('Helvetica-Bold')
+        .text(`Order ID: ${order.orderId}`, { continued: true })
+        .text(`Order Date: ${new Date(order.orderDate).toLocaleDateString()}`, { align: 'right' });
+      
+      doc.fontSize(10).font('Helvetica')
+        .text(`Total Amount: ${formatCurrency(order.totalAmount)}`, { continued: true })
+        .text(`Discount: ${formatCurrency(isNaN(order.discountAmount) ? 0 : order.discountAmount)}`, { align: 'right' });
+      
+      doc.moveDown(0.5);
+      doc.fontSize(10).font('Helvetica-Bold').text('Products:');
+      order.products.forEach(product => {
+        doc.fontSize(9).font('Helvetica')
+          .text(`${product.productName}: ${product.quantity} x ${formatCurrency(product.price)} = ${formatCurrency(product.quantity * product.price)}`, { indent: 20 });
+      });
+      
+      doc.moveDown();
+    });
+
+    // Add page numbers
+    const totalPages = doc.bufferedPageRange().count;
+    for (let i = 0; i < totalPages; i++) {
+      doc.switchToPage(i);
+      doc.fontSize(8).text(`Page ${i + 1} of ${totalPages}`, 50, doc.page.height - 50, { align: 'center' });
+    }
+
+    doc.end();
+  });
+};
+
+const generateExcel = async (reportData) => {
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet('Sales Report');
+
+  sheet.columns = [
+      { header: 'Order ID', key: 'orderId', width: 20 },
+      { header: 'Order Date', key: 'orderDate', width: 20 },
+      { header: 'Total Amount', key: 'totalAmount', width: 15 },
+      { header: 'Discount Amount', key: 'discountAmount', width: 15 },
+      { header: 'Product Name', key: 'productName', width: 30 },
+      { header: 'Quantity', key: 'quantity', width: 10 },
+      { header: 'Price', key: 'price', width: 15 },
+  ];
+
+  reportData.orders.forEach(order => {
+      order.products.forEach(product => {
+          sheet.addRow({
+              orderId: order.orderId,
+              orderDate: new Date(order.orderDate).toLocaleDateString(),
+              totalAmount: order.totalAmount,
+              discountAmount: isNaN(order.discountAmount) ? 0 : order.discountAmount,
+              productName: product.productName,
+              quantity: product.quantity,
+              price: product.price
+          });
+      });
+  });
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  return buffer;
+};
+
+
+
 const downloadSalesReport =  async (req, res) => {
   const { format, reportType, startDate, endDate } = req.query;
   console.log("query",req.query)
@@ -434,8 +547,6 @@ const downloadSalesReport =  async (req, res) => {
       res.status(400).send('Invalid format');
   }
 }
-
-
 
 
 const generateReportData = async (reportType, startDate, endDate) => {
@@ -465,33 +576,57 @@ const generateReportData = async (reportType, startDate, endDate) => {
           }
           break;
   }
-console.log('hello')
-  const orders = await Order.find(filter).populate('products.productId');
-  
-  const report = orders.map(order => {
-      const discountAmount = order.coupon ? (order.totalAmount * order.coupon.discount / 100) : 0;
-      return {
-          orderId: order.orderId,
-          orderDate: order.orderDate,
-          totalAmount: order.totalAmount,
-          discountAmount: isNaN(discountAmount) ? 0 : discountAmount,
-          products: order.products.map(item => ({
-              productName: item.productId.name,
-              quantity: item.quantity,
-              price: item.price
-          }))
-      };
-  });
 
-  const totalDiscounts = report.reduce((acc, order) => acc + order.discountAmount, 0);
+  const orders = await Order.find(filter).populate('products.productId');
+
+  let totalSales = 0;
+  let totalDiscounts = 0;
+  let totalOrders = 0;
+
+  const report = orders.map(order => {
+      const filteredProducts = order.products.filter(item => item.status === 'Delivered' || item.status === 'Return Requested');
+      
+      if (filteredProducts.length > 0) {
+          let discountAmount = 0;
+          
+          if (order.coupon) {
+              discountAmount = (order.totalAmount * order.coupon.discount) / 100;
+              if (discountAmount > order.coupon.maxAmount) {
+                  discountAmount = order.coupon.maxAmount;
+              }
+          }
+
+          const orderTotal = filteredProducts.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+          
+          totalSales += orderTotal;
+          totalDiscounts += discountAmount;
+          totalOrders++;
+
+          return {
+              orderId: order.orderId,
+              orderDate: order.orderDate,
+              totalAmount: orderTotal,
+              discountAmount: discountAmount,
+              products: filteredProducts.map(item => ({
+                  productName: item.productId.name,
+                  quantity: item.quantity,
+                  price: item.price,
+                  status: item.status
+              }))
+          };
+      } else {
+          return null;
+      }
+  }).filter(order => order !== null);
 
   return {
-      totalOrders: orders.length,
-      totalSales: orders.reduce((acc, order) => acc + order.totalAmount, 0),
+      totalOrders: totalOrders,
+      totalSales: totalSales,
       totalDiscounts: totalDiscounts,
       orders: report
   };
 };
+
 
 
 module.exports = {

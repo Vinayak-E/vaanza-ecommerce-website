@@ -59,7 +59,7 @@ adminRoute.post("/categories", categoryController.insertCategory);
 
 
 
-adminRoute.post("/list-unlist", categoryController.listUnlistCategory);
+adminRoute.patch("/list-unlist", categoryController.listUnlistCategory);
 
 adminRoute.get("/edit-category",auth.isLogin,categoryController.editCategorypageLoad);
 
@@ -145,5 +145,6 @@ adminRoute.post("/editCoupon",couponController.editCoupon)
 
 adminRoute.get("/salesReport",adminController.loadSalesReport)
 adminRoute.post("/generateSalesReport",adminController.generateSalesReport)
-adminRoute.post("/downloadSalesReport",adminController.downloadSalesReport)
+adminRoute.get("/downloadSalesReport",adminController.downloadSalesReport)
+
  module.exports = adminRoute;

@@ -320,45 +320,47 @@ document.addEventListener('DOMContentLoaded', function () {
 
         
   
+        if (!checkImages()) {
+    isValid = false;
+  }
 
-        // Validate images
-        let imagesValid = true;
-        const imageInputs = document.querySelectorAll('.imageInput');
-        imageInputs.forEach(input => {
-          if (!input.value) {
-            imagesValid = false;
-          }
-        });
-        if (!imagesValid) {
-          document.getElementById('imagesErr').style.display = 'block';
-          isValid = false;
-        } else {
-          document.getElementById('imagesErr').style.display = 'none';
-        }
       
         return isValid;
       }
       
-      function previewImage(input, imgId, errorId) {
-        if (input.files && input.files[0]) {
-          const validImageTypes = ['image/gif', 'image/jpeg', 'image/png', 'image/webp'];
-          const file = input.files[0];
       
-          if (!validImageTypes.includes(file.type)) {
-            input.value = ''; // Clear the input
-            document.getElementById(errorId).style.display = 'block'; // Show error message
-            return;
-          }
-      
-          document.getElementById(errorId).style.display = 'none'; // Hide error message if valid file
-      
-          var reader = new FileReader();
-          reader.onload = function(e) {
-            document.getElementById(imgId).setAttribute('src', e.target.result);
-          };
-          reader.readAsDataURL(file);
-        }
+function checkImages() {
+  let selectedCount = 0;
+  let validTypes = ['image/jpeg', 'image/jpg'];
+  let imagesErr = document.getElementById('imagesErr');
+
+  imagesErr.style.display = 'none'; 
+
+  for (let i = 1; i <= 4; i++) {
+    const input = document.getElementById(`imageInput${i}`);
+    
+    if (input.files && input.files.length > 0) {
+      const fileType = input.files[0].type;
+
+      if (!validTypes.includes(fileType)) {
+        imagesErr.innerText = `Image ${i} must be a JPG file`;
+        imagesErr.style.display = 'block';
+        return false;
       }
+
+      selectedCount++;
+    }
+  }
+
+  if (selectedCount !== 4) {
+    imagesErr.innerText = 'All 4 images are required';
+    imagesErr.style.display = 'block';
+    return false;
+  }
+
+  imagesErr.style.display = 'none'; 
+  return true;
+}
 
 
 </script>      

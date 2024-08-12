@@ -126,7 +126,7 @@
                                                     <% if (product.images && i < product.images.length) { %>
                                                       <img id="imagePreview<%= i %>" class="img-preview" src="/assets/images/productImage/<%= product.images[i] %>" alt="Preview">
                                                     <% } else { %>
-                                                      <img id="imagePreview<%= i %>" class="img-preview" alt="Preview">
+                                                      <img id="imagePreview<%= i %>" class="img-preview" src="" alt="Preview">
                                                     <% } %>
                                                     <p id="imageError<%= i %>" style="color: red; display: none;">Invalid image file type.</p>
                                                   </label>
@@ -260,6 +260,47 @@
         }
       });
 
+
+      function validateImages() {
+  let allImagesValid = true;
+  const imageInputs = document.querySelectorAll('.imageInput');
+  const imageErr = document.getElementById('imagesErr');
+  imageErr.style.display = 'none';
+  
+  let validImagesCount = 0;
+
+  imageInputs.forEach((input, index) => {
+    const file = input.files[0];
+    const imageError = document.getElementById(`imageError${index}`);
+    imageError.style.display = 'none';
+
+    // Check for new file upload
+    if (file) {
+      if (['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
+        validImagesCount++;
+      } else {
+        imageError.textContent = 'Invalid image file type.';
+        imageError.style.display = 'block';
+        allImagesValid = false;
+      }
+    } else {
+      // Check for existing image
+      const existingImagePreview = document.getElementById(`imagePreview${index}`);
+      if (existingImagePreview && existingImagePreview.src && !existingImagePreview.src.endsWith('Preview')) {
+        validImagesCount++;
+      }
+    }
+  });
+
+  if (validImagesCount < 4) {
+    imageErr.textContent = 'Please ensure all four image slots are filled.';
+    imageErr.style.display = 'block';
+    allImagesValid = false;
+  }
+
+  return allImagesValid;
+}
+
       function validateForm() {
         let isValid = true;
 
@@ -292,6 +333,11 @@
         } else {
           document.getElementById('sizesErr').style.display = 'none';
         }
+
+            // Validate images
+    if (!validateImages()) {
+      isValid = false;
+    }
 
         return isValid;
       }

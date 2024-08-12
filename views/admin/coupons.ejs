@@ -517,7 +517,16 @@
           if (!expiryDate.value.trim()) {
             isValid = false;
             showError("editExpiryDate", "Expiry date is required.");
-          }
+          } else {
+              const selectedDate = new Date(expiryDate.value);
+              const today = new Date();
+              today.setHours(0, 0, 0, 0); // Set time to beginning of the day for accurate comparison
+
+              if (selectedDate <= today) {
+                isValid = false;
+                showError("editExpiryDate",'Expiry date must be greater than today.');
+              } 
+            }
       
           const status = document.getElementById("editStatus");
           if (!status.value.trim()) {

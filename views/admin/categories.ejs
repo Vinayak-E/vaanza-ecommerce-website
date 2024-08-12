@@ -143,7 +143,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            method: 'POST',
+                            method: 'PATCH',
                             url: '/admin/list-unlist',
                             data: JSON.stringify(data),
                             contentType: 'application/json',

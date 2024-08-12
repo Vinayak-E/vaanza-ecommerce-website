@@ -361,16 +361,16 @@
                                           <div class="row g-0">
                                             <div class="col-12 col-md-6 offset-md-3 col-lg-6 offset-lg-0">
                                               <div class="card-body p-4">
-                                                <h5 class="text-muted mb-3">Balance Amount : <span class="text-dark "><%= locals.wallet ? wallet.balance : '0' %></span></h5>
+                                                <h5 class="text-muted mb-3">Balance Amount : <span class="text-dark "><%= locals.wallet ? wallet.balance.toFixed(2) : '0.00' %></span></h5>
                                                 <div class="d-flex flex-column gap-3">
-                                                  <a href="#" class="d-flex align-items-center text-muted">
+                                                  <!-- <a href="#" class="d-flex align-items-center text-muted">
                                                     <i class="fa-regular fa-square-plus fa-la mr-2" style="color: #cc9966;"></i>
                                                     Add money to wallet
-                                                  </a>
-                                                  <a href="#" class="d-flex align-items-center text-muted" data-toggle="modal" data-target="#transationDetailsModal">
+                                                  </a> -->
+                                                  <!-- <a href="#" class="d-flex align-items-center text-muted" data-toggle="modal" data-target="#transationDetailsModal">
                                                     <i class="fa-solid fa-clock-rotate-left fa-la mr-2" style="color: #cc9966;"></i>
                                                     Transaction history
-                                                  </a>
+                                                  </a> -->
                                                 </div>
                                               </div>
                                             </div>

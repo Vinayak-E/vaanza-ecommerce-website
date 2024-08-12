@@ -81,8 +81,7 @@
             <nav aria-label="breadcrumb" class="breadcrumb-nav">
                 <div class="container">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                        <li class="breadcrumb-item"><a href="#">Shop</a></li>
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Wishlist</li>
                     </ol>
                 </div><!-- End .container -->
@@ -95,6 +94,7 @@
 							<tr>
 								<th>Product</th>
                                 <th></th>
+                             
 								<th>Price</th>
 								<th>Stock Status</th>
 								<th></th>
@@ -118,21 +118,22 @@
                                                         </h3><!-- End .product-title -->
                                                     </div><!-- End .product -->
                                                 </td>
-                                        
-                                                <td>
+                             
+                                                <td class="size-col ">
                                                     <% if (variant.sizes && variant.sizes.length > 0) { %>
-                                                        <div class="form-group">
-                                                            <label for="size-<%= variant._id %>">Select Size:</label>
-                                                            <select name="size" id="size-<%= variant._id %>" class="form-control">
+                                                        <div class="form-group mr-3">
+                                                            <select name="size" id="size-<%= variant._id %>" class="form-control size-select">
+                                                                <option value="">Select Size</option>
                                                                 <% variant.sizes.forEach(size => { %>
                                                                     <option value="<%= size %>"><%= size %></option>
                                                                 <% }) %>
                                                             </select>
                                                         </div>
+                                                    <% } else { %>
+                                                        <span>N/A</span>
                                                     <% } %>
-
                                                 </td>
-                                           
+                                  
                                                 <td class="price-col">
                                                     <% if (product.bestOffer) { %>
                                                         <!-- Display original price crossed out and offer price -->
@@ -148,6 +149,7 @@
                                                     <form class="add-to-cart">
                                                         <input type="hidden" class="product-id" name="productId" value="<%= product._id %>">
                                                         <input type="hidden" class="variant-id" name="variantId" value="<%= variant._id %>">
+                                                        <input type="hidden" class="selected-size" name="selectedSize" value="">
 
                                                             <!-- Size Selection Dropdown -->
                            
@@ -577,7 +579,6 @@
 
 
 
-
     <script>
         // Get all "Add to Cart" buttons
         const addToCartButtons = document.querySelectorAll('.add-to-cart button[type="submit"]');
@@ -587,12 +588,26 @@
           button.addEventListener('click', async event => {
             event.preventDefault();
         
-            // Get the product ID, variant ID, and size from the form
-            const form = button.form;
+            // Get the product ID and variant ID from the form
+            const form = button.closest('form');
             const productId = form.querySelector('input[name="productId"]').value;
             const variantId = form.querySelector('input[name="variantId"]').value;
-            const sizeInput = form.querySelector('select[name="size"]');
-            const size = sizeInput ? sizeInput.value : null;
+        
+            // Find the corresponding size select element
+            const sizeSelect = document.querySelector(`#size-${variantId}`);
+            const size = sizeSelect ? sizeSelect.value : null;
+        
+            console.log("size", size);
+        
+            // Check if size is selected when it's available
+            if (sizeSelect && !size) {
+              Swal.fire({
+                icon: 'warning',
+                title: 'Size Required',
+                text: 'Please select a size before adding to cart.',
+              });
+              return;
+            }
         
             // Send AJAX request to addToCart endpoint
             try {

@@ -197,7 +197,7 @@
                                                     <a href="/productView/product/<%= product.productId._id %>/variant/<%= product.variantId %>">
                                                       <% const variant = product.productId.variants.find(v => v._id.toString() === product.variantId.toString()); %>
                                                       <% if (variant && variant.images && variant.images.length > 0) { %>
-                                                        <img src="/assets/images/productImage/sharped/<%= variant.images[0] %>" alt="Product image">
+                                                        <img src="/assets/images/productImage/<%= variant.images[0] %>" alt="Product image">
                                                       <% } %>
                                                     </a>
                                                   </figure>

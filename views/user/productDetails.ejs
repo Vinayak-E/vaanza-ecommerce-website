@@ -180,7 +180,7 @@
                                 <div class="row">
                                   <figure class="product-main-image">
                                     <% if (product.variants && product.variants.length > 0 && product.variants[0].images && product.variants[0].images.length > 0) { %>
-                                      <img id="product-zoom" src="/assets/images/productImage/sharped/<%= variant.images[0] %>" data-zoom-image="/assets/images/productImage/<%= variant.images[0] %>" alt="product image">
+                                      <img id="product-zoom" src="/assets/images/productImage/<%= variant.images[0] %>" data-zoom-image="/assets/images/productImage/<%= variant.images[0] %>" alt="product image">
                                     <% } else { %>
                                       <p>No images available for this product.</p>
                                     <% } %>
@@ -193,8 +193,8 @@
                                   <div id="product-zoom-gallery" class="product-image-gallery">
                                     <% if (product.variants && product.variants.length > 0) { %>
                                         <% variant.images.forEach((image, imageIndex) => { %>
-                                          <a class="product-gallery-item <%=  imageIndex === 0 ? 'active' : '' %>" href="#" data-image="/assets/images/productImage/sharped/<%= image %>" data-zoom-image="/assets/images/productImage/<%= image %>">
-                                            <img src="/assets/images/productImage/sharped/<%= image %>" alt="product image">
+                                          <a class="product-gallery-item <%=  imageIndex === 0 ? 'active' : '' %>" href="#" data-image="/assets/images/productImage/<%= image %>" data-zoom-image="/assets/images/productImage/<%= image %>">
+                                            <img src="/assets/images/productImage/<%= image %>" alt="product image">
                                           </a>
                                         <% }) %>
                                     
@@ -230,7 +230,7 @@
                                  </div><!-- End .product-price -->
 
                                  <div class="product-content">
-                                     <p> Rs. <%= product.description %></p>
+                                     <p>  <%= product.description %></p>
                                  </div><!-- End .product-content -->
 
                                  <div class="details-filter-row details-row-size">
@@ -241,7 +241,7 @@
                                             <% product.variants.forEach((variant, index) => { %>
                                                 <% if (variant.images && variant.images.length > 0) { %>
                                                     <a href="/productView/product/<%= product._id %>/variant/<%= variant._id %>">
-                                                        <img src="/assets/images/productImage/sharped/<%= variant.images[0] %>" alt="product image">
+                                                        <img src="/assets/images/productImage/<%= variant.images[0] %>" alt="product image">
                                                     </a>
                                                 <% } %>
                                             <% }) %>

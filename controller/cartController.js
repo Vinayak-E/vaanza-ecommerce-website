@@ -240,7 +240,7 @@ const checkout = async (req, res) => {
       // Fetch user and cart details
       const user = await User.findOne({ _id: userId });
       const addresses = await Address.find({ user: userId });
-      const coupons = await Coupon.find({});
+      const coupons = await Coupon.find({ isActive:true});
       const cart = await Cart.findOne({ userId }).populate({
           path: 'products.productId',
           populate: {
