@@ -427,71 +427,153 @@ const generateSalesReport = async (req, res) => {
 }
 
 
-const generatePDF = (reportData) => {
+const generatePDF = (reportData, startDate, endDate, reportType) => {
+  console.log("reportType", reportType);
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 50 });
+    const doc = new PDFDocument({ margin: 30, autoFirstPage: false });
     let buffers = [];
     doc.on('data', buffers.push.bind(buffers));
-    doc.on('end', () => {
-      const pdfBuffer = Buffer.concat(buffers);
-      resolve(pdfBuffer);
-    });
+    doc.on('end', () => {});
 
-    // Helper function to format currency
-    const formatCurrency = (amount) => `₹${parseFloat(amount).toFixed(2)}`;
+    let dateRangeText = '';
+    const currentDate = new Date();
+  
+    switch (reportType) {
+      case 'daily':
+        dateRangeText = `Report Date: ${currentDate.toLocaleDateString()}`;
+        break;
+      case 'weekly':
+        const weekStartDate = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
+        const weekEndDate = new Date(weekStartDate);
+        weekEndDate.setDate(weekStartDate.getDate() + 6);
+        dateRangeText = `Report Period: ${weekStartDate.toLocaleDateString()} - ${weekEndDate.toLocaleDateString()}`;
+        break;
+      case 'monthly':
+        const monthStartDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const monthEndDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        dateRangeText = `Report Period: ${monthStartDate.toLocaleDateString()} - ${monthEndDate.toLocaleDateString()}`;
+        break;
+      case 'custom':
+        if (startDate && endDate) {
+          const formattedStartDate = new Date(startDate).toLocaleDateString();
+          const formattedEndDate = new Date(endDate).toLocaleDateString();
+          dateRangeText = `Report Period: ${formattedStartDate} - ${formattedEndDate}`;
+        } else {
+          dateRangeText = 'Custom Report (Date range not specified)';
+        }
+        break;
+      default:
+        if (startDate && endDate) {
+          const formattedStartDate = new Date(startDate).toLocaleDateString();
+          const formattedEndDate = new Date(endDate).toLocaleDateString();
+          dateRangeText = `Report Period: ${formattedStartDate} - ${formattedEndDate}`;
+        } else {
+          dateRangeText = 'Report Period: Not specified';
+        }
+    }
+    const formatAmount = (amount) => `${parseFloat(amount).toFixed(2)}`;
+
+    // Helper function to add a new page with the header
+    const addPage = (isFirstPage = false) => {
+      doc.addPage();
+      if (!isFirstPage) {
+        doc.fontSize(8).text(`Page ${doc.bufferedPageRange().count}`, 0.5 * (doc.page.width - 100), doc.page.height - 50, {
+          width: 100,
+          align: 'center',
+        });
+      }
+    };
+
+    // Start with the first page
+    addPage(true);
 
     // Add a header
     doc.fontSize(20).font('Helvetica-Bold').text('Sales Report', { align: 'center' });
-    doc.moveDown();
 
+    // Add the report generation date range
+    doc.fontSize(10).font('Helvetica').text(dateRangeText, { align: 'center' });
+      
+    doc.moveDown(2);
+ 
     // Add report summary
     doc.fontSize(12).font('Helvetica-Bold').text('Report Summary');
     doc.fontSize(10).font('Helvetica')
       .text(`Total Orders: ${reportData.totalOrders}`)
-      .text(`Total Sales Amount: ${formatCurrency(reportData.totalSales)}`)
-   
-    
-    doc.moveDown();
+      .text(`Total Sales Amount: ${formatAmount(reportData.totalSales)}`)
+      .text(`Total Discount Amount: ${formatAmount(reportData.totalDiscounts)}`);
+    doc.moveDown(2);
 
-    // Add order details
-    doc.fontSize(12).font('Helvetica-Bold').text('Order Details');
-    doc.moveDown(0.5);
+    // Table configuration
+    const colWidths = [80, 80, 80, 80, 150];
+    const tableWidth = colWidths.reduce((sum, width) => sum + width, 0);
+    const tableLeft = (doc.page.width - tableWidth) / 2;
+    const cellPadding = 5;
+    let tableTop = doc.y;
 
+    // Helper function to draw a cell
+    const drawCell = (x, y, width, height, text, isHeader = false) => {
+      doc.rect(x, y, width, height).stroke();
+      doc.font(isHeader ? 'Helvetica-Bold' : 'Helvetica')
+         .fontSize(isHeader ? 10 : 9)
+         .text(text, x + cellPadding, y + cellPadding, {
+           width: width - 2 * cellPadding,
+           height: height - 2 * cellPadding,
+           align: 'left',
+           valign: 'top',
+         });
+    };
+
+    // Draw table header
+    const headers = ['Order ID', 'Order Date', 'Total Amount', 'Discount', 'Products'];
+    headers.forEach((header, i) => {
+      drawCell(tableLeft + colWidths.slice(0, i).reduce((sum, width) => sum + width, 0), 
+               tableTop, colWidths[i], 20, header, true);
+    });
+    tableTop += 20;
+
+    // Draw order details
     reportData.orders.forEach((order, index) => {
-      // Add a light gray background for every other order
-      if (index % 2 === 0) {
-        doc.rect(50, doc.y, 500, 100).fill('#f0f0f0');
-        doc.fill('#000000');
+      const rowHeight = Math.max(40, order.products.length * 15 + 10);
+      
+      if (tableTop + rowHeight > doc.page.height - 50) {
+        addPage();
+        tableTop = 50;
+
+        // Redraw header on new page
+        headers.forEach((header, i) => {
+          drawCell(tableLeft + colWidths.slice(0, i).reduce((sum, width) => sum + width, 0), 
+                   tableTop, colWidths[i], 20, header, true);
+        });
+        tableTop += 20;
       }
 
-      doc.fontSize(10).font('Helvetica-Bold')
-        .text(`Order ID: ${order.orderId}`, { continued: true })
-        .text(`Order Date: ${new Date(order.orderDate).toLocaleDateString()}`, { align: 'right' });
-      
-      doc.fontSize(10).font('Helvetica')
-        .text(`Total Amount: ${formatCurrency(order.totalAmount)}`, { continued: true })
-        .text(`Discount: ${formatCurrency(isNaN(order.discountAmount) ? 0 : order.discountAmount)}`, { align: 'right' });
-      
-      doc.moveDown(0.5);
-      doc.fontSize(10).font('Helvetica-Bold').text('Products:');
+      // Draw cells for each column
+      drawCell(tableLeft, tableTop, colWidths[0], rowHeight, order.orderId);
+      drawCell(tableLeft + colWidths[0], tableTop, colWidths[1], rowHeight, new Date(order.orderDate).toLocaleDateString());
+      drawCell(tableLeft + colWidths[0] + colWidths[1], tableTop, colWidths[2], rowHeight, formatAmount(order.totalAmount));
+      drawCell(tableLeft + colWidths[0] + colWidths[1] + colWidths[2], tableTop, colWidths[3], rowHeight, 
+               formatAmount(isNaN(order.discountAmount) ? 0 : order.discountAmount));
+
+      // Products cell
+      const productsX = tableLeft + colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3];
+      drawCell(productsX, tableTop, colWidths[4], rowHeight, '');
+      let productY = tableTop + cellPadding;
       order.products.forEach(product => {
-        doc.fontSize(9).font('Helvetica')
-          .text(`${product.productName}: ${product.quantity} x ${formatCurrency(product.price)} = ${formatCurrency(product.quantity * product.price)}`, { indent: 20 });
+        doc.text(`${product.productName}: ${product.quantity} x ${formatAmount(product.price)} = ${formatAmount(product.quantity * product.price)}`, 
+                 productsX + cellPadding, productY, { width: colWidths[4] - 2 * cellPadding });
+        productY += 15;
       });
-      
-      doc.moveDown();
+
+      tableTop += rowHeight;
     });
 
-    // Add page numbers
-    const totalPages = doc.bufferedPageRange().count;
-    for (let i = 0; i < totalPages; i++) {
-      doc.switchToPage(i);
-      doc.fontSize(8).text(`Page ${i + 1} of ${totalPages}`, 50, doc.page.height - 50, { align: 'center' });
-    }
-
     doc.end();
+    doc.on('end', () => {
+      resolve(Buffer.concat(buffers));
+    });
   });
 };
+
 
 const generateExcel = async (reportData) => {
   const workbook = new ExcelJS.Workbook();
@@ -526,25 +608,24 @@ const generateExcel = async (reportData) => {
 };
 
 
-
-const downloadSalesReport =  async (req, res) => {
+const downloadSalesReport = async (req, res) => {
   const { format, reportType, startDate, endDate } = req.query;
-  console.log("query",req.query)
+  console.log("query", req.query)
 
   const reportData = await generateReportData(reportType, startDate, endDate);
 
   if (format === 'pdf') {
-      const pdfBuffer = await generatePDF(reportData);
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename=sales_report.pdf');
-      res.send(pdfBuffer);
+    const pdfBuffer = await generatePDF(reportData, startDate, endDate, reportType);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=sales_report.pdf');
+    res.send(pdfBuffer);
   } else if (format === 'excel') {
-      const excelBuffer = await generateExcel(reportData);
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', 'attachment; filename=sales_report.xlsx');
-      res.send(excelBuffer);
+    const excelBuffer = await generateExcel(reportData);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=sales_report.xlsx');
+    res.send(excelBuffer);
   } else {
-      res.status(400).send('Invalid format');
+    res.status(400).send('Invalid format');
   }
 }
 
@@ -599,7 +680,8 @@ const generateReportData = async (reportType, startDate, endDate) => {
           const orderTotal = filteredProducts.reduce((sum, item) => sum + (item.price * item.quantity), 0);
           
           totalSales += orderTotal;
-          totalDiscounts += discountAmount;
+          totalDiscounts += isNaN(discountAmount) ? 0 : discountAmount;
+          // totalDiscounts += discountAmount;
           totalOrders++;
 
           return {
@@ -621,9 +703,10 @@ const generateReportData = async (reportType, startDate, endDate) => {
 
   return {
       totalOrders: totalOrders,
-      totalSales: totalSales,
+      totalSales: totalSales - totalDiscounts,
       totalDiscounts: totalDiscounts,
-      orders: report
+      orders: report,
+     
   };
 };
 

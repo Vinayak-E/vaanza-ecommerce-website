@@ -40,7 +40,7 @@ const loadCart = async (req, res) => {
       populate: { path: "variants" }
     });
 
-    // Fetch all offers
+
     const allOffers = await Offer.find({ status: true });
 
     // Calculate best offer for each product
