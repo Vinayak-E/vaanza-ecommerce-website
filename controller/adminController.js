@@ -68,14 +68,14 @@ const verifyLogin = async (req, res) => {
 
    //  Load the dashboard page
 
-   const loadDashboard = async (req, res) => {
-    try {
+//    const loadDashboard = async (req, res) => {
+//     try {
 
-        res.render('adminDashboard');
-    } catch (error) {
-        console.log(error.message)
-    }
-}
+//         res.render('adminDashboard');
+//     } catch (error) {
+//         console.log(error.message)
+//     }
+// }
 
 // Admin Logout
 
@@ -294,7 +294,7 @@ const handleReturnRequest = async (req, res) => {
       await originalProduct.save();
 
       // Add money back to the user's wallet
-      const productPurchasePrice = productItem.price;
+      const productPurchasePrice = productItem.price * productItem.quantity;
       const userId = order.userId;  // Extract user ID from the order
       let wallet = await Wallet.findOne({ user: userId });
 
@@ -308,7 +308,18 @@ const handleReturnRequest = async (req, res) => {
       }
 
       wallet.balance += productPurchasePrice;
+      
+          // Add the transaction to the wallet
+          wallet.transactions.push({
+            amount: productPurchasePrice,
+            transactionId: `Return Order : ${orderId}`,
+            productName: originalProduct.name,
+            type: 'credit'
+        });
+
       await wallet.save();
+
+
     } else if (action === 'reject') {
       productItem.status = 'Delivered'; // Revert status to 'Delivered'
     }
@@ -715,7 +726,7 @@ const generateReportData = async (reportType, startDate, endDate) => {
 module.exports = {
     loadLogin,
     verifyLogin,
-    loadDashboard,
+
     adminLogout,
     loadUserMangment,
     blockUser,

@@ -10,6 +10,7 @@ const offerController = require('../controller/offerController')
 const couponController = require('../controller/couponController')
 
 
+
 const config = require("../config/config");
 const auth = require("../middlewares/adminAuth");
 const path =require("path")
@@ -36,7 +37,7 @@ adminRoute.post("/", adminController.verifyLogin);
 
 
 
-adminRoute.get("/home",auth.isLogin,adminController.loadDashboard);
+adminRoute.get("/home",auth.isLogin,dashboardController.loadDashboard);
 adminRoute.get("/logout",auth.isLogin,adminController.adminLogout);
 
 // ===============User Management  ==========================//

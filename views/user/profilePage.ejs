@@ -66,6 +66,130 @@
         margin: 0;
     }
 
+    .order-summary {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border: 1px solid #e0e0e0;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+
+.order-id {
+    font-size: 1.4rem;
+    color: #333333;
+    margin: 0;
+    font-weight: 600;
+}
+
+.order-date {
+    font-size: 1rem;
+    color: #666666;
+}
+
+.details-right {
+    text-align: right;
+}
+
+.btn-invoice {
+    margin-top: 10px;
+}
+
+.order-details {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.order-info {
+    flex: 1;
+    min-width: 200px;
+    margin-right: 30px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.info-item i {
+    margin-right: 12px;
+    color: #007bff;
+    font-size: 1.2rem;
+}
+
+.shipping-info {
+    flex: 2;
+    min-width: 300px;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.shipping-info h6 {
+    color: #333333;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.shipping-info p {
+    margin-bottom: 8px;
+    color: #555555;
+}
+
+.retry-payment-section {
+    margin-top: 25px;
+    text-align: center;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.retry-payment {
+    margin-top: 12px;
+}
+
+.view-order-details {
+    display: inline-block;
+    margin-top: 20px;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .order-details {
+        flex-direction: column;
+    }
+    
+    .order-info, .shipping-info {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+    
+    .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .details-right {
+        text-align: left;
+        margin-top: 10px;
+    }
+}
 
    
 </style>
@@ -225,17 +349,55 @@
                                                     <% orders.forEach(order => { %>
                                                         <div class="order-item">
                                                             <div class="order-header">
-                                                                <div>
-                                                                    <h5>Order ID: <%= order.orderId %></h5>
-                                                                    <p><strong> Order Date:</strong> <%= new Date(order.orderDate).toLocaleDateString() %></p>
-                                                                    <p><strong>Total Amount: </strong>  ₹<%= order.totalAmount.toFixed(2) %></p>
-                                                                    <p> <strong>Ship to: </strong><%=order.address.name%></p>
-                                                                    <div> <strong>Delivery Address:</strong> <%= order.address.address%>,<%= order.address.street%> <br><%= order.address.state%>,<%= order.address.postalCode %> , <%= order.address.number %></div>
-                                                                </div>
+                                                                <div class="order-summary">
+                                                                    <div class="order-header">
+                                                                        <h5 class="order-id">Order #<%= order.orderId %></h5>
+                                                                        <span class="order-date"><%= new Date(order.orderDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></span>
+                                                                    </div>
+                                                                    <div class="details-right text-right">
+                                                                        <% if (order.products.some(product => product.status === 'Delivered' || product.status === 'Return Requested'|| product.status === 'Returned')) { %>
+                                                                            <button class="btn btn-primary btn-invoice" data-order-id="<%= order.orderId %>">Download Invoice</button>
+                                                                        <% } %>
+                                                                    </div>
+                                                                    <div class="order-details">
+                                                                        <div class="order-info">
+                                                                            <div class="info-item">
+                                                                                <i class="fas fa-money-bill-wave"></i>
+                                                                                <span>₹<%= order.totalAmount.toFixed(2) %></span>
+                                                                            </div>
+                                                                            <div class="info-item">
+                                                                                <i class="fas fa-credit-card"></i>
+                                                                                <span><%= order.paymentMethod %></span>
+                                                                            </div>
+                                                                            <div class="info-item">
+                                                                                <i class="fas fa-credit-card"></i>
+                                                                                <span><%= order.paymentStatus %></span>
+                                                                            </div>
+                                                                        </div>
+                                                                        
+                                                                        <div class="shipping-info">
+                                                                            <h6><i class="fas fa-shipping-fast"></i> Shipping Details</h6>
+                                                                            <p><strong><%= order.address.name %></strong></p>
+                                                                            <p><%= order.address.address %>, <%= order.address.street %></p>
+                                                                            <p><%= order.address.state %>, <%= order.address.postalCode %></p>
+                                                                            <p><i class="fas fa-phone"></i> <%= order.address.number %></p>
+                                                                        </div>
+                                                                    </div>
+                                                                    
+                                                                    <% if (order.paymentStatus === 'Pending' && order.paymentMethod === 'Razor pay') { %>
+                                                                        <div class="retry-payment-section">
+                                                                            <p class="alert alert-warning">Payment failed. You can retry the payment to complete your order.</p>
+                                                                            <button type="button" class="btn btn-primary retry-payment" onclick="retryPayment('<%= order._id %>', <%= order.totalAmount %>)">
+                                                                                <i class="fas fa-redo"></i> Retry Payment
+                                                                            </button>
+                                                                        </div>
+                                                                    <% } %>
+                                  
                                                                 <div>
                                                                     <a href="javascript:void(0);" class="view-order-details" onclick="toggleOrderDetails('<%= order._id %>')"><strong>View Order Details</strong></a>
                                                                 </div>
                                                             </div>
+                                                        </div>
                                                             <div class="order-products" id="order-products-<%= order._id %>" style="display: none;">
                                                                 <h6>Products:</h6>
                                                                 <ul>
@@ -348,35 +510,54 @@
 
 
 
-								    <!-- .End .tab-pane -->
-                                    <div class="tab-pane fade" id="tab-wallet" role="tabpanel" aria-labelledby="tab-wallet-link">
-                                        <div class="card card-dashboard shadow">
-                                          <div class="row g-0">
-                                            <div class="col-12">
-                                              <div class="card-body d-flex align-items-center justify-content-center py-4 mb-3" style="background-image: url(/assets/images/banners/Wallet\ Banner.png.webp); background-size: cover; background-position: center;">
-                                                <h3 class="text-light ls-3 mb-0">Vaanza Wallet</h3>
-                                              </div>
-                                            </div>
-                                          </div>
-                                          <div class="row g-0">
-                                            <div class="col-12 col-md-6 offset-md-3 col-lg-6 offset-lg-0">
-                                              <div class="card-body p-4">
-                                                <h5 class="text-muted mb-3">Balance Amount : <span class="text-dark "><%= locals.wallet ? wallet.balance.toFixed(2) : '0.00' %></span></h5>
-                                                <div class="d-flex flex-column gap-3">
-                                                  <!-- <a href="#" class="d-flex align-items-center text-muted">
-                                                    <i class="fa-regular fa-square-plus fa-la mr-2" style="color: #cc9966;"></i>
-                                                    Add money to wallet
-                                                  </a> -->
-                                                  <!-- <a href="#" class="d-flex align-items-center text-muted" data-toggle="modal" data-target="#transationDetailsModal">
-                                                    <i class="fa-solid fa-clock-rotate-left fa-la mr-2" style="color: #cc9966;"></i>
-                                                    Transaction history
-                                                  </a> -->
-                                                </div>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
+  <div class="tab-pane fade" id="tab-wallet" role="tabpanel" aria-labelledby="tab-wallet-link">
+    <div class="card card-dashboard shadow">
+        <div class="row g-0">
+            <div class="col-12">
+                <div class="card-body d-flex align-items-center justify-content-center py-4 mb-3" style="background-image: url(/assets/images/banners/Wallet\ Banner.png.webp); background-size: cover; background-position: center;">
+                    <h3 class="text-light ls-3 mb-0">Vaanza Wallet</h3>
+                </div>
+            </div>
+        </div>
+        <div class="row g-0">
+            <div class="col-12 col-md-6 offset-md-3 col-lg-6 offset-lg-0">
+                <div class="card-body p-4">
+                    <h5 class="text-muted mb-3">Balance Amount: <span class="text-dark"><%= wallet ? wallet.balance.toFixed(2) : '0.00' %></span></h5>
+                    <div class="d-flex flex-column gap-3">
+                        <a href="#" class="d-flex align-items-center text-muted" data-toggle="modal" data-target="#transactionDetailsModal">
+                            <i class="fa-solid fa-clock-rotate-left fa-la mr-2" style="color: #cc9966;"></i>
+                            Transaction history
+                        </a>
+                        <button class="btn btn-outline-primary" id="showRecentTransactions">Show Recent Transactions</button>
+                    </div>
+                    <div class="transaction-list mt-4" id="recentTransactions" style="display: none;">
+                        <h5 class="mb-3">Recent Transactions:</h5>
+                        <% if (wallet && wallet.transactions.length > 0) { %>
+                            <ul class="list-group">
+                                <% wallet.transactions.forEach(transaction => { %>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>
+                                            <strong><%= transaction.type === 'credit' ? '+' : '-' %>₹<%= transaction.amount.toFixed(2) %></strong>
+                                            <br>
+                                            <small class="text-muted">Transaction ID: <%= transaction.transactionId %></small> 
+                                            <br>
+                                            <small class="text-muted">Product Name: <%= transaction.productName %></small><br>
+                                            <small class="text-muted"><%= new Date(transaction.timestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %> at <%= new Date(transaction.timestamp).toLocaleTimeString('en-US') %></small>
+                                        </span>
+                                        <span class="badge <%= transaction.type === 'credit' ? 'badge-success' : 'badge-danger' %> badge-pill"><%= transaction.type %></span>
+                                    </li>
+                                <% }) %>
+                            </ul>
+                        <% } else { %>
+                            <p>No transactions found.</p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 
@@ -989,6 +1170,62 @@
         </div><!-- End .modal-dialog -->
     </div><!-- End .modal -->
 
+
+
+    <script>
+        document.querySelectorAll('.btn-invoice').forEach(button => {
+            button.addEventListener('click', async function() {
+                const orderId = this.getAttribute('data-order-id');
+    
+                try {
+                    const response = await fetch('/downloadInvoice', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ orderId })
+                    });
+    
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `Invoice_${orderId}.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                    } else if (response.status === 404) {
+                        const data = await response.json();
+                        if (!data.isActive) {
+                            window.location.href = '/userLogin';
+                        } else {
+                            console.error('Order not found or other error occurred');
+                        }
+                    } else {
+                        console.error('Failed to generate invoice');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+    </script>
+
+    <script>
+   document.addEventListener("DOMContentLoaded", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+        if (tab) {
+            const tabLink = document.querySelector(`a[href="#tab-${tab}"]`);
+            if (tabLink) {
+                tabLink.click(); // Activate the tab
+            }
+        }
+    });
+    
+    </script>
+ 
     
 <script>
 function toggleEdit() {
@@ -1754,6 +1991,129 @@ console.log("productId",productId)
 });
 
 </script>
+
+<script>
+    function retryPayment(orderId, amount) {
+    fetch('/retry-payment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderId: orderId, amount: amount }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Initialize Razorpay payment
+            const options = {
+                key: data.keyId,
+                amount: data.amount,
+                currency: data.currency,
+                name: 'VAANZA',
+                description: 'Order Payment',
+                order_id: data.razorpayOrderId,
+                handler: function (response) {
+                    updatePaymentStatus(orderId, 'Paid', response);
+                },
+                prefill: {
+                    name: 'Customer Name',
+                    email: 'customer@example.com',
+                    contact: 'Customer Phone Number'
+                },
+                theme: {
+                    color: '#F37254'
+                },
+                modal: {
+                    ondismiss: function() {
+                        updatePaymentStatus(orderId, 'Failed');
+                    }
+                }
+            };
+            const rzp = new Razorpay(options);
+            rzp.open();
+        } else {
+            Swal.fire({
+                title: 'Error!',
+                text: data.message || 'Failed to retry payment. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'An unexpected error occurred. Please try again later.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    });
+}
+
+
+function updatePaymentStatus(orderId, status, razorpayResponse = null) {
+    const updateData = {
+        orderId: orderId,
+        status: status
+    };
+
+    if (razorpayResponse) {
+        updateData.razorpay_payment_id = razorpayResponse.razorpay_payment_id;
+        updateData.razorpay_order_id = razorpayResponse.razorpay_order_id;
+        updateData.razorpay_signature = razorpayResponse.razorpay_signature;
+    }
+
+    fetch('/update-payment-status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updateData)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            if (status === 'Paid') {
+                window.location.href = `/order-summary/${orderId}`;
+            } else {
+                // Payment failed or was dismissed
+                window.location.href = '/profile';
+            }
+        } else {
+            Swal.fire({
+                title: 'Error',
+                text: 'Failed to update payment status. Please contact support.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error',
+            text: 'An error occurred while updating payment status.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    });
+}
+</script>
+<script>
+    document.getElementById('showRecentTransactions').addEventListener('click', function() {
+    var recentTransactions = document.getElementById('recentTransactions');
+    if (recentTransactions.style.display === 'none') {
+        recentTransactions.style.display = 'block';
+        this.textContent = 'Hide Recent Transactions';
+    } else {
+        recentTransactions.style.display = 'none';
+        this.textContent = 'Show Recent Transactions';
+    }
+});
+</script>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </body>
 
 

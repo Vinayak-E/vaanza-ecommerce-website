@@ -609,7 +609,6 @@
               return;
             }
         
-            // Send AJAX request to addToCart endpoint
             try {
               const response = await fetch('/add-to-cart', {
                 method: 'POST',
@@ -624,7 +623,9 @@
                   icon: 'success',
                   title: 'Success',
                   text: result.message,
-                });
+                }).then(() => {
+                window.location.reload();
+            });
               } else {
                 Swal.fire({
                   icon: 'error',

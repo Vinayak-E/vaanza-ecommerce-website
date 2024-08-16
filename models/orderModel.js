@@ -47,7 +47,9 @@ const orderSchema = new Schema({
         cancelReason:{type:String}
     }],
     totalAmount: { type: Number, required: true },
-    orderDate: { type: Date, required: true }
+    orderDate: { type: Date, required: true },
+    paymentStatus:{ type:String},
+    razorpayOrderId: String,
 });
 
 const Order = mongoose.model('Order', orderSchema);

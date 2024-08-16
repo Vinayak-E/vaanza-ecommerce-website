@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const Token = require('../models/tokenModel');
 const crypto = require("crypto");
+const pdf = require('html-pdf');
 
 // Load home page
 const loadHome = async (req, res) => {
@@ -400,8 +401,15 @@ const loadProfile = async (req, res) => {
       path: 'products.productId',
       populate: { path: 'variants' }
     }).sort({ orderDate: -1 });
-console.log("wallet ",wallet)
-      res.render('profilePage', { user, addresses,orders,wallet})
+
+
+    const hasDeliveredProduct = orders.some(order => 
+      order.products.some(product => 
+          product.status === 'Delivered' || product.status === 'Return Requested' || product.status === 'Returned'
+      )
+  );
+
+      res.render('profilePage', { user, addresses,orders,wallet, hasDeliveredProduct })
 
   } catch (err) {
       console.log(err.message)
@@ -565,6 +573,73 @@ const editAddress = async (req, res) => {
   }
 };
 
+
+
+
+const downloadInvoice = async (req, res) => {
+  try {
+      const user = req.session.user;
+      const { orderId } = req.body;
+      
+      console.log("helloooo",req.body)
+      const order = await Order.findOne({orderId}).populate('products.productId');
+      console.log("order found",order)
+     
+      const products = order.products.filter(item =>
+          ['Delivered', 'Return Requested', 'Returned'].includes(item.status)
+      );
+ console.log("products found",products)
+      let discount = 0;
+
+      const subtotal = order.products.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+      const shipping = subtotal < 500 ? 50 : 0;
+      const totalAmount = order.totalAmount;
+      if (!isNaN(order.coupon)) {
+          const couponDiscount = subtotal * order.coupon.discount / 100;
+          discount = couponDiscount <= order.coupon.maxAmount ? couponDiscount: order.coupon.maxAmount;
+      }
+
+      console.log('order.coupon: ', isNaN(order.coupon));
+      
+      const summary = {
+          subtotal: subtotal,
+          shipping: shipping,
+          totalAmount: totalAmount,
+          discount: discount
+      };
+
+      console.log('summary: ', summary);
+      
+
+      if (!order) {
+          return res.status(404).send('Order not found');
+      }
+      
+      const paymentMethod = order.paymentMethod
+      res.render('invoice',{ user, order, paymentMethod, products, summary }, (err, html) => {
+          if (err) {
+              console.error('Error rendering invoice template:', err);
+              return res.status(500).send('Error generating invoice');
+          }
+
+          pdf.create(html, {}).toBuffer((err, buffer) => {
+              if (err) {
+                  console.error('Error generating PDF:', err);
+                  return res.status(500).send('Error generating PDF');
+              }
+
+              res.setHeader('Content-Disposition', 'attachment; filename=invoice.pdf');
+              res.setHeader('Content-Type', 'application/pdf');
+              res.send(buffer);
+          });
+      });
+  } catch (err) {
+      console.error('Error fetching order details:', err);
+      res.status(500).send('Internal server error');
+  }
+};
+
 module.exports = {
   
   loadRegister,
@@ -585,7 +660,8 @@ module.exports = {
   resetPasswithOld,
   addAddress,
   editAddress,
-  removeAddress
+  removeAddress,
+  downloadInvoice
   
   
 

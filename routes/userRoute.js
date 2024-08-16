@@ -122,6 +122,8 @@ userRoute.post('/reset-pass',userController.resetPasswithOld)
 
 userRoute.post('/add-address',userController.addAddress)
 userRoute.post('/edit-address',userController.editAddress);
+
+userRoute.post('/downloadInvoice',userController.downloadInvoice)
 userRoute.delete('/delete-address/:id',userController.removeAddress);
 
  
@@ -132,6 +134,10 @@ userRoute.delete('/delete-address/:id',userController.removeAddress);
 userRoute.get('/checkout',auth.authlogg,cartController.checkout);
 
 userRoute.post('/place-order',auth.authlogg,orderController.placeOrder)
+userRoute.post('/update-payment-status',orderController.updatePaymentStatus);
+
+// In your Express route file
+userRoute.post('/retry-payment',orderController.retryPayment);
 
 userRoute.post('/cancel-order',orderController.cancelOrder)
 userRoute.post('/return-order',orderController.returnOrder)
