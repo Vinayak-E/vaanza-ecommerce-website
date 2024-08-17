@@ -384,7 +384,7 @@
                                                                         </div>
                                                                     </div>
                                                                     
-                                                                    <% if (order.paymentStatus === 'Pending' && order.paymentMethod === 'Razor pay') { %>
+                                                                    <% if (order.paymentStatus === 'Failed' && order.paymentMethod === 'Razor pay') { %>
                                                                         <div class="retry-payment-section">
                                                                             <p class="alert alert-warning">Payment failed. You can retry the payment to complete your order.</p>
                                                                             <button type="button" class="btn btn-primary retry-payment" onclick="retryPayment('<%= order._id %>', <%= order.totalAmount %>)">
@@ -421,9 +421,10 @@
                                                                                         <button type="button" class="btn btn-outline-danger mb-1" disabled>Cancelled</button>
                                                                                       <% } else if (item.status === 'Delivered') { %>
                                                                                         <button type="button" class="btn btn-outline-warning mb-1" onclick="openReturnModal('<%= order._id %>', '<%= product._id %>', '<%= variant._id %>')">Return Request</button>
-                                                                                      <% } else if (item.status === 'Pending' || item.status === 'Out for Delivery' || item.status === 'Dispatched')  { %>
-                                                                                        <button type="button" class="btn btn-outline-danger mb-1" onclick="openCancelModal('<%= order._id %>', '<%= product._id %>', '<%= variant._id %>')">Cancel</button>
-                                                                                      <% } %>
+                                                                                        <% } else if ((item.status === 'Pending' || item.status === 'Out for Delivery' || item.status === 'Dispatched') && order.paymentStatus !== "Failed") { %>
+                                                                                            <button type="button" class="btn btn-outline-danger mb-1" onclick="openCancelModal('<%= order._id %>', '<%= product._id %>', '<%= variant._id %>')">Cancel</button>
+                                                                                          <% } %>
+                                                                                          
                                                                                 </div>
                                                                                 
 

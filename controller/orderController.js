@@ -306,6 +306,15 @@ const placeOrder = async (req, res) => {
           throw new Error(`Total amount calculation failed. Subtotal: ${subtotal}, Coupon Discount: ${couponDiscount}, Shipping Charge: ${shippingCharge}, Total Amount: ${totalAmount}`);
       }
 
+       // Check if payment method is COD and totalAmount is less than 1000
+    if (paymentMethod === 'Cash on Delivery' && totalAmount > 1000) {
+        return res.status(400).json({
+          success: false,
+          message: 'Order total is less than 1000. Please choose a different payment method.',
+        });
+      }
+  
+
       for (let i = 0; i < products.length; i++) {
           const orderedProduct = products[i];
           const product = await Product.findById(orderedProduct.productId);
@@ -336,7 +345,7 @@ const placeOrder = async (req, res) => {
       if (paymentMethod === 'Cash on Delivery') {
           paymentStatus = "Pending";
       } else if (paymentMethod === 'Razor pay') {
-          paymentStatus ? "Paid" : "Pending";
+          paymentStatus ? "Paid" : "Failed";
       } else {
           paymentStatus = "Paid";
       }

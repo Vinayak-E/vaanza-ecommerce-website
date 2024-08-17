@@ -4,18 +4,46 @@ const Category = require('../models/categoriesModel');
 
 
 
-
-
-
-const loadCategory = async(req,res)=>{
-    try{
-        const categories = await Category.find({});
-       res.render('categories',{categories:categories});
-    }catch(err){
-        console.log(err.message)
+const loadCategory = async (req, res) => {
+    try {
+      let page = 1;
+      if (req.query.page) {
+        page = +req.query.page;
+      }
+  
+      const search = req.query.search || '';
+  
+      // Use the search query in the find method
+      const query = search ? { name: { $regex: '.*' + search + '.*', $options: 'i' } } : {};
+      const limit = 8;
+      
+      // Get the total count of categories that match the search query
+      const count = await Category.countDocuments(query);
+      
+      // Fetch categories for the current page that match the search query
+      const categories = await Category.find(query)
+        .sort({ date: -1 })
+        .limit(limit)
+        .skip((page - 1) * limit)
+        .exec();
+  
+      const totalPages = Math.ceil(count / limit);
+      let previous = page > 1 ? page - 1 : 1;
+      let next = page < totalPages ? page + 1 : totalPages;
+      
+      res.render('categories', {
+        categories: categories,
+        totalPages: totalPages,
+        currentPage: page,
+        previous: previous,
+        next: next,
+        search // Pass the search term back to the template to preserve it in the input field
+      });
+    } catch (err) {
+      console.log(err.message);
     }
-}
-
+  };
+  
 
 
 const loadaAddCategory = async(req,res)=>{

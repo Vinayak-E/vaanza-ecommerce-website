@@ -21,22 +21,35 @@
         <div class="content-wrapper">
             <!-- Content -->
             <div class="container-xxl flex-grow-1 container-p-y">
-              <div>
-                <h1 class="fw-bold fs-3 mb-2">Category Management</h1>
 
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                      <li class="breadcrumb"><a href="/admin/home">Home >></a></li>
-                      <li class="breadcrumb-item active" aria-current="page">Category Management</li>
-                    </ol>
-                  </nav>
+              <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb"><a href="/admin/home">Home >></a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Category Management</li>
+                </ol>
+              </nav>
+            
+              <div class="card mb-3">
+                <div class="card-widget-separator-wrapper">
+              
+                  <div class="row gy-4 gy-sm-1">
+                    <div class="col-sm-6 col-lg-12">
+                      <div class="card-body text-center">
+                        <h2 class="fw-bold mb-0">Category Management</h2>
+                      </div>
+              
+                    </div>
+                  </div>
+                </div>
               </div>
             
               <div class="card mb-4">
                 <header class="card-header">
                     <div class="row gx-3 align-items-center">
                       <div class="col-lg-4 col-md-6">
-                        <input type="text" placeholder="Search..." class="form-control" id="searchInput" />
+                        <form action="">
+                          <input type="text" placeholder="Search..." class="form-control" id="searchInput" name="search" />
+                      </form>
                       </div>
                       <div class="col-lg-8 col-md-6 d-flex justify-content-end">
                         <button type="button" class="btn btn-lg btn-primary" onclick="location.href='/admin/createCategory';">
@@ -89,7 +102,31 @@
                         <% } %>
                     </tbody>
                 </table>
+              
                 </div>
+                <ul class="pagination mt-3" id="paginationHi">
+                  <% if (totalPages > 1) { %>
+              
+                    <% if (currentPage <= 1) { %>
+                      <li class="page-item"><a class="page-link" aria-disabled="true">Previous</a></li>
+                    <% } else { %>
+                      <li class="page-item"><a class="page-link" href="?page=<%= previous %>">Previous</a></li>
+                    <% } %>
+              
+                    <% for (let j = 1; j <= totalPages; j++) { %>
+                      <li class="page-item"><a class="page-link" href="?page=<%= j %>"><%= j %></a></li>
+                    <% } %>
+              
+                    <% if (currentPage < totalPages) { %>
+                      <li class="page-item"><a class="page-link" href="?page=<%= next %>">Next</a></li>
+                    <% } else { %>
+                    <% } %>
+                  <% } else { %>
+                    <li class="page-item"><a class="page-link" aria-disabled="true">Previous</a></li>
+                    <li class="page-item"><a class="page-link" aria-disabled="true">1</a></li>
+                    <li class="page-item"><a class="page-link" aria-disabled="true">Next</a></li>
+                  <% } %>
+                </ul>
               </div>
              <!-- card end// -->
      <!-- card-body end// -->

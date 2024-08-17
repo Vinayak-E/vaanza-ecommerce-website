@@ -25,7 +25,7 @@
                                 
                     <!-- Order List Widget -->
 
-                    <div class="card mb-6">
+                    <!-- <div class="card mb-6">
                     <div class="card-widget-separator-wrapper">
                         <div class="card-body card-widget-separator">
                         <div class="row gy-4 gy-sm-1">
@@ -86,7 +86,7 @@
                         </div>
                         </div>
                     </div>
-                    </div>
+                    </div> -->
 
                     <!-- Order List Table -->
                     <div class="card">
@@ -108,7 +108,7 @@
                             <th>Order ID</th>
                             <th>date</th>
                             <th>customer</th>
-                            <!-- <th>payment</th> -->
+                            <th>Payment Status</th>
                             <!-- <th>status</th> -->
                             <th>method</th>
                             <th>actions</th>
@@ -120,8 +120,8 @@
                                 <td><%= order.orderId %></td>
                                 <td><%= new Date(order.orderDate).toLocaleDateString() %></td>
                                 <td><%= order.userId.name %></td>
-                                <!-- <td></td>
-                                <td></td> -->
+                                <!-- <td></td> -->
+                                <td> <%= order.paymentStatus  %></td>
                                 <td><%= order.paymentMethod %></td>
                                 
                                 <td>

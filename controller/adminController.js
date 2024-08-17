@@ -66,16 +66,6 @@ const verifyLogin = async (req, res) => {
    };
 
 
-   //  Load the dashboard page
-
-//    const loadDashboard = async (req, res) => {
-//     try {
-
-//         res.render('adminDashboard');
-//     } catch (error) {
-//         console.log(error.message)
-//     }
-// }
 
 // Admin Logout
 
@@ -218,7 +208,6 @@ const orderDetails = async (req, res) => {
     res.status(500).send('Server Error');
   }
 }; 
-
 const updateOrderStatus = async (req, res) => {
   try {
     const { orderId, productId, status } = req.body;
@@ -228,7 +217,6 @@ const updateOrderStatus = async (req, res) => {
       'Pending': ['Dispatched'],
       'Dispatched': ['Out For Delivery'],
       'Out For Delivery': ['Delivered'],
-      
       'Delivered': [] // No further transitions allowed
     };
 
@@ -249,7 +237,21 @@ const updateOrderStatus = async (req, res) => {
       });
     }
 
+    // Update the product status
     productItem.status = status;
+
+    // Check if all products are delivered
+    if (status === 'Delivered') {
+      const allDelivered = order.products.every(p => 
+        p._id.equals(productId) ? status === 'Delivered' : p.status === 'Delivered'
+      );
+
+      // If all products are delivered and payment method is COD, update payment status
+      if (allDelivered && order.paymentMethod === 'Cash on Delivery') {
+        order.paymentStatus = 'Paid';
+      }
+    }
+
     await order.save();
 
     res.status(200).json({ message: 'Status updated successfully' });

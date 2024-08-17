@@ -393,7 +393,7 @@
                                                     <h2 class="card-title">
                                                         <input type="radio" name="paymentMethod" id="payment-method-2" value="Razor pay">
                                                         <label for="payment-method-2" role="button" data-toggle="collapse" href="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
-                                                            Razor Pay
+                                                          Debit Card/Credit Card/UPI
                                                         </label>
                                                     </h2>
                                                 </div>
@@ -1585,7 +1585,7 @@ function placeOrder(addressId, paymentMethod, couponCodeValue, razorpayResponse 
                     },
                     modal: {
                         ondismiss: function() {
-                            updatePaymentStatus(data.orderId, 'Pending');
+                            updatePaymentStatus(data.orderId, 'Failed');
                         }
                     }
                 };
@@ -1649,8 +1649,14 @@ function updatePaymentStatus(orderId, status, razorpayResponse = null) {
                 window.location.href = `/order-summary/${orderId}`;
             } else {
                 // Payment failed or was dismissed
-                window.location.href = '/profile?tab=orders';
-
+                Swal.fire({
+                    title: 'Payment Failed',
+                    text: 'Your payment failed or was canceled. Please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'Retry'
+                }).then(() => {
+                    window.location.href = '/profile?tab=orders';
+                });
             }
         } else {
             Swal.fire({
@@ -1671,6 +1677,7 @@ function updatePaymentStatus(orderId, status, razorpayResponse = null) {
         });
     });
 }
+
   </script>
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

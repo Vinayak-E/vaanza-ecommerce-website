@@ -21,18 +21,30 @@
         <div class="content-wrapper">
             <!-- Content -->
             <div class="container-xxl flex-grow-1 container-p-y">
-              <div>
-                <h1 class="fw-bold fs-3 mb-2">User Management (<%= users.length %>)</h1>
 
-                
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                      <li class="breadcrumb"><a href="/admin/home">Admin >></a></li>
-                      <li class="breadcrumb-item active" aria-current="page">User Management</li>
-                    </ol>
-                  </nav>
-                <p class="m-0 text-muted small">Showing 1 - <%= limit %> of <%= users.length %></p>
+
+              <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb"><a href="/admin/home">Admin >></a></li>
+                  <li class="breadcrumb-item active" aria-current="page">User Management</li>
+                </ol>
+              </nav>    
+
+          <div class="card mb-3">
+            <div class="card-widget-separator-wrapper">
+
+              <div class="row gy-4 gy-sm-1">
+                <div class="col-sm-6 col-lg-12">
+                  <div class="card-body text-center">
+                    <h2 class="fw-bold mb-0">User Management</h2>
+                  </div>
+
+                </div>
               </div>
+            </div>
+          </div>
+
+
               <div class="card mb-4">
                 <header class="card-header">
                     <div class="row gx-2">
@@ -134,6 +146,7 @@
           
           <!-- jQuery -->
           <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+          
           <script>
             function fetchPage(page) {
                 window.location.href = `/admin/ums?page=${page}&limit=5`;
