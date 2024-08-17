@@ -208,6 +208,8 @@ const orderDetails = async (req, res) => {
     res.status(500).send('Server Error');
   }
 }; 
+
+
 const updateOrderStatus = async (req, res) => {
   try {
     const { orderId, productId, status } = req.body;
@@ -296,7 +298,7 @@ const handleReturnRequest = async (req, res) => {
       await originalProduct.save();
 
       // Add money back to the user's wallet
-      const productPurchasePrice = productItem.price * productItem.quantity;
+      const productPurchasePrice = productItem.couponPrice * productItem.quantity;
       const userId = order.userId;  // Extract user ID from the order
       let wallet = await Wallet.findOne({ user: userId });
 
