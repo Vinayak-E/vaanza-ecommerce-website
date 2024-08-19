@@ -92,6 +92,12 @@
                                           <input type="text" class="form-control" id="mobile" name="mobile">
                                           <div class="error-message" id="mobileError"></div>
                                         </div><!-- End .form-group -->
+                                        
+                                        <div class="form-group">
+                                            <label for="referralCode">Referral Code (Optional)</label>
+                                            <input type="text" class="form-control" id="referralCode" name="referralCode">
+                                            <!-- <div class="error-message" id="emailError"></div> -->
+                                          </div><!-- End .form-group -->
                                   
                                         <div class="form-group">
                                           <label for="password">Password *</label>
@@ -163,6 +169,7 @@
           const name = document.getElementById('name').value.trim();
           const email = document.getElementById('email').value.trim();
           const mobile = document.getElementById('mobile').value.trim();
+          const referralCode = document.getElementById('referralCode').value.trim()
           const password = document.getElementById('password').value.trim();
           const confirmPassword = document.getElementById('confirmPassword').value.trim();
   

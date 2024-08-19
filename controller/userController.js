@@ -56,18 +56,52 @@ const securePassword = async (password) => {
   }
 };
 
+const generateReferralCode = () => {
+  return crypto.randomBytes(4).toString('hex').toUpperCase();
+};
+
+
+
+
+// Function to create or update wallet
+const updateWallet = async (userId, amount) => {
+  let wallet = await Wallet.findOne({ user: userId });
+  if (!wallet) {
+    wallet = new Wallet({
+      user: userId,
+      balance: amount,
+      transactions: [{
+        amount: amount,
+        transactionId: crypto.randomBytes(8).toString('hex'),
+        productName: 'Referral Bonus',
+        type: 'credit'
+      }]
+    });
+  } else {
+    wallet.balance += amount;
+    wallet.transactions.push({
+      amount: amount,
+      transactionId: crypto.randomBytes(8).toString('hex'),
+      productName: 'Referral Bonus',
+      type: 'credit'
+    });
+  }
+  await wallet.save();
+};
 
 
 // Insert user and send OTP
 const insertUser = async (req, res) => {
   try {
-    const { name, email, mobile, password } = req.body;
+    const { name, email, mobile, password, referralCode } = req.body;
     const findUserByEmail = await User.findOne({email});
     if (findUserByEmail) {
       req.flash('exist', 'User already exists with this email');
       res.redirect('/register');
     } else {
       const securePass = await securePassword(req.body.password);
+
+      const newUserReferralCode = generateReferralCode();
     
       const user = new User({
         name,
@@ -76,11 +110,25 @@ const insertUser = async (req, res) => {
         password: securePass,
         is_admin: 0,
         is_blocked: 0,
-        verified: false
+        verified: false,
+        referralCode: newUserReferralCode,
       });
 
       await user.save();
+
+      if (referralCode) {
+        const referrer = await User.findOne({ referralCode });
+        if (referrer) {
+          // Add bonus to referrer's wallet
+          await updateWallet(referrer._id, 100);
+          
+          // Add bonus to new user's wallet
+          await updateWallet(user._id, 50);
+        }
+      }
+
       sendOTPverificationEmail(user, res);
+      
     }
   } catch (error) {
     console.log(error.message);

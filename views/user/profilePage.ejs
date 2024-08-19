@@ -191,6 +191,21 @@
     }
 }
 
+
+
+    .input-group-append .btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 14px;
+        line-height: 0.5;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    .icon-copy {
+        font-size: 12px;
+        margin-right: 5px;
+    }
+
    
 </style>
 
@@ -322,6 +337,17 @@
                                             <label>Mobile Number</label>
                                             <input type="text" id="profile-phone" name="mobile" value="<%= locals.user.mobile %>" class="form-control" readonly>
                                             <div id="mobile-error" class="error-message"></div>
+                                        </div><!-- End .col-sm-6 -->
+                                        <div class="col-sm-6">
+                                            <label>Your Referral Code</label>
+                                            <div class="input-group">
+                                                <input type="text" id="referral-code" value="<%= locals.user.referralCode %>" class="form-control" readonly>
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-link" type="button" onclick="copyReferralCode()">
+                                                        <i class="icon-copy"></i> Copy
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div><!-- End .col-sm-6 -->
                                         <div class="col-sm-6">
                                             <button type="button" id="editButton" class="btn btn-outline-primary-2" onclick="toggleEdit()">
@@ -2112,6 +2138,25 @@ function updatePaymentStatus(orderId, status, razorpayResponse = null) {
         this.textContent = 'Show Recent Transactions';
     }
 });
+
+
+function copyReferralCode() {
+    var copyText = document.getElementById("referral-code");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); // For mobile devices
+    document.execCommand("copy");
+    
+    // Change button text temporarily
+    var copyButton = document.querySelector('.input-group-append .btn');
+    var originalText = copyButton.innerHTML;
+    copyButton.innerHTML = '<i class="icon-check"></i> Copied!';
+    
+    // Revert button text after 2 seconds
+    setTimeout(function() {
+        copyButton.innerHTML = originalText;
+    }, 2000);
+}
+
 </script>
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

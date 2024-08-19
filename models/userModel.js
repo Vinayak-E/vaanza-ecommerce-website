@@ -46,21 +46,8 @@ const userSchema = mongoose.Schema({
     
     addresses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }],
 
-      wallet:{
-        type:Number,
-        default:0
-    },
-    walletHistory:[{
-        date:{
-            type:Date
-        },
-        amount:{
-            type:Number,
-        },
-        reason:{
-            type: String,
-        }
-    }]
+    referralCode: { type: String },
+   
 
 })
 
