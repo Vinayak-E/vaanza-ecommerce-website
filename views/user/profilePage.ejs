@@ -311,7 +311,7 @@
                                         <a class="nav-link" id="tab-address-link" data-toggle="tab" href="#tab-address" role="tab" aria-controls="tab-address" aria-selected="false">Address</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" href="#">Sign Out</a>
+                                        <a class="nav-link" href="/logout">Sign Out</a>
                                     </li>
                                 </ul>
                             </aside>
@@ -568,7 +568,7 @@
                                             <br>
                                             <small class="text-muted">Transaction ID: <%= transaction.transactionId %></small> 
                                             <br>
-                                            <small class="text-muted">Product Name: <%= transaction.productName %></small><br>
+                                            <small class="text-muted"><%= transaction.productName %></small><br>
                                             <small class="text-muted"><%= new Date(transaction.timestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %> at <%= new Date(transaction.timestamp).toLocaleTimeString('en-US') %></small>
                                         </span>
                                         <span class="badge <%= transaction.type === 'credit' ? 'badge-success' : 'badge-danger' %> badge-pill"><%= transaction.type %></span>

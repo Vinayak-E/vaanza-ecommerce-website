@@ -39,7 +39,7 @@ const loadDashboard = async (req, res) => {
                     orderDate: {
                         $gte: new Date(new Date().setDate(new Date().getDate() - 7))
                     },
-                    "products.status": { $in: ["Delivered"] }
+                    "products.status": { $in: ["Delivered", "Return Requested"] }
                 }
             },
             { $count: "weeklyCount" }
@@ -52,7 +52,7 @@ const loadDashboard = async (req, res) => {
                     orderDate: {
                         $gte: new Date(new Date().setMonth(new Date().getMonth() - 1))
                     },
-                    "products.status": "Delivered"
+                    "products.status": { $in: ["Delivered", "Return Requested"] }
                 }
             },
             { $count: "monthlyCount" }
@@ -65,7 +65,7 @@ const loadDashboard = async (req, res) => {
                     orderDate: {
                         $gte: new Date(new Date().setFullYear(new Date().getFullYear() - 1))
                     },
-                    "products.status": "Delivered"
+                    "products.status": { $in: ["Delivered", "Return Requested"] }
                 }
             },
             { $count: "yearlyCount" }

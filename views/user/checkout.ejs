@@ -342,14 +342,14 @@
                                                                     <%= cartItem.productId.name %>
                                                                 </a>
                                                             </td>
-                                                            <td>₹ <%= Math.round(itemTotal).toFixed(2) %></td>
+                                                            <td>₹ <%= (itemTotal).toFixed(2) %></td>
                                                         </tr>
                                                         <% subtotal += itemTotal; %>
                                                     <% }); %>
 
                                                     <tr>
                                                         <td>Discount Amount:</td>
-                                                        <td>₹ <%= Math.round(totalDiscount).toFixed(2) %></td>
+                                                        <td>₹ <%= totalDiscount %></td>
                                                     </tr>
                                                     
                                                     <tr>
@@ -365,7 +365,7 @@
                                                     <tr class="summary-total" >
                                                        
                                                         <td>Total Price:</td>
-                                                        <td  id="finalTotal">₹ <%= Math.round(totalPrice).toFixed(2) %></td>
+                                                        <td  id="finalTotal">₹ <%= (totalPrice).toFixed(2) %></td>
                                                     </tr>
                                                     
                                                 <% } else { %>
@@ -399,11 +399,11 @@
                                                 </div>
                                                 <div id="collapse-2" class="collapse" aria-labelledby="heading-2" data-parent="#accordion-payment">
                                                     <div class="card-body">
-                                                      Razor Pay
+                                                    Online Payment
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="card">
+                                            <div class="card mb-1">
                                                 <div class="card-header" id="heading-3">
                                                     <h2 class="card-title">
                                                         <input type="radio" name="paymentMethod" id="payment-method-3" value="Cash on Delivery">
@@ -415,6 +415,29 @@
                                                 <div id="collapse-3" class="collapse" aria-labelledby="heading-3" data-parent="#accordion-payment">
                                                     <div class="card-body">
                                                         A method of collecting payment that requires customers to pay for goods at the time of delivery.
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="card">
+                                                <div class="card-header" id="heading-wallet">
+                                                    <h2 class="card-title">
+                                                        <input type="radio" name="paymentMethod" id="payment-method-wallet" value="Wallet">
+                                                        <label for="payment-method-wallet" role="button" data-toggle="collapse" href="#collapse-wallet" aria-expanded="false" aria-controls="collapse-wallet">
+                                                            Wallet
+                                                        </label>
+                                                    </h2>
+                                                </div>
+                                                <div id="collapse-wallet" class="collapse" aria-labelledby="heading-wallet" data-parent="#accordion-payment">
+                                                    <div class="card-body">
+                                                        Wallet Balance: ₹<%= wallet ? wallet.balance.toFixed(2) : '0.00' %>
+                                                        <% if (wallet && wallet.balance >= totalPrice) { %>
+                                                            <p>Sufficient balance to complete this purchase.</p>
+                                                        <% } else if (wallet) { %>
+                                                            <p>Insufficient balance. You need ₹<%= (totalPrice - wallet.balance).toFixed(2) %> more.</p>
+                                                        <% } else { %>
+                                                            <p>No wallet found for this account.</p>
+                                                        <% } %>
                                                     </div>
                                                 </div>
                                             </div>

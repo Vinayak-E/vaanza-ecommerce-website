@@ -5,6 +5,7 @@ const Cart = require("../models/cartSchema");
 const Address = require("../models/addressSchema")
 const Offer = require("../models/offerModel");
 const Coupon = require("../models/couponModel");
+const Wallet = require("../models/walletModel");
 
 
 
@@ -241,6 +242,8 @@ const checkout = async (req, res) => {
       const user = await User.findOne({ _id: userId });
       const addresses = await Address.find({ user: userId });
       const coupons = await Coupon.find({ isActive:true});
+      const wallet = await Wallet.findOne({user: userId}) 
+      console.log("my wallet",wallet)
       const cart = await Cart.findOne({ userId }).populate({
           path: 'products.productId',
           populate: {
@@ -288,7 +291,7 @@ const checkout = async (req, res) => {
       const shippingCharge = subtotal > 500 ? 0: 50;
       const totalPrice = subtotal + shippingCharge;
 
-      res.render('checkout', { user, addresses, cart, totalPrice, shippingCharge,coupons, totalDiscount: totalDiscount.toFixed(2) });
+      res.render('checkout', { user, addresses, cart, totalPrice, shippingCharge,coupons, totalDiscount: totalDiscount.toFixed(2), wallet: wallet || { balance: 0 } });
   } catch (error) {
       console.error('Error fetching addresses:', error);
       res.status(500).send('An error occurred');

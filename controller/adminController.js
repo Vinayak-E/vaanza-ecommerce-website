@@ -168,7 +168,8 @@ const loadOrderlist = async (req, res) => {
       .skip((page - 1) * perPage)
       .limit(perPage)
       .populate('userId', 'name')
-      .populate('products.productId', 'name');
+      .populate('products.productId', 'name')
+      .sort({ orderDate: -1 });
 
     res.render('orderList', {
       orders,
@@ -192,6 +193,7 @@ const orderDetails = async (req, res) => {
     const order = await Order.findById(orderId)
       .populate('userId')
       .populate('products.productId')
+      
       
 
     if (!order) {

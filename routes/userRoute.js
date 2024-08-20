@@ -103,7 +103,7 @@ userRoute.get('/productView/product/:productId/variant/:variantId',productContro
 
 // ==========================================< CART HANDLING >==================================================== //
 
-userRoute.get('/cart',auth.authlogg,cartController.loadCart);
+userRoute.get('/cart',auth.authlogg,auth.userBlockCheck,cartController.loadCart);
 
 userRoute.post('/add-to-cart',cartController.addToCart)
 
@@ -116,7 +116,7 @@ userRoute.post('/remove-from-cart',auth.authlogg,cartController.removeCartItem)
 
 // ==========================================< USER PROFILE >==================================================== //
 
-userRoute.get('/profile',auth.authlogg,userController.loadProfile);
+userRoute.get('/profile',auth.authlogg,auth.userBlockCheck,userController.loadProfile);
 userRoute.post('/editProfile',userController.editProfile)
 userRoute.post('/reset-pass',userController.resetPasswithOld) 
 
@@ -131,7 +131,7 @@ userRoute.delete('/delete-address/:id',userController.removeAddress);
 
 // ==========================================< CHECKOUT >==================================================== //
 
-userRoute.get('/checkout',auth.authlogg,cartController.checkout);
+userRoute.get('/checkout',auth.authlogg,auth.userBlockCheck,cartController.checkout);
 
 userRoute.post('/place-order',auth.authlogg,orderController.placeOrder)
 userRoute.post('/update-payment-status',orderController.updatePaymentStatus);
@@ -142,7 +142,7 @@ userRoute.post('/retry-payment',orderController.retryPayment);
 userRoute.post('/cancel-order',orderController.cancelOrder)
 userRoute.post('/return-order',orderController.returnOrder)
 
-userRoute.get('/order-summary/:orderId',orderController.orderSuccess)
+userRoute.get('/order-summary/:orderId',auth.authlogg,auth.userBlockCheck,orderController.orderSuccess)
 
 userRoute.post('/applyCoupon/:couponCode',couponController.applyCoupon)
 
@@ -151,9 +151,9 @@ userRoute.post('/applyCoupon/:couponCode',couponController.applyCoupon)
 
 // ==========================================< Wishlist >==================================================== //
 
-userRoute.get('/wishlist',auth.authlogg,wishlistController.loadWishlist);
+userRoute.get('/wishlist',auth.authlogg,auth.userBlockCheck,wishlistController.loadWishlist);
 
-userRoute.post('/addToWishlist', wishlistController.addToWishlist);
+userRoute.post('/addToWishlist',auth.authlogg,auth.userBlockCheck, wishlistController.addToWishlist);
 userRoute.delete('/removeFromWishlist', wishlistController.removeFromWishlist);
 
 
