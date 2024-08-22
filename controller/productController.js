@@ -4,6 +4,7 @@ const Category = require("../models/categoriesModel");
 const Product = require("../models/productSchema");
 const Offer = require("../models/offerModel");
 const Cart =require("../models/cartSchema")
+
 const fs = require('fs'); // Import the fs module
 const sharp = require("sharp");
 
@@ -532,6 +533,20 @@ const loadShop = async (req, res) => {
     });
 
     const categories = await Category.find({ gender: gender, is_listed: true });
+    let cartCount = 0;
+    let user = null;
+
+    if (req.session.user) {
+      user = req.session.user;
+
+      // Fetch the cart for the logged-in user
+      const cart = await Cart.findOne({ userId: user._id });
+
+      if (cart && cart.products) {
+        // Calculate the total count of items in the cart
+        cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+      }
+    }
 
     res.render('shop', {
       products: productsWithEffectivePrice,
@@ -542,7 +557,8 @@ const loadShop = async (req, res) => {
       selectedCategories,
       currentPage,
       totalPages,
-      gender
+      gender,
+      cartCount
     });
 
   } catch (err) {

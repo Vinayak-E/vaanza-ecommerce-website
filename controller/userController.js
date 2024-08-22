@@ -2,6 +2,9 @@ const User = require("../models/userModel");
 const Address = require("../models/addressSchema")
 const Order = require("../models/orderModel");
 const Wallet = require("../models/walletModel");
+const Product = require("../models/productSchema");
+const Offer = require("../models/offerModel");
+const Cart =require("../models/cartSchema")
 const userOtpVerification = require('../models/userOTPverification')
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
@@ -9,16 +12,81 @@ const Token = require('../models/tokenModel');
 const crypto = require("crypto");
 const pdf = require('html-pdf');
 
+
+
+
+
+
+
+
+
+
+const getBestOffer = (product, offers) => {
+  if (!offers || offers.length === 0) {
+    return null;
+  }
+
+  const relevantOffers = offers.filter(offer => 
+    (offer.type === 'category' && offer.category.some(c => c.category.toString() === product.category._id.toString())) ||
+    (offer.type === 'product' && offer.products.some(p => p.productId.toString() === product._id.toString())) 
+  );
+
+  const activeOffers = relevantOffers.filter(offer => offer.status);
+
+  const bestOffer = activeOffers.reduce((maxOffer, offer) => offer.discount > maxOffer.discount ? offer : maxOffer, { discount: 0 });
+
+  return bestOffer.discount > 0 ? bestOffer : null;
+};
+
 // Load home page
 const loadHome = async (req, res) => {
   try {
-    if(req.session.user){
-      const user =req.session.user
-     res.render("home",{user})
-    }else{
-      res.render("home");
+    let cartCount = 0;
+    let user = null;
+
+    if (req.session.user) {
+      user = req.session.user;
+
+      // Fetch the cart for the logged-in user
+      const cart = await Cart.findOne({ userId: user._id });
+
+      if (cart && cart.products) {
+        // Calculate the total count of items in the cart
+        cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+      }
     }
-   
+
+    // Fetch the regular products
+    const products = await Product.find({ is_Listed: true })
+      .populate('category')
+      .populate('offers')
+      .exec();
+
+    // Fetch the new arrival products (added within the last 7 days)
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const newArrivalProducts = await Product.find({
+      is_Listed: true,
+      date: { $gte: oneWeekAgo }
+    })
+    .populate('category')
+    .populate('offers')
+    .exec();
+
+    const offers = await Offer.find({ status: true });
+
+    // Add the best offer to each product
+    const productsWithBestOffer = products.map(product => {
+      const bestOffer = getBestOffer(product, offers);
+      return { ...product.toObject(), bestOffer, isNew: product.createdAt >= oneWeekAgo };
+    });
+
+    const newArrivalProductsWithBestOffer = newArrivalProducts.map(product => {
+      const bestOffer = getBestOffer(product, offers);
+      return { ...product.toObject(), bestOffer, isNew: true };
+    });
+
+    // Render the home page with user, cartCount, and products data
+    res.render("home", { user, cartCount, products: productsWithBestOffer, newArrivalProducts: newArrivalProductsWithBestOffer });
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");
@@ -688,6 +756,32 @@ const downloadInvoice = async (req, res) => {
   }
 };
 
+
+const loadAbout = async(req,res)=>{
+  try{
+
+    let cartCount = 0;
+    let user = null;
+
+    if (req.session.user) {
+      user = req.session.user;
+
+      // Fetch the cart for the logged-in user
+      const cart = await Cart.findOne({ userId: user._id });
+
+      if (cart && cart.products) {
+        // Calculate the total count of items in the cart
+        cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+      }
+    }
+
+    res.render("about",{cartCount})
+  }catch (err) {
+    console.error('Error fetching order details:', err);
+    res.status(500).send('Internal server error');
+}
+}
+
 module.exports = {
   
   loadRegister,
@@ -709,7 +803,8 @@ module.exports = {
   addAddress,
   editAddress,
   removeAddress,
-  downloadInvoice
+  downloadInvoice,
+  loadAbout
   
   
 

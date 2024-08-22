@@ -157,7 +157,7 @@ const placeOrder = async (req, res) => {
                 wallet.balance -= totalAmount;
                 wallet.transactions.push({
                     amount: totalAmount,
-                    transactionId: orderId, // Assuming orderId is already generated
+                    transactionId: orderId, 
                     productName: "Order Payment",
                     type: 'debit'
                 });

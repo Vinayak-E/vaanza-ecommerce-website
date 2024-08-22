@@ -36,12 +36,16 @@ const loadCart = async (req, res) => {
     }
 
     const userId = req.session.user._id;
-    const cart = await Cart.findOne({ userId }).populate({
+    let cart = await Cart.findOne({ userId }).populate({
       path: "products.productId",
       populate: { path: "variants" }
     });
 
-
+    if (!cart) {
+     
+      cart = new Cart({ userId, products: [] });
+      await cart.save();
+    }
     const allOffers = await Offer.find({ status: true });
 
     // Calculate best offer for each product

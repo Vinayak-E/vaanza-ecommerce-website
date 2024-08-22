@@ -157,4 +157,8 @@ userRoute.post('/addToWishlist',auth.authlogg,auth.userBlockCheck, wishlistContr
 userRoute.delete('/removeFromWishlist', wishlistController.removeFromWishlist);
 
 
+
+
+userRoute.get('/about',userController.loadAbout);
+
 module.exports = userRoute;

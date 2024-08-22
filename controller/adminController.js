@@ -627,7 +627,7 @@ const generateExcel = async (reportData) => {
 
 const downloadSalesReport = async (req, res) => {
   const { format, reportType, startDate, endDate } = req.query;
-  console.log("query", req.query)
+
 
   const reportData = await generateReportData(reportType, startDate, endDate);
 

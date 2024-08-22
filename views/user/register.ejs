@@ -177,10 +177,12 @@
   
           // Username validation (e.g., at least 3 characters)
           if (name.length < 3) {
-              document.getElementById('nameError').innerText = 'Username must be at least 3 characters long.';
-              isValid = false;
-          }
-  
+            document.getElementById('nameError').innerText = 'Username must be at least 3 characters long.';
+            isValid = false;
+            } else if (!/^[a-zA-Z0-9]+$/.test(name)) {
+            document.getElementById('nameError').innerText = 'Username can only contain letters and numbers.';
+            isValid = false;
+            }
           // Email validation (basic validation for format)
           const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
           if (!emailPattern.test(email)) {

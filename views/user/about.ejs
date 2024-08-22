@@ -1,0 +1,418 @@
+<%- include('../layout/header.ejs') -%>
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <header class="header">
+        
+
+            <div class="header-middle sticky-header">
+                <div class="container">
+                    <div class="header-left">
+                        <button class="mobile-menu-toggler">
+                            <span class="sr-only">Toggle mobile menu</span>
+                            <i class="icon-bars" style="color: black;"></i>
+                        </button>
+                        <a href="/" class="logo">
+                            <img src="assets/images/logo.png" alt="Molla Logo" width="105" height="25">
+                        </a>
+
+                        <nav class="main-nav">
+                            <ul class="menu sf-arrows">
+                                <li class="megamenu-container active">
+                                    <a href="/about" >ABOUT</a>
+                                </li>
+                                <li>
+                                    <a href="/shop/gender/Men" class="">MEN</a>
+                                </li>
+                                <li>
+                                    <a href="/shop/gender/Women" class="">WOMEN</a>
+                                </li>
+                                <li>
+                                    <a href="/contact">CONTACT</a>
+                                </li>
+                            </ul><!-- End .menu -->
+                        </nav><!-- End .main-nav -->
+                    </div><!-- End .header-left -->
+
+                    <div class="header-right">
+                      
+                       
+                        <div class="dropdown cart-dropdown">
+                            <a href="/cart" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" >
+                                <i class="icon-shopping-cart"></i>
+                                <span class="cart-count"><%= cartCount %></span>
+                            </a>
+                            <a href="/wishlist" class="wishlist-link">
+                                <i class="icon-heart-o"></i>
+                            </a>
+                        </div><!-- End .cart-dropdown -->
+                    </div><!-- End .header-right -->
+                </div><!-- End .container -->
+            </div><!-- End .header-middle -->
+        </header><!-- End .header -->
+
+        <main class="main">
+            <nav aria-label="breadcrumb" class="breadcrumb-nav border-0 mb-0">
+                <div class="container">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">About us</li>
+                    </ol>
+                </div><!-- End .container -->
+            </nav><!-- End .breadcrumb-nav -->
+            <div class="container">
+	        	<div class="page-header page-header-big text-center" style="background-image: url('assets/images/about-header-bg.jpg')">
+        			<h1 class="page-title text-white">About us<span class="text-white">Who we are</span></h1>
+	        	</div><!-- End .page-header -->
+            </div><!-- End .container -->
+
+            <div class="page-content pb-0">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-6 mb-3 mb-lg-0">
+                            <h2 class="title">Our Vision</h2><!-- End .title -->
+                            <p>To be the premier online destination for stylish, sustainable, and affordable clothing, empowering individuals to express their unique personalities through fashion.</p>
+                        </div><!-- End .col-lg-6 -->
+                        
+                        <div class="col-lg-6">
+                            <h2 class="title">Our Mission</h2><!-- End .title -->
+                            <p>To provide a curated selection of stylish and sustainable clothing that empowers individuals to express their unique personalities, while making a positive impact on the environment and community. </p>
+                        </div><!-- End .col-lg-6 -->
+                    </div><!-- End .row -->
+
+                    <div class="mb-5"></div><!-- End .mb-4 -->
+                </div><!-- End .container -->
+
+                <div class="bg-light-2 pt-6 pb-5 mb-6 mb-lg-8">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-5 mb-3 mb-lg-0">
+                                <h2 class="title">Who We Are</h2><!-- End .title -->
+                                <p class="lead text-primary mb-3">We believe in fashion that feels good, both on your body and on the planet. <br>Our online store offers a carefully curated selection of sustainable and stylish clothing, designed to empower individuals to express their unique personalities.</p><!-- End .lead text-primary -->
+                                <p class="mb-2">Inspired by a love for fashion and a desire to make a positive impact on the planet, VAANZA was founded with the mission of providing stylish and sustainable clothing options.
+
+                                </p>
+                            </div><!-- End .col-lg-5 -->
+
+                            <div class="col-lg-6 offset-lg-1">
+                                <div class="about-images">
+                                    <img src="assets/images/about/img-1.jpg" alt="" class="about-img-front">
+                                    <img src="assets/images/about/img-2.jpg" alt="" class="about-img-back">
+                                </div><!-- End .about-images -->
+                            </div><!-- End .col-lg-6 -->
+                        </div><!-- End .row -->
+                    </div><!-- End .container -->
+                </div><!-- End .bg-light-2 pt-6 pb-6 -->
+
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-5">
+                            <div class="brands-text">
+                                <h2 class="title">The world's premium design brands in one destination.</h2><!-- End .title -->
+                            </div><!-- End .brands-text -->
+                        </div><!-- End .col-lg-5 -->
+                        <div class="col-lg-7">
+                            <div class="brands-display">
+                                <div class="row justify-content-center">
+                                    <div class="col-6 col-sm-4">
+                                        <a href="#" class="brand">
+                                            <img src="assets/images/brands/1.png" alt="Brand Name">
+                                        </a>
+                                    </div><!-- End .col-sm-4 -->
+
+                                    <div class="col-6 col-sm-4">
+                                        <a href="#" class="brand">
+                                            <img src="assets/images/brands/2.png" alt="Brand Name">
+                                        </a>
+                                    </div><!-- End .col-sm-4 -->
+
+                                    <div class="col-6 col-sm-4">
+                                        <a href="#" class="brand">
+                                            <img src="assets/images/brands/3.png" alt="Brand Name">
+                                        </a>
+                                    </div><!-- End .col-sm-4 -->
+
+                                    <div class="col-6 col-sm-4">
+                                        <a href="#" class="brand">
+                                            <img src="assets/images/brands/4.png" alt="Brand Name">
+                                        </a>
+                                    </div><!-- End .col-sm-4 -->
+
+                                    <div class="col-6 col-sm-4">
+                                        <a href="#" class="brand">
+                                            <img src="assets/images/brands/5.png" alt="Brand Name">
+                                        </a>
+                                    </div><!-- End .col-sm-4 -->
+
+                                    <div class="col-6 col-sm-4">
+                                        <a href="#" class="brand">
+                                            <img src="assets/images/brands/6.png" alt="Brand Name">
+                                        </a>
+                                    </div><!-- End .col-sm-4 -->
+
+                                    <div class="col-6 col-sm-4">
+                                        <a href="#" class="brand">
+                                            <img src="assets/images/brands/7.png" alt="Brand Name">
+                                        </a>
+                                    </div><!-- End .col-sm-4 -->
+
+                                    <div class="col-6 col-sm-4">
+                                        <a href="#" class="brand">
+                                            <img src="assets/images/brands/8.png" alt="Brand Name">
+                                        </a>
+                                    </div><!-- End .col-sm-4 -->
+
+                                    <div class="col-6 col-sm-4">
+                                        <a href="#" class="brand">
+                                            <img src="assets/images/brands/9.png" alt="Brand Name">
+                                        </a>
+                                    </div><!-- End .col-sm-4 -->
+                                </div><!-- End .row -->
+                            </div><!-- End .brands-display -->
+                        </div><!-- End .col-lg-7 -->
+                    </div><!-- End .row -->
+
+                    <hr class="mt-4 mb-6">
+
+                    <h2 class="title text-center mb-4">Meet Our Team</h2><!-- End .title text-center mb-2 -->
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="member member-anim text-center">
+                                <figure class="member-media">
+                                    <img src="assets/images/team/member-1.jpg" alt="member photo">
+
+                                    <figcaption class="member-overlay">
+                                        <div class="member-overlay-content">
+                                            <h3 class="member-title">Samanta Grey<span>Founder & CEO</span></h3><!-- End .member-title -->
+                                            <div class="social-icons social-icons-simple">
+                                                <a href="#" class="social-icon" title="Facebook" target="_blank"><i class="icon-facebook-f"></i></a>
+                                                <a href="#" class="social-icon" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>
+                                                <a href="#" class="social-icon" title="Instagram" target="_blank"><i class="icon-instagram"></i></a>
+                                            </div><!-- End .soial-icons -->
+                                        </div><!-- End .member-overlay-content -->
+                                    </figcaption><!-- End .member-overlay -->
+                                </figure><!-- End .member-media -->
+                                <div class="member-content">
+                                    <h3 class="member-title">Samanta Grey<span>Founder & CEO</span></h3><!-- End .member-title -->
+                                </div><!-- End .member-content -->
+                            </div><!-- End .member -->
+                        </div><!-- End .col-md-4 -->
+
+                        <div class="col-md-4">
+                            <div class="member member-anim text-center">
+                                <figure class="member-media">
+                                    <img src="assets/images/team/member-2.jpg" alt="member photo">
+
+                                    <figcaption class="member-overlay">
+                                        <div class="member-overlay-content">
+                                            <h3 class="member-title">Bruce Sutton<span>Sales & Marketing Manager</span></h3><!-- End .member-title -->  
+                                            <div class="social-icons social-icons-simple">
+                                                <a href="#" class="social-icon" title="Facebook" target="_blank"><i class="icon-facebook-f"></i></a>
+                                                <a href="#" class="social-icon" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>
+                                                <a href="#" class="social-icon" title="Instagram" target="_blank"><i class="icon-instagram"></i></a>
+                                            </div><!-- End .soial-icons -->
+                                        </div><!-- End .member-overlay-content -->
+                                    </figcaption><!-- End .member-overlay -->
+                                </figure><!-- End .member-media -->
+                                <div class="member-content">
+                                    <h3 class="member-title">Bruce Sutton<span>Sales & Marketing Manager</span></h3><!-- End .member-title -->
+                                </div><!-- End .member-content -->
+                            </div><!-- End .member -->
+                        </div><!-- End .col-md-4 -->
+
+                        <div class="col-md-4">
+                            <div class="member member-anim text-center">
+                                <figure class="member-media">
+                                    <img src="assets/images/team/member-3.jpg" alt="member photo">
+
+                                    <figcaption class="member-overlay">
+                                        <div class="member-overlay-content">
+                                            <h3 class="member-title">Janet Joy<span>Product Manager</span></h3><!-- End .member-title -->
+                                            <div class="social-icons social-icons-simple">
+                                                <a href="#" class="social-icon" title="Facebook" target="_blank"><i class="icon-facebook-f"></i></a>
+                                                <a href="#" class="social-icon" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>
+                                                <a href="#" class="social-icon" title="Instagram" target="_blank"><i class="icon-instagram"></i></a>
+                                            </div><!-- End .soial-icons -->
+                                        </div><!-- End .member-overlay-content -->
+                                    </figcaption><!-- End .member-overlay -->
+                                </figure><!-- End .member-media -->
+                                <div class="member-content">
+                                    <h3 class="member-title">Janet Joy<span>Product Manager</span></h3><!-- End .member-title -->
+                                </div><!-- End .member-content -->
+                            </div><!-- End .member -->
+                        </div><!-- End .col-md-4 -->
+                    </div><!-- End .row -->
+                </div><!-- End .container -->
+
+                <div class="mb-2"></div><!-- End .mb-2 -->
+
+                <div class="about-testimonials bg-light-2 pt-6 pb-6">
+                    <div class="container">
+                        <h2 class="title text-center mb-3">What Customer Say About Us</h2><!-- End .title text-center -->
+
+                        <div class="owl-carousel owl-simple owl-testimonials-photo" data-toggle="owl" 
+                            data-owl-options='{
+                                "nav": false, 
+                                "dots": true,
+                                "margin": 20,
+                                "loop": false,
+                                "responsive": {
+                                    "1200": {
+                                        "nav": true
+                                    }
+                                }
+                            }'>
+                            <blockquote class="testimonial text-center">
+                                <img src="assets/images/testimonials/user-1.jpg" alt="user">
+                                <p>“I love shopping at VAANZA! Their clothes are not only stylish but also sustainably made. I feel good about supporting a company that cares about the environment.”</p>
+                                <cite>
+                                    Jenson Gregory
+                                    <span>Customer</span>
+                                </cite>
+                            </blockquote><!-- End .testimonial -->
+
+                            <blockquote class="testimonial text-center">
+                                <img src="assets/images/testimonials/user-2.jpg" alt="user">
+                                <p>“The quality of the materials used in VAANZA’s clothing is amazing. My pieces have held up beautifully after multiple washes. I highly recommend this brand to anyone looking for durable and stylish fashion.”
+
+                                </p>
+
+                                <cite>
+                                    Victoria Ventura
+                                    <span>Customer</span>
+                                </cite>
+                            </blockquote><!-- End .testimonial -->
+                        </div><!-- End .testimonials-slider owl-carousel -->
+                    </div><!-- End .container -->
+                </div><!-- End .bg-light-2 pt-5 pb-6 -->
+            </div><!-- End .page-content -->
+        </main><!-- End .main -->
+
+        <footer class="footer">
+            <div class="footer-middle">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="widget widget-about">
+                                <h4 class="widget-title">about VAANZA</h4><!-- End .widget-title -->
+                                <p>Discover your unique style at VAANZA. We're more than just a clothing store; we're a community of fashion enthusiasts who believe that every outfit tells a story. Our curated collection features the latest trends and sustainable options to help you express yourself confidently. </p>
+
+                                <div class="social-icons">
+                                    <a href="#" class="social-icon" title="Facebook" target="_blank"><i class="icon-facebook-f"></i></a>
+                                    <a href="#" class="social-icon" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>
+                                    <a href="#" class="social-icon" title="Instagram" target="_blank"><i class="icon-instagram"></i></a>
+                                    <a href="#" class="social-icon" title="Youtube" target="_blank"><i class="icon-youtube"></i></a>
+                                </div><!-- End .soial-icons -->
+                            </div><!-- End .widget about-widget -->
+                        </div><!-- End .col-sm-6 col-lg-3 -->
+
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="widget">
+                                <h4 class="widget-title">Useful Links</h4><!-- End .widget-title -->
+
+                                <ul class="widget-list">
+                                    <li><a href="about.html">About VAANZA</a></li>
+                                    <li><a href="#">How to shop on VAANZA</a></li>
+                                    <li><a href="#">FAQ</a></li>
+                                    <li><a href="contact.html">Contact us</a></li>
+                                    <li><a href="/login">Log in</a></li>
+                                </ul><!-- End .widget-list -->
+                            </div><!-- End .widget -->
+                        </div><!-- End .col-sm-6 col-lg-3 -->
+
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="widget">
+                                <h4 class="widget-title">Customer Service</h4><!-- End .widget-title -->
+
+                                <ul class="widget-list">
+                                    <li><a href="#">Payment Methods</a></li>
+                                    <li><a href="#">Money-back guarantee!</a></li>
+                                    <li><a href="#">Returns</a></li>
+                                    <li><a href="#">Shipping</a></li>
+                                    <li><a href="#">Terms and conditions</a></li>
+                                    <li><a href="#">Privacy Policy</a></li>
+                                </ul><!-- End .widget-list -->
+                            </div><!-- End .widget -->
+                        </div><!-- End .col-sm-6 col-lg-3 -->
+
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="widget">
+                                <h4 class="widget-title">My Account</h4><!-- End .widget-title -->
+
+                                <ul class="widget-list">
+                                    <li><a href="/login">Sign In</a></li>
+                                    <li><a href="/login">View Cart</a></li>
+                                    <li><a href="#">My Wishlist</a></li>
+                                    <li><a href="#">Track My Order</a></li>
+                                    <li><a href="#">Help</a></li>
+                                </ul><!-- End .widget-list -->
+                            </div><!-- End .widget -->
+                        </div><!-- End .col-sm-6 col-lg-3 -->
+                    </div><!-- End .row -->
+                </div><!-- End .container -->
+            </div><!-- End .footer-middle -->
+
+            <div class="footer-bottom">
+                <div class="container">
+                    <figure class="footer-payments">
+                        <img src="/assets/images/payments.png" alt="Payment methods" width="272" height="20">
+                    </figure><!-- End .footer-payments -->
+                    <!-- <img src="/assets/images/demos/demo-6/logo-footer.png" alt="VAANZA Logo" width="82" height="25"> -->
+                    <p class="footer-copyright">Copyright © 2024 VAANZA Store. All Rights Reserved.</p><!-- End .footer-copyright -->
+                </div><!-- End .container -->
+            </div><!-- End .footer-bottom -->
+        </footer><!-- End .footer -->
+    </div><!-- End .page-wrapper -->
+    <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu-overlay"></div><!-- End .mobil-menu-overlay -->
+
+    <div class="mobile-menu-container">
+        <div class="mobile-menu-wrapper">
+            <span class="mobile-menu-close"><i class="icon-close"></i></span>
+
+            
+            <nav class="mobile-nav">
+                <ul class="mobile-menu">
+                    <li class="active">
+                        <a href="/">Home</a>
+                    </li>
+                    <li>
+                        <a href="/shop/gender/Men">MEN</a>
+                    </li>
+                    <li>
+                        <a href="/shop/gender/Women" class="sf-with-ul">Women</a>
+                    </li>
+                    <li>
+                        <a href="/wishlist">WISHLIST</a>
+                    
+                    </li>
+                    <li>
+                        <a href="/about">ABOUT</a>
+                    
+                    </li>
+                    <li>
+                        <a href="/contact">CONTACT</a>
+                    </li>
+                 
+                </ul>
+            </nav><!-- End .mobile-nav -->
+
+            <div class="social-icons">
+                <a href="#" class="social-icon" target="_blank" title="Facebook"><i class="icon-facebook-f"></i></a>
+                <a href="#" class="social-icon" target="_blank" title="Twitter"><i class="icon-twitter"></i></a>
+                <a href="#" class="social-icon" target="_blank" title="Instagram"><i class="icon-instagram"></i></a>
+                <a href="#" class="social-icon" target="_blank" title="Youtube"><i class="icon-youtube"></i></a>
+            </div><!-- End .social-icons -->
+        </div><!-- End .mobile-menu-wrapper -->
+    </div><!-- End .mobile-menu-container -->
+
+
+</body>
+
+
+
+<%- include('../layout/footer.ejs') -%>
