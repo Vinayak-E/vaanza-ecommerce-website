@@ -26,8 +26,10 @@ const loadWishlist = async (req, res) => {
             });
             await wishlist.save();
         }
-
+         let cartCount = 0;
+   
         const cart = await Cart.findOne({ userId: userId }).populate('products.productId');
+        cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
         let subtotal = 0;
 
         if (cart) {
@@ -72,7 +74,8 @@ const loadWishlist = async (req, res) => {
             userId,
             cart,
             subtotal,
-            products: filteredProducts
+            products: filteredProducts,
+            cartCount
         });
 
     } catch (err) {

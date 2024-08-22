@@ -263,6 +263,7 @@ const checkout = async (req, res) => {
       // Calculate total price and shipping charge
       let subtotal = 0;
       let totalDiscount = 0;
+      let  cartCount =0;
 
       for (let cartItem of cart.products) {
           const product = cartItem.productId;
@@ -295,7 +296,9 @@ const checkout = async (req, res) => {
       const shippingCharge = subtotal > 500 ? 0: 50;
       const totalPrice = subtotal + shippingCharge;
 
-      res.render('checkout', { user, addresses, cart, totalPrice, shippingCharge,coupons, totalDiscount: totalDiscount.toFixed(2), wallet: wallet || { balance: 0 } });
+      cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+
+      res.render('checkout', { user, addresses, cart, cartCount, totalPrice, shippingCharge,coupons, totalDiscount: totalDiscount.toFixed(2), wallet: wallet || { balance: 0 } });
   } catch (error) {
       console.error('Error fetching addresses:', error);
       res.status(500).send('An error occurred');
