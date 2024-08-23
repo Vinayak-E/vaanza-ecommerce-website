@@ -160,5 +160,6 @@ userRoute.delete('/removeFromWishlist', wishlistController.removeFromWishlist);
 
 
 userRoute.get('/about',userController.loadAbout);
+userRoute.get('/contact',userController.loadContact);
 
 module.exports = userRoute;

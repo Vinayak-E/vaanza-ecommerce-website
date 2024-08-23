@@ -782,6 +782,31 @@ const loadAbout = async(req,res)=>{
 }
 }
 
+const loadContact = async(req,res)=>{
+  try{
+
+    let cartCount = 0;
+    let user = null;
+
+    if (req.session.user) {
+      user = req.session.user;
+
+      // Fetch the cart for the logged-in user
+      const cart = await Cart.findOne({ userId: user._id });
+
+      if (cart && cart.products) {
+        // Calculate the total count of items in the cart
+        cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+      }
+    }
+
+    res.render("contact",{cartCount})
+  }catch (err) {
+    console.error('Error fetching order details:', err);
+    res.status(500).send('Internal server error');
+}
+}
+
 module.exports = {
   
   loadRegister,
@@ -804,7 +829,9 @@ module.exports = {
   editAddress,
   removeAddress,
   downloadInvoice,
-  loadAbout
+  loadAbout,
+ loadContact 
+
   
   
 

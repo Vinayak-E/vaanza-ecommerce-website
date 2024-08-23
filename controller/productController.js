@@ -607,11 +607,37 @@ const productView = async (req, res) => {
       console.log(`Category not found for product ${productId}`);
     } 
 
+
+       // Fetch similar products
+       const similarProducts = await Product.find({
+        category: category._id,
+        _id: { $ne: productId } // Exclude the current product
+      })
+      .limit(4) // Limit to 4 similar products
+      .populate("variants");
+  
+    let cartCount = 0;
+    let user = null;
+
+    if (req.session.user) {
+      user = req.session.user;
+
+      // Fetch the cart for the logged-in user
+      const cart = await Cart.findOne({ userId: user._id });
+
+      if (cart && cart.products) {
+        // Calculate the total count of items in the cart
+        cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+      }
+    }
+
     // Render product details view with product and categories data
     res.render("productDetails", {
       product,
       variant,
-      category
+      category,
+      cartCount,
+      similarProducts 
     });
   } catch (err) {
     console.error(err.message);
