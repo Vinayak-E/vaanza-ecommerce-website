@@ -421,7 +421,7 @@ const sendResetPass = async (email, res) => {
           }
       });
 
-      const resetpage = `http://localhost:3000/resetPassword/${user._id}/${token.token}`;
+      const resetpage = `http://vaanza.shop:3000/resetPassword/${user._id}/${token.token}`;
 
       const mailOptions = {
           from: process.env.email_admin,
