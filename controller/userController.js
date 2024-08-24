@@ -704,33 +704,29 @@ const editAddress = async (req, res) => {
 
 
 
-
 const downloadInvoice = async (req, res) => {
   try {
       const user = req.session.user;
       const { orderId } = req.body;
-      
-      console.log("helloooo",req.body)
-      const order = await Order.findOne({orderId}).populate('products.productId');
-      console.log("order found",order)
-     
+      const order = await Order.findOne({ orderId }).populate('products.productId');
+
+      if (!order) {
+          return res.status(404).send('Order not found');
+      }
+
       const products = order.products.filter(item =>
           ['Delivered', 'Return Requested', 'Returned'].includes(item.status)
       );
- console.log("products found",products)
+
       let discount = 0;
-
       const subtotal = order.products.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
       const shipping = subtotal < 500 ? 50 : 0;
-      const totalAmount = order.totalAmount;
-      if (!isNaN(order.coupon)) {
-          const couponDiscount = subtotal * order.coupon.discount / 100;
-          discount = couponDiscount <= order.coupon.maxAmount ? couponDiscount: order.coupon.maxAmount;
+      if (order.coupon) {
+          const couponDiscount = (subtotal * order.coupon.discount) / 100;
+          discount = couponDiscount <= order.coupon.maxAmount ? couponDiscount : order.coupon.maxAmount;
       }
+      const totalAmount = subtotal + shipping - discount;
 
-      console.log('order.coupon: ', isNaN(order.coupon));
-      
       const summary = {
           subtotal: subtotal,
           shipping: shipping,
@@ -738,15 +734,9 @@ const downloadInvoice = async (req, res) => {
           discount: discount
       };
 
-      console.log('summary: ', summary);
-      
+      const paymentMethod = order.paymentMethod;
 
-      if (!order) {
-          return res.status(404).send('Order not found');
-      }
-      
-      const paymentMethod = order.paymentMethod
-      res.render('invoice',{ user, order, paymentMethod, products, summary }, (err, html) => {
+      res.render('invoice', { user, order, paymentMethod, products, summary }, (err, html) => {
           if (err) {
               console.error('Error rendering invoice template:', err);
               return res.status(500).send('Error generating invoice');
@@ -764,11 +754,10 @@ const downloadInvoice = async (req, res) => {
           });
       });
   } catch (err) {
-      console.error('Error fetching order details:', err);
+      console.error('Error fetching order details or generating invoice:', err);
       res.status(500).send('Internal server error');
   }
 };
-
 
 const loadAbout = async(req,res)=>{
   try{
