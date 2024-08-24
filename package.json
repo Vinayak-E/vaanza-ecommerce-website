@@ -26,6 +26,7 @@
     "passport": "^0.7.0",
     "passport-google-oauth2": "^0.2.0",
     "pdfkit": "^0.15.0",
+    "puppeteer": "^23.1.1",
     "razorpay": "^2.9.4",
     "sharp": "^0.33.4",
     "sweetalert2": "^11.12.1",

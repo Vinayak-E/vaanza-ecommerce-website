@@ -11,6 +11,10 @@ const nodemailer = require('nodemailer');
 const Token = require('../models/tokenModel');
 const crypto = require("crypto");
 const pdf = require('html-pdf');
+const PDFDocument = require('pdfkit');
+const path = require('path');
+const fs = require('fs');
+
 
 
 
@@ -705,70 +709,141 @@ const editAddress = async (req, res) => {
 
 
 
+
+
+
+
 const downloadInvoice = async (req, res) => {
   try {
-      const user = req.session.user;
-      const { orderId } = req.body;
-      
-      const order = await Order.findOne({orderId}).populate('products.productId');
+    const user = req.session.user;
+    const { orderId } = req.body;
+    const order = await Order.findOne({ orderId }).populate('products.productId');
 
-     
-      const products = order.products.filter(item =>
-          ['Delivered', 'Return Requested', 'Returned'].includes(item.status)
-      );
+    if (!order) {
+      return res.status(404).send('Order not found');
+    }
 
-      let discount = 0;
+    const products = order.products.filter(item =>
+      ['Delivered', 'Return Requested', 'Returned'].includes(item.status)
+    );
 
-      const subtotal = order.products.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const subtotal = order.products.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const shipping = subtotal < 500 ? 50 : 0;
 
-      const shipping = subtotal < 500 ? 50 : 0;
-      const totalAmount = order.totalAmount;
-      if (!isNaN(order.coupon)) {
-          const couponDiscount = subtotal * order.coupon.discount / 100;
-          discount = couponDiscount <= order.coupon.maxAmount ? couponDiscount: order.coupon.maxAmount;
-      }
+    // Initialize discount to 0 to avoid undefined
+    let discount = 0;
 
+    // Check if order has a coupon and calculate the discount
+    if (order.coupon && order.coupon.discount) {
+      const couponDiscount = (subtotal * order.coupon.discount) / 100;
+      discount = couponDiscount <= order.coupon.maxAmount ? couponDiscount : order.coupon.maxAmount;
+    }
 
-      
-      const summary = {
-          subtotal: subtotal,
-          shipping: shipping,
-          totalAmount: totalAmount,
-          discount: discount
-      };
+    const totalAmount = (subtotal + shipping - discount).toFixed(2);
 
-      console.log('summary: ', summary);
-      
+    const summary = {
+      subtotal: subtotal,
+      shipping: shipping,
+      totalAmount: parseFloat(totalAmount),
+      discount: discount
+    };
 
-      if (!order) {
-          return res.status(404).send('Order not found');
-      }
-      
-      const paymentMethod = order.paymentMethod
-      res.render('invoice',{ user, order, paymentMethod, products, summary }, (err, html) => {
-          if (err) {
-              console.error('Error rendering invoice template:', err);
-              return res.status(500).send('Error generating invoice');
-          }
+    const paymentMethod = order.paymentMethod;
 
-          pdf.create(html, {
-            phantomPath: '/usr/bin/phantomjs' 
-          }).toBuffer((err, buffer) => {
-              if (err) {
-                  console.error('Error generating PDF:', err);
-                  return res.status(500).send('Error generating PDF');
-              }
+    // Create a new PDF document
+    const doc = new PDFDocument({
+      size: 'A4',
+      margin: 40
+    });
 
-              res.setHeader('Content-Disposition', 'attachment; filename=invoice.pdf');
-              res.setHeader('Content-Type', 'application/pdf');
-              res.send(buffer);
-          });
-      });
+    // Set response headers
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=invoice-${orderId}.pdf`);
+
+    // Pipe the PDF document to the response
+    doc.pipe(res);
+
+    // Add logo
+    const logoPath = path.join(__dirname, '../public/assets/images/logo.png');
+    doc.image(logoPath, 50, 45, { width: 60 });
+
+    // Add invoice title
+    doc.fontSize(20).text('INVOICE', 50, 50, { align: 'center' });
+
+    // Add horizontal line
+    doc.moveTo(50, 90).lineTo(550, 90).stroke();
+
+    // Add company details
+    doc.fontSize(10).text('VAANZA', 200, 50, { align: 'right' });
+    doc.text('123 Main Street', 200, 65, { align: 'right' });
+    doc.text('Manjeri, Kerala 676762', 200, 80, { align: 'right' });
+
+    // Add invoice details
+    doc.fontSize(10).text(`Invoice Number: ${orderId}`, 50, 120);
+    doc.text(`Invoice Date: ${new Date().toLocaleDateString()}`, 50, 135);
+
+    // Add payment method below the invoice date
+    doc.text(`Payment Method: ${paymentMethod}`, 50, 150);
+
+    // Add customer details to the right side
+    doc.fontSize(10).text('Bill To:', 400, 120);
+    doc.text(order.address.name, 400, 135);
+    doc.text(order.address.address, 400, 150);
+    doc.text(`${order.address.street}, ${order.address.state}`, 400, 165);
+    doc.text(`${order.address.landmark} - ${order.address.postalCode}`, 400, 180);
+
+    // Add table headers
+    const tableTop = 250;
+    doc.font('Helvetica-Bold');
+    doc.text('Item', 50, tableTop);
+    doc.text('Quantity', 200, tableTop, { width: 90, align: 'right' });
+    doc.text('Unit Price', 290, tableTop, { width: 90, align: 'right' });
+    doc.text('Amount', 400, tableTop, { width: 90, align: 'right' });
+
+    // Add table rows
+    let tableRow = tableTop + 20;
+    doc.font('Helvetica');
+    products.forEach(item => {
+      doc.text(item.productId.name, 50, tableRow);
+      doc.text(item.quantity.toString(), 200, tableRow, { width: 90, align: 'right' });
+      doc.text(`${item.price.toFixed(2)}`, 290, tableRow, { width: 90, align: 'right' });
+      doc.text(`${(item.price * item.quantity).toFixed(2)}`, 400, tableRow, { width: 90, align: 'right' });
+      tableRow += 20;
+    });
+
+    // Add summary
+    const summaryTop = tableRow + 20;
+    doc.text('Subtotal:', 300, summaryTop);
+    doc.text(`${summary.subtotal.toFixed(2)}`, 400, summaryTop, { width: 90, align: 'right' });
+
+    doc.text('Shipping:', 300, summaryTop + 20);
+    doc.text(`${summary.shipping.toFixed(2)}`, 400, summaryTop + 20, { width: 90, align: 'right' });
+
+    if (summary.discount > 0) {
+      doc.text('Discount:', 300, summaryTop + 40);
+      doc.text(`-${summary.discount.toFixed(2)}`, 400, summaryTop + 40, { width: 90, align: 'right' });
+    }
+
+    doc.font('Helvetica-Bold');
+    doc.text('Total:', 300, summaryTop + 60);
+    doc.text(`${summary.totalAmount.toFixed(2)}`, 400, summaryTop + 60, { width: 90, align: 'right' });
+
+    // Add footer
+    doc.fontSize(10).text('Thank you for your business!', 50, 700, { align: 'center' });
+
+    // Finalize the PDF and end the stream
+    doc.end();
+
   } catch (err) {
-      console.error('Error fetching order details:', err);
-      res.status(500).send('Internal server error');
+    console.error('Error generating invoice:', err);
+    res.status(500).send('Error generating invoice: ' + err.message);
   }
 };
+
+
+
+
+
 
 
 const loadAbout = async(req,res)=>{
