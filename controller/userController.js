@@ -524,8 +524,21 @@ const loadProfile = async (req, res) => {
           product.status === 'Delivered' || product.status === 'Return Requested' || product.status === 'Returned'
       )
   );
+  let cartCount = 0;
 
-      res.render('profilePage', { user, addresses,orders,wallet, hasDeliveredProduct })
+
+  if (req.session.user) {
+
+
+    // Fetch the cart for the logged-in user
+    const cart = await Cart.findOne({ userId: user._id });
+
+    if (cart && cart.products) {
+      // Calculate the total count of items in the cart
+      cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+    }
+  }
+      res.render('profilePage', { user, addresses,orders,wallet, hasDeliveredProduct,cartCount  })
 
   } catch (err) {
       console.log(err.message)
