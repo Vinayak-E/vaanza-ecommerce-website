@@ -21,24 +21,33 @@
         <%- include('../layout/admin/navbar.ejs') -%>
 
 
+        <div class="content-wrapper">
 
-
+        <div class="container-xxl flex-grow-1 container-p-y">
 
 
         <section class="content-main" >
    
-            <div class="content-header">
-                
-                <div><h1 class="fw-bold fs-3 mb-2">Products  (<%= products.length %>)</h1>
-                    <nav aria-label="breadcrumb">
-                      <ol class="breadcrumb">
-                        <li class="breadcrumb"><a href="/admin/home">Admin >></a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Product List</li>
-                      </ol>
-                    </nav>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb"><a href="/admin/home">Home >></a></li>
+              <li class="breadcrumb-item active" aria-current="page">Product Management</li>
+            </ol>
+          </nav>
+        
+          <div class="card mb-3">
+            <div class="card-widget-separator-wrapper">
+          
+              <div class="row gy-4 gy-sm-1">
+                <div class="col-sm-6 col-lg-12">
+                  <div class="card-body text-center">
+                    <h2 class="fw-bold mb-0">Product Management</h2>
+                  </div>
+          
                 </div>
-             
+              </div>
             </div>
+          </div>
             <div class="card mb-4">
               <header class="card-header">
                 <div class="row gx-3 align-items-center">
@@ -211,7 +220,8 @@
         <!-- card end// -->
         
         </section>
-
+        </div>
+        </div>
                  <!-- / Content -->
           
                  <div class="content-backdrop fade"></div>

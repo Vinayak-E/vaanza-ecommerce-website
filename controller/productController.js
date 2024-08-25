@@ -585,8 +585,7 @@ const productView = async (req, res) => {
     const offers = await Offer.find({  status: true });
  
     product.bestOffer = getBestOffer(product, offers);
- 
-    console.log(product)
+
   
     if (!Product) {
       

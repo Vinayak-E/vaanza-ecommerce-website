@@ -829,7 +829,7 @@ const downloadInvoice = async (req, res) => {
     doc.text(`${summary.totalAmount.toFixed(2)}`, 400, summaryTop + 60, { width: 90, align: 'right' });
 
     // Add footer
-    doc.fontSize(10).text('Thank you for your business!', 50, 700, { align: 'center' });
+    doc.fontSize(10).text('Thank you for shopping with us', 50, 700, { align: 'center' });
 
     // Finalize the PDF and end the stream
     doc.end();

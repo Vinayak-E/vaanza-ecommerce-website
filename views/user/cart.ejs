@@ -133,7 +133,6 @@
                                                     <% if (stockMessage) { %>
                                                         <p class="stock-message"><%= stockMessage %></p>
                                                     <% } %>
-                                                    
                                                     <td class="total-col item-total">₹<%= (product.finalPrice * product.quantity).toFixed(2) %></td>
                                                     <% } %>
                                                 </div><!-- End.cart-product-quantity -->
@@ -431,7 +430,29 @@
     </script>
     
 
-        
+    <script>
+        // JavaScript to handle quantity change with SweetAlert
+        document.addEventListener('DOMContentLoaded', function() {
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+    
+            quantityInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const maxQuantity = parseInt(this.getAttribute('max'));
+                    const currentQuantity = parseInt(this.value);
+    
+                    // Check if the current quantity equals the max quantity
+                    if (currentQuantity >= maxQuantity) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Maximum Quantity Reached',
+                            text: 'You have reached the maximum quantity allowed for this item.',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
         
         
 </body>

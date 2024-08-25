@@ -59,7 +59,6 @@ const loadCart = async (req, res) => {
 
     res.render("cart", { cart });
   } catch (err) {
-    console.log(err.message);
     res.status(500).send("An error occurred");
   }
 };
@@ -76,8 +75,6 @@ const loadCart = async (req, res) => {
        // Assuming you have a logged in user and`req.session.userId` 
          const userId = req.session.user && req.session.user._id;
         const { productId, variantId, size, quantity } = req.body;
-        console.log("size",req.body.size)
-      // Fetch the product and variant details from the database
       const product = await Product.findById(productId);
       if (!product) {
         return res.status(404).json({ error: 'Product not found' });

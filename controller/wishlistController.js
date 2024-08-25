@@ -6,8 +6,6 @@ const Product = require("../models/productSchema");
 const Offer = require("../models/offerModel");
 const Cart =require("../models/cartSchema")
 
-
-
 const loadWishlist = async (req, res) => {
     try {
         const userId = req.session.user._id;
@@ -17,7 +15,7 @@ const loadWishlist = async (req, res) => {
         let wishlist = await Wishlist.findOne({ user: userId }).populate({
             path: "products.product",
             populate: { path: "variants" }
-          });
+        });
 
         if (!wishlist) {
             wishlist = new Wishlist({
@@ -26,18 +24,20 @@ const loadWishlist = async (req, res) => {
             });
             await wishlist.save();
         }
-         let cartCount = 0;
-   
-        const cart = await Cart.findOne({ userId: userId }).populate('products.productId');
-        cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+
+        let cartCount = 0;
         let subtotal = 0;
+        let cartProductIds = [];
+
+        const cart = await Cart.findOne({ userId: userId }).populate('products.productId');
 
         if (cart) {
+            cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
             subtotal = cart.products.reduce((sum, item) => sum + (item.productId.finalPrice * item.quantity), 0);
+            cartProductIds = cart.products.map(item => item.productId._id.toString());
         }
 
-        const cartProductIds = cart ? cart.products.map(item => item.productId._id.toString()) : [];
-
+        // Filter wishlist products that are not in the cart
         wishlist.products = wishlist.products.filter(item =>
             !cartProductIds.includes(item.product._id.toString())
         );
@@ -85,8 +85,15 @@ const loadWishlist = async (req, res) => {
 };
 
 
+
 const addToWishlist = async (req, res) => {
     try {
+        if (!req.session.user || !req.session.user._id) {
+            req.flash('error', 'Please login to add items to your wishlist.');
+            console.log('Flash message set:', req.flash('error'));
+            return res.redirect('/login');  // Redirect to the login page
+        }
+
         const user = req.session.user;
         const { productId, variantId } = req.body;
 
@@ -114,12 +121,13 @@ const addToWishlist = async (req, res) => {
         wishlist.products.push({ product: productId, variant: variantId });
         await wishlist.save();
 
-        res.status(200).json({ success: true, message: 'Product added to wishlist!' });
+        return res.status(200).json({ success: true, message: 'Product added to wishlist!' });
     } catch (err) {
-        console.error('Error adding to wishlist: ', err);
-        res.status(500).send('Internal server error');
+        console.error('Error adding to wishlist:', err);
+        return res.status(500).json({ success: false, message: 'Internal server error', error: err.message });
     }
 };
+
 
 
 

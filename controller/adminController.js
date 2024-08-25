@@ -171,6 +171,18 @@ const loadOrderlist = async (req, res) => {
       .populate('products.productId', 'name')
       .sort({ orderDate: -1 });
 
+    // Determine the overall status for each order
+    orders.forEach(order => {
+      let allDelivered = true;
+      for (let i = 0; i < order.products.length; i++) {
+        if (order.products[i].status !== 'Delivered') {
+          allDelivered = false;
+          break;
+        }
+      }
+      order.overallStatus = allDelivered ? 'Delivered' : 'Pending';
+    });
+
     res.render('orderList', {
       orders,
       currentPage: page,

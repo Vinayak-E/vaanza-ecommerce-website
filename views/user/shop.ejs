@@ -434,10 +434,11 @@
 
 </script>
 <script>
-    document.querySelectorAll('.add-to-whishlist').forEach(form => {
-        form.addEventListener('click', async (event) => {
+    document.querySelectorAll('.add-to-whishlist').forEach(button => {
+        button.addEventListener('click', async (event) => {
             event.preventDefault();
 
+            const form = button.closest('form');
             const productId = form.querySelector('.wishlist-product-id').value;
             const variantId = form.querySelector('.wishlist-variant-id').value;
 
@@ -449,6 +450,12 @@
                     },
                     body: JSON.stringify({ productId, variantId })
                 });
+
+                if (response.redirected) {
+                    // Redirect to login if the user is not logged in
+                    window.location.href = response.url;
+                    return;
+                }
 
                 const data = await response.json();
 
@@ -469,16 +476,18 @@
                 }
             } catch (error) {
                 console.error('Error:', error);
-
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'An unexpected error occurred. Please try again later.'
+                    text: `An unexpected error occurred: ${error.message}`
                 });
             }
         });
     });
 </script>
+
+
+
 
 
 
