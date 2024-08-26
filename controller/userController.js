@@ -349,6 +349,10 @@ const verifyLogin = async (req, res) => {
       req.flash('error', 'No users found');
       return res.redirect('/login');
     }
+    if (!user.password) {
+      req.flash('error', 'Your account is linked with Google. Please log in using Google.');
+      return res.redirect('/login');
+    }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
 
