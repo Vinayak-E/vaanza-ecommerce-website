@@ -12,7 +12,7 @@ async (accessToken, refreshToken, profile, done) => {
     try {
         let user = await User.findOne({ googleId: profile.id });
         if (user.is_blocked) {
-            req.flash('error', 'You are blocked from this site. Please contact the admin.');
+           
             return res.redirect('/login');
           }
 
