@@ -38,7 +38,7 @@ adminRoute.post("/", adminController.verifyLogin);
 
 
 adminRoute.get("/home",auth.isLogin,dashboardController.loadDashboard);
-adminRoute.get("/logout",auth.isLogin,adminController.adminLogout);
+adminRoute.get("/adminLogout",auth.isLogin,adminController.adminLogout);
 
 // ===============User Management  ==========================//
 
