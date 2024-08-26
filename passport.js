@@ -11,10 +11,6 @@ passport.use(new GoogleStrategy({
 async (accessToken, refreshToken, profile, done) => {
     try {
         let user = await User.findOne({ googleId: profile.id });
-        if (user.is_blocked) {
-           
-            return res.redirect('/login');
-          }
 
         if (user) {
             user.email = profile.emails[0].value;
@@ -31,6 +27,10 @@ async (accessToken, refreshToken, profile, done) => {
                 // Add other profile information
             });
             await user.save();
+        }
+         // Check if the user is blocked
+         if (user.is_blocked) {
+            return done(null, false, { message: 'You are blocked from this site. Please contact the admin.' });
         }
 
         return done(null, user);

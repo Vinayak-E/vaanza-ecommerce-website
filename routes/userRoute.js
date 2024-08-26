@@ -78,7 +78,8 @@ userRoute.get("/auth/google", passport.authenticate("google",{ scope: ["email", 
 //Auth Callback
 userRoute.get("/auth/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "/login"}),
+    failureRedirect: "/login",
+    failureFlash: true}),
     async (req,res)=>{
 
       req.session.user = req.user;
