@@ -1,5 +1,50 @@
 <%- include('../layout/header.ejs') -%>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
+.empty-wishlist {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+}
+
+.empty-wishlist-icon {
+  width: 140px;
+  height: auto;
+  margin-bottom: 1.5rem;
+  opacity: 0.7;
+}
+
+.empty-wishlist-heading {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.empty-wishlist-message {
+  font-size: 1rem;
+  color: #7f8c8d;
+  max-width: 300px;
+  line-height: 1.5;
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
 
 </head>
 
@@ -154,7 +199,11 @@
                                         <% }) %>
                                     <% }) %>
                                 <% } else { %>
-                                    <p class="py-5 text-danger"><strong>Your wishlist is empty!</strong></p>
+                                    <div class="empty-wishlist">
+                                        <img src="/assets/images/empty-cart.png" alt="Empty wishlist" class="empty-wishlist-icon">
+                                        <h2 class="empty-wishlist-heading">Your Wishlist is Empty</h2>
+                                        <p class="empty-wishlist-message">Discover and add items to start building your perfect wishlist!</p>
+                                      </div>
                                 <% } %>
                             </table><!-- End .table table-wishlist -->
             	</div><!-- End .container -->

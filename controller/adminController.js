@@ -171,17 +171,27 @@ const loadOrderlist = async (req, res) => {
       .populate('products.productId', 'name')
       .sort({ orderDate: -1 });
 
-    // Determine the overall status for each order
-    orders.forEach(order => {
-      let allDelivered = true;
-      for (let i = 0; i < order.products.length; i++) {
-        if (order.products[i].status !== 'Delivered') {
-          allDelivered = false;
-          break;
+      orders.forEach(order => {
+        let allDelivered = true;
+        let returnRequested = false;
+      
+        for (let i = 0; i < order.products.length; i++) {
+          if (order.products[i].status === 'Return Requested') {
+            returnRequested = true;
+            break; // If any product is in "Return requested" status, set the overall status and exit the loop
+          }
+          if (order.products[i].status !== 'Delivered') {
+            allDelivered = false;
+          }
         }
-      }
-      order.overallStatus = allDelivered ? 'Delivered' : 'Pending';
-    });
+      
+        if (returnRequested) {
+          order.overallStatus = 'Return Requested';
+        } else {
+          order.overallStatus = allDelivered ? 'Delivered' : 'Pending';
+        }
+      });
+      
 
     res.render('orderList', {
       orders,

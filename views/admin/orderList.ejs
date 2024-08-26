@@ -82,6 +82,8 @@
                                       <span class="badge bg-label-warning">Pending</span>
                                   <% } else if (order.overallStatus === 'Delivered') { %>
                                       <span class="badge bg-label-success">Delivered</span>
+                                      <% }else if (order.overallStatus === 'Return Requested') { %>
+                                        <span class="badge bg-label-danger">Return Requested</span>
                                   <% } %>
                               </td> 
                                 <td><%= order.paymentMethod %></td>

@@ -1,5 +1,49 @@
 <%- include('../layout/header.ejs') -%>
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+.empty-cart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+}
+
+.empty-cart-icon {
+  width: 100px;
+  height: auto;
+  margin-bottom: 1.5rem;
+  opacity: 0.7;
+}
+
+.empty-cart-heading {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.empty-cart-message {
+  font-size: 1rem;
+  color: #7f8c8d;
+  max-width: 300px;
+  line-height: 1.5;
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
      .btn-disabled {
       background-color: red;
       cursor: not-allowed;
@@ -143,7 +187,13 @@
                                           <% }) %>
                                         <% } else { %>
                                           <tr>
-                                            <td colspan="5">Your cart is empty.</td>
+                                            <td colspan="5">
+                                                <div class="empty-cart">
+                                                  <img src="/assets/images/empty-cart.png" alt="Empty cart" class="empty-cart-icon">
+                                                  <h2 class="empty-cart-heading">Your Cart is Empty</h2>
+                                                  <p class="empty-cart-message">Add items to your cart </p>
+                                                </div>
+                                              </td>
                                           </tr>
                                         <% } %>
                                       </tbody>
