@@ -339,7 +339,7 @@ const cancelOrder = async (req, res) => {
         await order.save();
   
         // Add money to wallet only if payment method is Razorpay
-        if (order.paymentMethod === 'Razor pay') {
+        if (order.paymentMethod === 'Razor pay'  || order.paymentMethod === 'Wallet') {
             const totalAmount = product.couponPrice * product.quantity; // Use couponPrice for refund calculation
   
             let wallet = await Wallet.findOne({ user: user._id });

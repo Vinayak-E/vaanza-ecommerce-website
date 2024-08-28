@@ -126,7 +126,7 @@
                         <div class="order-info">
                             <h2 class="mb-3">Order Details</h2>
                             <p><strong>Order ID:</strong> <%= order.orderId %></p>
-                            <p><strong>Total Amount:</strong> ₹ <%= order.totalAmount %></p>
+                            <p><strong>Total Amount:</strong> ₹ <%= order.totalAmount.toFixed(2) %></p>
                             <p><strong>Ordered Date:</strong> <%= 
                                 new Date(order.orderDate).toLocaleDateString("en-US", {
                                   year: "numeric",
