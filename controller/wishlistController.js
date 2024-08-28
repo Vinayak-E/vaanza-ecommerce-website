@@ -32,7 +32,7 @@ const loadWishlist = async (req, res) => {
         const cart = await Cart.findOne({ userId: userId }).populate('products.productId');
 
         if (cart) {
-            cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+            cartCount =   cartCount = cart.products.length;
             subtotal = cart.products.reduce((sum, item) => sum + (item.productId.finalPrice * item.quantity), 0);
             cartProductIds = cart.products.map(item => item.productId._id.toString());
         }

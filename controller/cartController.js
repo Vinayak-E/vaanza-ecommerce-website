@@ -293,7 +293,7 @@ const checkout = async (req, res) => {
       const shippingCharge = subtotal > 500 ? 0: 50;
       const totalPrice = subtotal + shippingCharge;
 
-      cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+      cartCount =   cartCount = cart.products.length;
 
       res.render('checkout', { user, addresses, cart, cartCount, totalPrice, shippingCharge,coupons, totalDiscount: totalDiscount.toFixed(2), wallet: wallet || { balance: 0 } });
   } catch (error) {

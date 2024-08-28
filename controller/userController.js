@@ -56,7 +56,7 @@ const loadHome = async (req, res) => {
 
       if (cart && cart.products) {
         // Calculate the total count of items in the cart
-        cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+        cartCount = cart.products.length;
       }
     }
 
@@ -543,7 +543,7 @@ const loadProfile = async (req, res) => {
 
     if (cart && cart.products) {
       // Calculate the total count of items in the cart
-      cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+      cartCount =   cartCount = cart.products.length;
     }
   }
       res.render('profilePage', { user, addresses,orders,wallet, hasDeliveredProduct,      cartCount  })
@@ -864,7 +864,7 @@ const loadAbout = async(req,res)=>{
 
       if (cart && cart.products) {
         // Calculate the total count of items in the cart
-        cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+        cartCount =   cartCount = cart.products.length;
       }
     }
 
@@ -889,7 +889,7 @@ const loadContact = async(req,res)=>{
 
       if (cart && cart.products) {
         // Calculate the total count of items in the cart
-        cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+        cartCount =   cartCount = cart.products.length;
       }
     }
 

@@ -544,7 +544,7 @@ const loadShop = async (req, res) => {
 
       if (cart && cart.products) {
         // Calculate the total count of items in the cart
-        cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+        cartCount =   cartCount = cart.products.length;
       }
     }
 
@@ -626,7 +626,7 @@ const productView = async (req, res) => {
 
       if (cart && cart.products) {
         // Calculate the total count of items in the cart
-        cartCount = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+        cartCount =   cartCount = cart.products.length;
       }
     }
 
