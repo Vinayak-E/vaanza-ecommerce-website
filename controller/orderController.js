@@ -15,19 +15,18 @@ const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET
 });
-
 const placeOrder = async (req, res) => {
     try {
         const userId = req.session.user._id;
         const { addressId, paymentMethod, couponCode } = req.body;
-  
+
         console.log('Received order data:', { userId, addressId, paymentMethod, couponCode });
-  
+
         const address = await Address.findById(addressId);
         if (!address) {
             return res.status(400).json({ success: false, message: 'Address not found.' });
         }
-  
+
         const cart = await Cart.findOne({ userId }).populate({
             path: 'products.productId',
             populate: {
@@ -37,12 +36,12 @@ const placeOrder = async (req, res) => {
         if (!cart) {
             return res.status(400).json({ success: false, message: 'Cart not found.' });
         }
-  
+
         const filteredProducts = cart.products.filter(item => item.quantity > 0);
-  
+
         let shippingCharge = 50;
         let subtotal = 0;
-  
+
         let coupon = null;
         if (couponCode && typeof couponCode === 'string') {
             const couponDoc = await Coupon.findOne({ couponId: couponCode });
@@ -57,11 +56,11 @@ const placeOrder = async (req, res) => {
                 };
             }
         }
-  
+
         const products = await Promise.all(filteredProducts.map(async item => {
             const product = item.productId;
             const variant = item.variantId;
-  
+
             const offers = await Offer.find({
                 $or: [
                     { 'products.productId': product._id },
@@ -69,66 +68,69 @@ const placeOrder = async (req, res) => {
                 ],
                 status: true
             });
-  
+
             const bestOffer = offers.reduce((best, offer) =>
                 offer.discount > best.discount ? offer : best, { discount: 0 }
             );
-  
+
             const finalPrice = product.price * (1 - bestOffer.discount / 100);
             const itemTotal = finalPrice * item.quantity;
-  
+
             subtotal += itemTotal;
             const status = "Pending";
-  
-            // Calculate couponPrice
-            let couponPrice = finalPrice;
-            if (coupon) {
-                const itemCouponDiscount = finalPrice * coupon.discount / 100;
-                if (coupon.maxAmount) {
-                    couponPrice = Math.max(finalPrice - Math.min(itemCouponDiscount, coupon.maxAmount / cart.products.length), 0);
-                } else {
-                    couponPrice = Math.max(finalPrice - itemCouponDiscount, 0);
-                }
-            }
-  
+
             return {
                 productId: product._id,
                 variantId: variant._id,
                 quantity: item.quantity,
                 size: item.size,
                 price: finalPrice,
-                couponPrice: couponPrice,
                 status
             };
         }));
-  
+
         let couponDiscount = 0;
-        if (coupon) {
+        if (coupon && subtotal >= coupon.minPurchase) {
             couponDiscount = subtotal * coupon.discount / 100;
             if (coupon.maxAmount && couponDiscount > coupon.maxAmount) {
                 couponDiscount = coupon.maxAmount;
             }
         }
-  
+
+        // Distribute coupon discount proportionally
+        if (couponDiscount > 0) {
+            products.forEach(product => {
+                const productSubtotal = product.price * product.quantity;
+                const productDiscountShare = (productSubtotal / subtotal) * couponDiscount;
+                product.couponDiscount = productDiscountShare;
+                product.couponPrice = product.price - (productDiscountShare / product.quantity);
+            });
+        } else {
+            products.forEach(product => {
+                product.couponDiscount = 0;
+                product.couponPrice = product.price;
+            });
+        }
+
         const finalShippingCharge = subtotal > 500 ? 0 : shippingCharge;
         const totalAmount = subtotal - couponDiscount + finalShippingCharge;
-  
+
         if (isNaN(totalAmount) || totalAmount < 0) {
             throw new Error(`Total amount calculation failed. Subtotal: ${subtotal}, Coupon Discount: ${couponDiscount}, Shipping Charge: ${shippingCharge}, Total Amount: ${totalAmount}`);
         }
-  
+
         function generateRandomId(length) {
             const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             let result = '';
             const randomValues = new Uint8Array(length);
             crypto.randomFillSync(randomValues);
-  
+
             for (let i = 0; i < length; i++) {
                 result += charset[randomValues[i] % charset.length];
             }
             return result;
         }
-  
+
         const orderId = generateRandomId(10);
        
         // Check if payment method is COD and totalAmount is more than 1000
@@ -172,7 +174,7 @@ const placeOrder = async (req, res) => {
         } else {
             paymentStatus = paymentMethod === 'Razor pay' ? "Paid" : "Pending";
         }
-  
+
         for (let i = 0; i < products.length; i++) {
             const orderedProduct = products[i];
             const product = await Product.findById(orderedProduct.productId);
@@ -184,7 +186,7 @@ const placeOrder = async (req, res) => {
                 }
             }
         }
-  
+
         const newOrder = new Order({
             orderId,
             userId,
@@ -205,13 +207,13 @@ const placeOrder = async (req, res) => {
             paymentStatus,
             shippingCharge: finalShippingCharge
         });
-  
+
         await newOrder.save();
-  
+
         if (paymentMethod === 'Razor pay') {
             const amountInPaise = Math.round(totalAmount * 100);
             console.log('Creating Razorpay order with amount:', amountInPaise);
-  
+
             try {
                 const razorpayOrder = await razorpay.orders.create({
                     amount: amountInPaise,
@@ -219,12 +221,12 @@ const placeOrder = async (req, res) => {
                     receipt: orderId,
                     payment_capture: 1
                 });
-  
+
                 console.log('Razorpay order created:', razorpayOrder);
-  
+
                 newOrder.razorpayOrderId = razorpayOrder.id;
                 await newOrder.save();
-  
+
                 return res.json({
                     success: true,
                     orderId: newOrder._id,
@@ -249,13 +251,12 @@ const placeOrder = async (req, res) => {
                 message: "Order placed successfully",
             });
         }
-  
+
     } catch (error) {
         console.error('Error placing order:', error);
         res.status(500).json({ success: false, message: 'Internal server error.', error: error.message });
     }
-  }
-  
+}
 
 const updatePaymentStatus = async (req, res) => {
   try {
