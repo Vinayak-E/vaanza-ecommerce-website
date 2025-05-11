@@ -72,7 +72,6 @@ const loadCart = async (req, res) => {
               message: "Please login and continue shopping!",
             });
         }
-       // Assuming you have a logged in user and`req.session.userId` 
          const userId = req.session.user && req.session.user._id;
         const { productId, variantId, size, quantity } = req.body;
       const product = await Product.findById(productId);
@@ -85,14 +84,10 @@ const loadCart = async (req, res) => {
         return res.status(404).json({ error: 'Variant not found' });
       }
   
-     
-     // Define the maximum quantity limit
      const MAX_QUANTITY = 5;
 
      const requestedQuantity = Math.min(parseInt(quantity), MAX_QUANTITY);
 
-
-      // Construct the cart item object
       const cartItem = {
         productId: product._id,
         variantId: variant._id, 
@@ -107,7 +102,6 @@ const loadCart = async (req, res) => {
         cart = new Cart({ userId, products: [] });
       }
   
-      // Check if the product with the same variant and size already exists in the cart
       const existingItem = cart.products.find(item =>
         item.productId.equals(cartItem.productId) &&
         item.variantId.equals(cartItem.variantId) 
@@ -115,14 +109,11 @@ const loadCart = async (req, res) => {
       );
   
       if (existingItem) {
-        // If the item already exists, increase its quantity
         existingItem.quantity = Math.min(existingItem.quantity + requestedQuantity, MAX_QUANTITY);
       } else {
-        // Otherwise, add the new item to the cart
         cart.products.push(cartItem);
       }
   
-      // Save the updated cart
       await cart.save();
   
       res.status(200).json({ message: 'Product added to cart successfully' });
@@ -151,13 +142,13 @@ const quantityUpdationCart = async (req, res) => {
           // Update the quantity
           cart.products[productIndex].quantity = quantity;
 
-          const product = await Product.findById(productId); // Fetch the product details
+          const product = await Product.findById(productId); 
 
           if (!product) {
               return res.status(404).json({ message: 'Product not found' });
           }
 
-          // Recalculate discounts
+
           const offers = await Offer.find({
               $or: [
                   { 'products.productId': product._id },
@@ -281,14 +272,12 @@ const checkout = async (req, res) => {
           const discountAmount = originalPrice * (bestOffer.discount / 100);
           const finalPrice = originalPrice - discountAmount;
     
-          cartItem.finalPrice = finalPrice / cartItem.quantity; // Store per-item final price
-          cartItem.discount = discountAmount; // Store discount amount for this item
+          cartItem.finalPrice = finalPrice / cartItem.quantity; 
+          cartItem.discount = discountAmount;
     
           subtotal += finalPrice;
           totalDiscount += discountAmount;
       }
-
-      // Determine shipping charge based on subtotal
       const shippingCharge = subtotal > 500 ? 0: 50;
       const totalPrice = subtotal + shippingCharge;
 

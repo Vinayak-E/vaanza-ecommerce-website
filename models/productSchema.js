@@ -7,13 +7,13 @@ const variantSchema = new Schema({
     type: String,
     required: true 
   },
-  images: [String], // Add this line to include images for each variant
+  images: [String], 
   
   quantity: {
     type: Number,
     required: true 
   },
-  sizes: [{ type: String }], // Array of size strings
+  sizes: [{ type: String }], 
 });
 
 

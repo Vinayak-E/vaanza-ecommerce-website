@@ -18,13 +18,6 @@ const fs = require('fs');
 
 
 
-
-
-
-
-
-
-
 const getBestOffer = (product, offers) => {
   if (!offers || offers.length === 0) {
     return null;
@@ -51,22 +44,18 @@ const loadHome = async (req, res) => {
     if (req.session.user) {
       user = req.session.user;
 
-      // Fetch the cart for the logged-in user
       const cart = await Cart.findOne({ userId: user._id });
 
       if (cart && cart.products) {
-        // Calculate the total count of items in the cart
         cartCount = cart.products.length;
       }
     }
 
-    // Fetch the regular products
     const products = await Product.find({ is_Listed: true })
       .populate('category')
       .populate('offers')
       .exec();
 
-    // Fetch the new arrival products (added within the last 7 days)
     const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const newArrivalProducts = await Product.find({
       is_Listed: true,
@@ -78,7 +67,6 @@ const loadHome = async (req, res) => {
 
     const offers = await Offer.find({ status: true });
 
-    // Add the best offer to each product
     const productsWithBestOffer = products.map(product => {
       const bestOffer = getBestOffer(product, offers);
       return { ...product.toObject(), bestOffer, isNew: product.createdAt >= oneWeekAgo };
@@ -89,7 +77,6 @@ const loadHome = async (req, res) => {
       return { ...product.toObject(), bestOffer, isNew: true };
     });
 
-    // Render the home page with user, cartCount, and products data
     res.render("home", { user, cartCount, products: productsWithBestOffer, newArrivalProducts: newArrivalProductsWithBestOffer });
   } catch (error) {
     console.log(error);
@@ -191,10 +178,8 @@ const insertUser = async (req, res) => {
       if (referralCode) {
         const referrer = await User.findOne({ referralCode });
         if (referrer) {
-          // Add bonus to referrer's wallet
+      
           await updateWallet(referrer._id, 100);
-          
-          // Add bonus to new user's wallet
           await updateWallet(user._id, 50);
         }
       }
@@ -231,7 +216,6 @@ const sendOTPverificationEmail = async ({email}, res) => {
         subject: "Verify Your EMAIL Address",
         html: `Your OTP is: ${otp}`
     };
-     // hash the otp
      const saltRounds = 10;
      const hashedOTP = await bcrypt.hash(otp, saltRounds);
 
@@ -287,10 +271,7 @@ const verifyOtp = async (req, res) => {
               );
           }
 
-          // Delete the OTP record after verification
           await userOtpVerification.deleteOne({ email });
-
-          // Handle user verification and session management
           const user = await User.findOne({ email });
           if (user && user.verified && !user.is_blocked) {
               req.session.user = {

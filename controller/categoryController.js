@@ -12,15 +12,11 @@ const loadCategory = async (req, res) => {
       }
   
       const search = req.query.search || '';
-  
-      // Use the search query in the find method
       const query = search ? { name: { $regex: '.*' + search + '.*', $options: 'i' } } : {};
       const limit = 8;
       
-      // Get the total count of categories that match the search query
       const count = await Category.countDocuments(query);
       
-      // Fetch categories for the current page that match the search query
       const categories = await Category.find(query)
         .sort({ date: -1 })
         .limit(limit)
@@ -37,7 +33,7 @@ const loadCategory = async (req, res) => {
         currentPage: page,
         previous: previous,
         next: next,
-        search // Pass the search term back to the template to preserve it in the input field
+        search
       });
     } catch (err) {
       console.log(err.message);
@@ -59,9 +55,9 @@ const loadaAddCategory = async(req,res)=>{
 const insertCategory = async(req,res)=>{
     try{
                 const { description,name,gender } = req.body;
-                const lowerCaseName = name.toLowerCase(); // Convert input name to lowercase
+                const lowerCaseName = name.toLowerCase();
 
-                const existingCategory = await Category.findOne({ name: new RegExp(`^${lowerCaseName}$`, 'i') }); // Case-insensitive search
+                const existingCategory = await Category.findOne({ name: new RegExp(`^${lowerCaseName}$`, 'i') }); 
                 if(existingCategory){
                         req.flash('error','already exists a category with this name')
                         res.redirect('/admin/createCategory')
