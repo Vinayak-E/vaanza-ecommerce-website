@@ -51,7 +51,7 @@ const orderSchema = new Schema({
     orderDate: { type: Date, required: true },
     paymentStatus:{ type:String},
     razorpayOrderId: String,
-});
+},{ timestamps: true });
 
 const Order = mongoose.model('Order', orderSchema);
 module.exports = Order;

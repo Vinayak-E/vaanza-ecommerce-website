@@ -89,7 +89,6 @@ const loadCart = async (req, res) => {
      // Define the maximum quantity limit
      const MAX_QUANTITY = 5;
 
-     // Use Math.min to ensure the quantity does not exceed the limit
      const requestedQuantity = Math.min(parseInt(quantity), MAX_QUANTITY);
 
 
